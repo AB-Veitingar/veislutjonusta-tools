@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>PREVIEW — Veisluþjónusta calculators</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:#12151a;color:#e8eaee;font-size:14px}
+  .bar{position:sticky;top:0;z-index:10;background:#12151a;border-bottom:1px solid #2a2f38;
+       padding:10px 14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .flag{background:#f59e0b;color:#1a1400;font-weight:800;font-size:10px;letter-spacing:.1em;
+        padding:3px 8px;border-radius:4px;text-transform:uppercase;flex-shrink:0}
+  .tabs{display:flex;gap:4px;flex-wrap:wrap;flex:1}
+  .tabs button{background:#1d2129;color:#9aa2af;border:1px solid #2a2f38;border-radius:7px;
+        padding:5px 11px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit}
+  .tabs button[aria-selected="true"]{background:#e11d48;border-color:#e11d48;color:#fff}
+  .meta{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:10.5px;color:#6b7483;
+        width:100%;word-break:break-all}
+  iframe{width:100%;border:0;display:block;background:#fff;min-height:800px}
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <span class="flag">Preview · not live</span>
+  <div class="tabs" id="tabs"></div>
+  <div class="meta" id="meta"></div>
+</div>
+
+<iframe id="frame" title="Calculator preview"></iframe>
+
+<script>
+/* ─────────────────────────────────────────────────────────────
+   VISUAL OVERRIDES
+   CSS injected into whichever calculator is loaded below.
+   This is the only block that changes between preview rounds —
+   edit here, commit, refresh. Nothing here touches the live files.
+   Promote to production by folding these rules into the real file.
+   ───────────────────────────────────────────────────────────── */
+const OVERRIDES = {
+  common: ``,
+  catering_quote: ``,
+  partner_portal: ``,
+  chef: ``,
+  travel: ``
+};
+/* ───────────────────────────────────────────────────────────── */
+
+const TOOLS = [
+  { key:"catering_quote", label:"Catering Quote",  src:"../catering_quote.html" },
+  { key:"partner_portal", label:"Partner Portal",  src:"../partner_portal.html" },
+  { key:"chef",           label:"Private Chef",    src:"/chef-calculator/" },
+  { key:"travel",         label:"Travel Agency",   src:"/froeken-travel-calculator/" }
+];
+
+const frame = document.getElementById("frame");
+const meta  = document.getElementById("meta");
+const tabsEl= document.getElementById("tabs");
+let current = TOOLS[0];
+
+TOOLS.forEach(t => {
+  const b = document.createElement("button");
+  b.textContent = t.label;
+  b.dataset.key = t.key;
+  b.setAttribute("aria-selected", t === current ? "true" : "false");
+  b.onclick = () => load(t);
+  tabsEl.appendChild(b);
+});
+
+function load(tool){
+  current = tool;
+  [...tabsEl.children].forEach(b =>
+    b.setAttribute("aria-selected", b.dataset.key === tool.key ? "true" : "false"));
+  meta.textContent = new URL(tool.src, location.href).pathname;
+  try { history.replaceState(null, "", "?t=" + tool.key); } catch {}
+  frame.src = tool.src;
+}
+
+frame.addEventListener("load", () => {
+  try {
+    const doc = frame.contentDocument;
+    if (!doc) return;
+    const css = (OVERRIDES.common || "") + "\n" + (OVERRIDES[current.key] || "");
+    if (css.trim()) {
+      const el = doc.createElement("style");
+      el.id = "fs-preview-overrides";
+      el.textContent = css;
+      doc.head.appendChild(el);
+    }
+  } catch (e) {
+    console.warn("Override injection blocked:", e);
+  }
+});
+
+/* The calculators post their height to the parent — honour it here
+   exactly as the Odoo embed does, so the preview matches the real page. */
+window.addEventListener("message", e => {
+  if (e.data && e.data.type === "resize-iframe" && e.data.height) {
+    frame.style.height = e.data.height + "px";
+  }
+});
+
+const want = new URLSearchParams(location.search).get("t");
+load(TOOLS.find(t => t.key === want) || TOOLS[0]);
+</script>
+</body>
+</html>
