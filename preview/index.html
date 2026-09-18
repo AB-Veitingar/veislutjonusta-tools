@@ -15,6 +15,8 @@
   .tabs button{background:#1d2129;color:#9aa2af;border:1px solid #2a2f38;border-radius:7px;
         padding:5px 11px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit}
   .tabs button[aria-selected="true"]{background:#e11d48;border-color:#e11d48;color:#fff}
+  .tabs button.new{border-color:#3f7a52;color:#7fd1a0}
+  .tabs button.new[aria-selected="true"]{background:#1a7f4b;border-color:#1a7f4b;color:#fff}
   .meta{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:10.5px;color:#6b7483;
         width:100%;word-break:break-all}
   iframe{width:100%;border:0;display:block;background:#fff;min-height:800px}
@@ -41,6 +43,7 @@
 const OVERRIDES = {
   common: ``,
   catering_quote: ``,
+  catering_next: ``,
   partner_portal: ``,
   chef: ``,
   travel: ``
@@ -48,7 +51,8 @@ const OVERRIDES = {
 /* ───────────────────────────────────────────────────────────── */
 
 const TOOLS = [
-  { key:"catering_quote", label:"Catering Quote",  src:"../catering_quote.html" },
+  { key:"catering_next",  label:"Catering Quote — NEW", src:"./catering_quote.html", isNew:true },
+  { key:"catering_quote", label:"Catering Quote (live)", src:"../catering_quote.html" },
   { key:"partner_portal", label:"Partner Portal",  src:"../partner_portal.html" },
   { key:"chef",           label:"Private Chef",    src:"/chef-calculator/" },
   { key:"travel",         label:"Travel Agency",   src:"/froeken-travel-calculator/" }
@@ -63,6 +67,7 @@ TOOLS.forEach(t => {
   const b = document.createElement("button");
   b.textContent = t.label;
   b.dataset.key = t.key;
+  if (t.isNew) b.className = "new";
   b.setAttribute("aria-selected", t === current ? "true" : "false");
   b.onclick = () => load(t);
   tabsEl.appendChild(b);
