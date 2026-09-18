@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/>
+<title>PREVIEW BUILD — Catering Quote Calculator</title>
+<style>body{font-family:system-ui,sans-serif;padding:36px;color:#111}
+.err{max-width:620px;margin:0 auto;border:2px solid #dc2626;border-radius:10px;padding:20px;background:#fef2f2}
+h1{font-size:17px;margin-bottom:8px;color:#991b1b}p{font-size:14px;line-height:1.6;color:#4b5563;margin-top:6px}</style>
+</head><body>
+<div id="boot" style="text-align:center;color:#6b7280;font-size:14px">Building preview…</div>
+<script id="patch" type="text/plain">
+$$ 2
+React.createElement(PC, null)
+React.createElement(PC, { policies, selected: policySel, onToggle: togglePolicy, onAdd: addPolicy, onDelete: delPolicy, busy: polBusy })
+$$ 1
+custom: C, equipment, customItems }
+custom: C, equipment, customItems, policyIds: policySel }
+$$ 1
+menuName: menu.name }
+menuName: menu.name, policyIds: policySel }
+@@ 397 0
+    const [policies, setPolicies] = (0, import_react.useState)([]);
+    const [policySel, setPolicySel] = (0, import_react.useState)([]);
+    const [polBusy, setPolBusy] = (0, import_react.useState)(false);
+@@ 416 0
+    }, []);
+    (0, import_react.useEffect)(() => {
+      fetch(`${SHEET_API}?action=listPolicies`).then((r) => r.json()).then((res) => {
+        if (res && res.ok && Array.isArray(res.items) && res.items.length) {
+          setPolicies(res.items);
+          setPolicySel(res.items.filter((p) => p.active).map((p) => p.id));
+        }
+      }).catch(() => {
+      });
+@@ 611 0
+    const postPolicy = (body) => {
+      setPolBusy(true);
+      return fetch(SHEET_API, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(body) }).then((r) => r.json()).then((res) => {
+        if (res && res.ok && Array.isArray(res.items)) setPolicies(res.items);
+        return res;
+      }).catch(() => null).finally(() => setPolBusy(false));
+    };
+    const togglePolicy = (id) => setPolicySel((sel) => sel.indexOf(id) !== -1 ? sel.filter((x) => x !== id) : sel.concat(id));
+    const addPolicy = (icon, text) => postPolicy({ action: "savePolicy", policy: { icon, text } }).then((res) => {
+      if (res && res.ok && res.id) setPolicySel((sel) => sel.concat(res.id));
+    });
+    const delPolicy = (id) => postPolicy({ action: "deletePolicy", id }).then(() => setPolicySel((sel) => sel.filter((x) => x !== id)));
+@@ 636 0
+      if (Array.isArray(q.policyIds)) setPolicySel(q.policyIds);
+@@ 713 0
+      // --- Client-facing figures -------------------------------------
+      // The internal numbers are COSTS; the subtotal the client sees is
+      // REVENUE (cost + contingency + margin). Listing costs above a
+      // revenue subtotal is why the client quote did not add up. Scale
+      // every component by the same factor so the column sums exactly to
+      // the subtotal, without exposing cost or margin.
+      const custSubtotal = Math.round(cateringRevNeeded);
+      const revScale = cateringDirectCost > 0 ? cateringRevNeeded / cateringDirectCost : 1;
+      const clientLines = [
+        { label: "Food &amp; beverage preparation", raw: ingCost },
+        { label: "Kitchen &amp; service staff", raw: labourTotal },
+        { label: `Delivery &amp; transport (${C.vehicles} vehicle${C.vehicles > 1 ? "s" : ""}, ${C.kmOneWay * 2}km)`, raw: isBundle2 ? transCost : 0 },
+        { label: "Equipment, tableware &amp; consumables", raw: equipMarginTotal + consCost }
+      ].filter((l) => l.raw > 0).map((l) => ({ label: l.label, amt: Math.round(l.raw * revScale) }));
+      if (clientLines.length) {
+        // Last line absorbs rounding so the column sums to the subtotal exactly.
+        const drift = custSubtotal - clientLines.reduce((s2, l) => s2 + l.amt, 0);
+        clientLines[clientLines.length - 1].amt += drift;
+      }
+      const custTotal = custSubtotal + foodVAT + (isBundle2 ? 0 : transCost + transVAT) + passTotal;
+      const stdVATamt = Math.round(fSub * VAT_FOOD) + Math.round(bSub * VAT_BAR);
+      const stdAdjAmt = stdTotal - (exVAT + stdVATamt);
+      const listSub = menu ? menu.price * guests : 0;
+@@ 714 6
+      <tr><td><strong>${C.eventName}</strong> — ${C.guests} guests</td><td></td></tr>
+      ${clientLines.map((l) => `<tr><td style="color:#6b7280;padding-left:12px">${l.label}</td><td style="text-align:right;color:#6b7280">${fmt(l.amt)}</td></tr>`).join("")}
+      <tr class="sub"><td>Catering subtotal ex. VAT</td><td style="text-align:right">${fmt(custSubtotal)}</td></tr>
+@@ 721 2
+      ${!isBundle2 && transCost > 0 ? `<tr class="sub"><td>Transport ex. VAT (${C.vehicles} vehicle${C.vehicles > 1 ? "s" : ""}, ${C.kmOneWay * 2}km)</td><td style="text-align:right">${fmt(transCost)}</td></tr><tr class="sub"><td>Transport VAT 24%</td><td style="text-align:right">${fmt(transVAT)}</td></tr>` : ""}
+      ${passTotal > 0 ? `<tr class="sub"><td>Third-party services (at cost — VAT per supplier invoice)</td><td style="text-align:right">${fmt(passTotal)}</td></tr>` : ""}
+@@ 724 2
+      <tr><td><strong>${menu.name}</strong> — ${fmt(menu.price)}/pax \xD7 ${guests}</td><td style="text-align:right">${fmt(listSub)}</td></tr>
+      ${savedAmt !== 0 ? `<tr><td style="color:#059669">Discount (${Math.round((1 - (1 - gDisc) * (1 - cDisc)) * 100)}%)</td><td style="text-align:right;color:#059669">−${fmt(savedAmt)}</td></tr>` : ""}
+@@ 729 1
+      ${svc.venue && credit > 0 ? `<tr><td style="color:#059669">Venue Credit</td><td style="text-align:right;color:#059669">−${fmt(credit)}</td></tr>` : ""}
+@@ 731 1
+      <tr class="sub"><td>VAT</td><td style="text-align:right">${fmt(stdVATamt)}</td></tr>
+      ${stdAdjAmt !== 0 ? `<tr class="sub"><td>${stdAdjAmt < 0 ? "Package discount" : "Event surcharge"} (${stdAdj > 0 ? "+" : ""}${stdAdj}%)</td><td style="text-align:right">${stdAdjAmt < 0 ? "−" : ""}${fmt(Math.abs(stdAdjAmt))}</td></tr>` : ""}
+@@ 733 1
+      // Only the policies ticked on this quote are printed. Falls back to the
+      // built-in list if the Sheet could not be reached.
+      const quotePolicies = policies.length ? policies.filter((p) => policySel.indexOf(p.id) !== -1) : POLICY;
+      const totStr = isCustom ? fmt(custTotal) : fmt(stdTotal);
+@@ 740 1
+    ${isCustom ? `<tr><td style="padding-top:5px;color:#92400e"><strong>Per person incl. VAT</strong></td><td style="text-align:right;color:#92400e"><strong>${fmt(Math.round(custTotal / (C.guests || 1)))}</strong></td></tr>` : `<tr><td style="padding-top:5px;color:#92400e"><strong>Per person incl. VAT</strong></td><td style="text-align:right;color:#92400e"><strong>${fmt(Math.round(stdTotal / guests))}</strong></td></tr>`}
+@@ 743 1
+    ${!reviewMode && quotePolicies.length ? `<div class="pol"><strong>Booking Policy</strong><br>${quotePolicies.map((p) => `${p.icon} ${p.text}`).join("<br>")}</div>` : ""}
+@@ 848 1
+  var PC = ({ policies, selected, onToggle, onAdd, onDelete, busy }) => {
+    const [open, setOpen] = React.useState(false);
+    const [icon, setIcon] = React.useState("\u{1F4CB}");
+    const [text, setText] = React.useState("");
+    const live = !!(policies && policies.length);
+    const list = live ? policies : POLICY.map((p, i) => ({ id: "static_" + i, icon: p.icon, text: p.text }));
+    const save = () => {
+      const t = text.trim();
+      if (!t) return;
+      onAdd(icon.trim() || "•", t);
+      setText("");
+      setIcon("\u{1F4CB}");
+      setOpen(false);
+    };
+    return React.createElement("div", { style: { background: "white", borderRadius: 10, border: "1px solid #e5e7eb", padding: 12 } }, React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 7 } }, React.createElement("div", { style: { fontWeight: 700, fontSize: 12 } }, "\u{1F4CB} Booking Policy"), React.createElement("div", { style: { fontSize: 10, color: "#9ca3af" } }, live ? selected.length + " of " + list.length + " on quote" : "defaults")), list.map((p) => {
+      const on = live ? selected.indexOf(p.id) !== -1 : true;
+      return React.createElement("div", { key: p.id, style: { display: "flex", gap: 6, marginBottom: 5, fontSize: 11, lineHeight: 1.5, alignItems: "flex-start" } }, live && React.createElement("input", { type: "checkbox", checked: on, onChange: () => onToggle(p.id), style: { marginTop: 2, accentColor: "#e11d48", cursor: "pointer", flexShrink: 0 } }), React.createElement("span", { style: { flexShrink: 0, opacity: on ? 1 : 0.4 } }, p.icon), React.createElement("span", { style: { flex: 1, color: on ? "#4b5563" : "#c3c7ce" } }, p.text), live && React.createElement("button", { onClick: () => onDelete(p.id), title: "Delete this policy everywhere", style: { border: "none", background: "none", color: "#d1d5db", cursor: "pointer", fontSize: 12, lineHeight: 1, padding: 0, flexShrink: 0 } }, "✕"));
+    }), live && (open ? React.createElement("div", { style: { marginTop: 8, borderTop: "1px dashed #e5e7eb", paddingTop: 8, display: "flex", gap: 5 } }, React.createElement("input", { value: icon, onChange: (e) => setIcon(e.target.value), maxLength: 4, style: { width: 38, textAlign: "center", fontSize: 12, padding: "5px 4px", border: "1px solid #e5e7eb", borderRadius: 6 } }), React.createElement("input", { value: text, onChange: (e) => setText(e.target.value), onKeyDown: (e) => {
+      if (e.key === "Enter") save();
+    }, placeholder: "New policy wording…", autoFocus: true, style: { flex: 1, fontSize: 11, padding: "5px 7px", border: "1px solid #e5e7eb", borderRadius: 6, minWidth: 0 } }), React.createElement("button", { onClick: save, disabled: busy, style: { border: "none", background: "#e11d48", color: "white", borderRadius: 6, padding: "5px 10px", fontSize: 11, fontWeight: 700, cursor: "pointer", flexShrink: 0 } }, busy ? "…" : "Save")) : React.createElement("button", { onClick: () => setOpen(true), style: { marginTop: 8, width: "100%", padding: 6, border: "1.5px dashed #e5e7eb", borderRadius: 8, background: "none", cursor: "pointer", fontSize: 11, color: "#6b7280" } }, "+ Add policy")));
+  };
+</script>
+<script>
+/* PREVIEW BUILD - NOT the live file.
+   Loads the production calculator from this same origin and applies the
+   pending change set in memory, so the preview talks to the real Google
+   Sheet: real history, templates, equipment and policies.
+   Production catering_quote.html is never modified.
+   Refuses to render unless the production file is byte-for-byte the one
+   this patch was built against AND the patched result is byte-for-byte
+   the build that was tested. */
+var SRC_HASH = 3961280512, OUT_LINES = 925, OUT_HASH = 25621736;
+function fnv(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i)&0xFF;h=(h*0x01000193)>>>0;}return h;}
+function fail(m){document.body.innerHTML='<div class="err"><h1>Preview did not build</h1><p>'+m+'</p><p>The live calculator is unaffected. Send this message to Claude.</p></div>';}
+function apply(src,t){
+  var L=t.split("\n"), i=0, subs=[], ops=[], cur=null, m;
+  while(i<L.length){
+    m=/^\$\$ (\d+)$/.exec(L[i]);
+    if(m){subs.push({n:+m[1],a:L[i+1],b:L[i+2]});i+=3;continue;}
+    m=/^@@ (\d+) (\d+)$/.exec(L[i]);
+    if(m){cur={at:+m[1],del:+m[2],add:[]};ops.push(cur);i++;continue;}
+    if(cur){cur.add.push(L[i]);}
+    i++;
+  }
+  for(var s=0;s<subs.length;s++){
+    var parts=src.split(subs[s].a);
+    if(parts.length-1!==subs[s].n) throw new Error("expected "+subs[s].n+" match(es) for a replacement, found "+(parts.length-1));
+    src=parts.join(subs[s].b);
+  }
+  var lines=src.split("\n");
+  ops.slice().sort(function(a,b){return b.at-a.at;}).forEach(function(o){
+    lines.splice.apply(lines,[o.at,o.del].concat(o.add));
+  });
+  return lines;
+}
+fetch("../catering_quote.html",{cache:"no-store"}).then(function(r){
+  if(!r.ok) throw new Error("production file returned HTTP "+r.status);
+  return r.text();
+}).then(function(src){
+  if(fnv(src)!==SRC_HASH) return fail("Production has changed since this preview was built, so the patch was not applied.");
+  var raw=document.getElementById("patch").textContent.replace(/^\n/,"").replace(/\n$/,"");
+  var lines=apply(src,raw);
+  var out=lines.join("\n");
+  if(lines.length!==OUT_LINES||fnv(out)!==OUT_HASH) return fail("Patched result did not match the build that was tested.");
+  document.open();document.write(out);document.close();
+}).catch(function(e){fail(String((e&&e.message)||e));});
+</script>
+</body></html>
