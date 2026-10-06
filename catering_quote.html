@@ -19,7 +19,7 @@ input,select,textarea{font-family:inherit;}
 .host .mg:has(#cq-summary){grid-template-columns:minmax(0,1fr)!important;max-width:880px!important}
 .host:not(.sumopen) #cq-summary{display:none!important}
 .host.sumopen #cq-summary{position:fixed!important;left:auto;right:max(16px,calc(50% - 530px));width:390px;top:0!important;will-change:transform;overflow-y:auto;overscroll-behavior:contain;z-index:45;background:#f3f4f6;border-radius:16px;padding:10px;box-shadow:0 18px 50px rgba(0,0,0,.3)}
-.host.sumopen .sumbk{display:block;position:fixed;left:0;right:0;top:0;bottom:0;height:auto;background:rgba(17,24,39,.28);z-index:44}
+.host.sumopen .sumbk{display:block;position:fixed;left:0;right:0;top:0;bottom:0;height:auto;background:rgba(17,24,39,.12);z-index:44;pointer-events:none}
 }
 @media(max-width:700px){
 .sumopen #cq-summary{position:fixed!important;left:8px;right:8px;top:calc(var(--vt,0px) + 8px)!important;bottom:auto;height:calc(var(--vb,100vh) - var(--vt,0px) - 80px);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;z-index:45;background:#f3f4f6;border-radius:14px;padding:8px;box-shadow:0 10px 40px rgba(0,0,0,.35)}
@@ -28,9 +28,13 @@ input,select,textarea{font-family:inherit;}
 .sumopen .mbar{z-index:46!important}
 .host .mbar{display:none!important}
 .host.sumopen #cq-summary{top:0!important;will-change:transform}
-.host.sumopen .sumbk{top:0!important;bottom:0;height:auto!important}
+.host.sumopen .sumbk{top:0!important;bottom:0;height:auto!important;pointer-events:none}
 .sumopen .sumbk{display:block;position:fixed;left:0;right:0;top:var(--vt,0px);height:calc(var(--vb,100vh) - var(--vt,0px));background:rgba(0,0,0,.35);z-index:44}
 }
+.scroller body{overflow:hidden!important;padding-bottom:0!important}
+.scroller #root{height:var(--sh,100vh);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.scroller #root .approot{padding-bottom:110px}
+.scroller .hdrbar{position:static!important}
 @media(max-width:700px){
 html,body{max-width:100%;overflow-x:hidden}
 .mg{grid-template-columns:minmax(0,1fr)!important;padding:8px!important}
@@ -1683,7 +1687,14 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
     var el=document.querySelector('.mbar'), d=null;
     if(el){ try{ d=JSON.parse(el.getAttribute('data-bar')||'null'); }catch(e){} }
     if(!el&&root.classList.contains('sumopen')) root.classList.remove('sumopen');
-    var msg={type:'fs-bar',show:!!d,open:root.classList.contains('sumopen'),bar:d};
+    var open=root.classList.contains('sumopen'), st=null;
+    if(!open&&root.classList.contains('scroller')){
+      /* leaving "app mode": hand the scroll position back to the website page */
+      var R=document.getElementById('root'); st=R?R.scrollTop:0;
+      root.classList.remove('scroller'); last=[0,0];
+    }
+    var msg={type:'fs-bar',show:!!d,open:open,bar:d,pin:1};
+    if(st!==null){ msg.st=st; force=true; }
     var s=JSON.stringify(msg); if(s===lastSent&&!force) return; lastSent=s;
     try{ window.parent.postMessage(msg,'*'); }catch(e){}
   }
@@ -1695,6 +1706,15 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
       setVis(Math.max(0,hdr-top), Math.min(H, vh-top));
     } else if(e.data.type==='fs-toggle'){
       root.classList.toggle('sumopen'); place(); sendBar(true);
+    } else if(e.data.type==='fs-mode'){
+      /* the website pinned this frame to the screen while the summary is open:
+         scroll the form inside the frame, so the panel and the page never drift apart */
+      if(e.data.fixed&&root.classList.contains('sumopen')){
+        var h=Math.round(+e.data.h||window.innerHeight);
+        root.style.setProperty('--sh',h+'px'); root.classList.add('scroller');
+        var R=document.getElementById('root'), off=+e.data.offset; if(R&&off>=0) R.scrollTop=off;
+        last=[0,h]; place();
+      }
     } else if(e.data.type==='fs-close'){
       root.classList.remove('sumopen'); sendBar(true);
     }
