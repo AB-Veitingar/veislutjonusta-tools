@@ -18,8 +18,8 @@ input,select,textarea{font-family:inherit;}
 @media(min-width:701px){
 .host .mg:has(#cq-summary){grid-template-columns:minmax(0,1fr)!important;max-width:880px!important}
 .host:not(.sumopen) #cq-summary{display:none!important}
-.host.sumopen #cq-summary{position:fixed!important;left:auto;right:max(16px,calc(50% - 530px));width:390px;top:calc(var(--vt,0px) + 14px)!important;height:calc(var(--vb,100vh) - var(--vt,0px) - 124px);overflow-y:auto;overscroll-behavior:contain;z-index:45;background:#f3f4f6;border-radius:16px;padding:10px;box-shadow:0 18px 50px rgba(0,0,0,.3)}
-.host.sumopen .sumbk{display:block;position:fixed;left:0;right:0;top:var(--vt,0px);height:calc(var(--vb,100vh) - var(--vt,0px));background:rgba(17,24,39,.28);z-index:44}
+.host.sumopen #cq-summary{position:fixed!important;left:auto;right:max(16px,calc(50% - 530px));width:390px;top:0!important;will-change:transform;overflow-y:auto;overscroll-behavior:contain;z-index:45;background:#f3f4f6;border-radius:16px;padding:10px;box-shadow:0 18px 50px rgba(0,0,0,.3)}
+.host.sumopen .sumbk{display:block;position:fixed;left:0;right:0;top:0;bottom:0;height:auto;background:rgba(17,24,39,.28);z-index:44}
 }
 @media(max-width:700px){
 .sumopen #cq-summary{position:fixed!important;left:8px;right:8px;top:calc(var(--vt,0px) + 8px)!important;bottom:auto;height:calc(var(--vb,100vh) - var(--vt,0px) - 80px);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;z-index:45;background:#f3f4f6;border-radius:14px;padding:8px;box-shadow:0 10px 40px rgba(0,0,0,.35)}
@@ -27,8 +27,8 @@ input,select,textarea{font-family:inherit;}
 .sumopen .mbar-ar{transform:rotate(180deg)}
 .sumopen .mbar{z-index:46!important}
 .host .mbar{display:none!important}
-.host.sumopen #cq-summary{top:calc(var(--vt,0px) + 10px)!important;height:calc(var(--vb,100vh) - var(--vt,0px) - 108px)}
-.host.sumopen .sumbk{top:var(--vt,0px)}
+.host.sumopen #cq-summary{top:0!important;will-change:transform}
+.host.sumopen .sumbk{top:0!important;bottom:0;height:auto!important}
 .sumopen .sumbk{display:block;position:fixed;left:0;right:0;top:var(--vt,0px);height:calc(var(--vb,100vh) - var(--vt,0px));background:rgba(0,0,0,.35);z-index:44}
 }
 @media(max-width:700px){
@@ -1655,9 +1655,27 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
   if(!emb)return;
   var root=document.documentElement; root.classList.add('emb');
   var host=false, io=null;
+  var cur={t:-1,b:-1,v:''}, last=[0,0];
+  function put(t,b,v){
+    t=Math.round(t); b=Math.round(b);
+    if(t!==cur.t){ root.style.setProperty('--vt',t+'px'); cur.t=t; }
+    if(b!==cur.b){ root.style.setProperty('--vb',b+'px'); cur.b=b; }
+    if(v!==cur.v){ root.style.setProperty('--vbv',v); cur.v=v; }
+  }
+  var ph=-1;
+  function place(){
+    /* website mode: move only the open summary panel, with a GPU transform (no page restyle) */
+    var el=document.getElementById('cq-summary'); if(!el) return;
+    if(!root.classList.contains('sumopen')){ el.style.transform=''; el.style.height=''; ph=-1; return; }
+    var desk=window.innerWidth>700, top=last[0]+(desk?14:10), h=Math.max(200,last[1]-last[0]-(desk?124:108));
+    el.style.transform='translate3d(0,'+Math.round(top)+'px,0)';
+    if(Math.round(h)!==ph){ ph=Math.round(h); el.style.height=ph+'px'; }
+  }
   function setVis(t,b){
-    if(b<0||b-t<160){ root.style.setProperty('--vbv','hidden'); return; }
-    root.style.setProperty('--vt',Math.round(t)+'px'); root.style.setProperty('--vb',Math.round(b)+'px'); root.style.setProperty('--vbv','visible');
+    last=[t,b];
+    if(host){ place(); return; }
+    if(b<0||b-t<160){ put(cur.t,cur.b,'hidden'); return; }
+    put(t,b,'visible');
   }
   /* host mode: the website page draws the bar and tells us where the screen is */
   var lastSent='';
@@ -1676,12 +1694,12 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
       var top=+e.data.top||0, vh=+e.data.vh||0, hdr=+e.data.hdr||0, H=document.documentElement.scrollHeight;
       setVis(Math.max(0,hdr-top), Math.min(H, vh-top));
     } else if(e.data.type==='fs-toggle'){
-      root.classList.toggle('sumopen'); sendBar(true);
+      root.classList.toggle('sumopen'); place(); sendBar(true);
     } else if(e.data.type==='fs-close'){
       root.classList.remove('sumopen'); sendBar(true);
     }
   });
-  var mo=new MutationObserver(function(){ sendBar(false); });
+  var mo=new MutationObserver(function(){ if(host) place(); sendBar(false); });
   function startMO(){ mo.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['data-bar']}); mo.observe(root,{attributes:true,attributeFilter:['class']}); sendBar(true); }
   startMO();
   /* fallback (older website code): work out the visible part ourselves */
