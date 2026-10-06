@@ -1174,7 +1174,7 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
     }
     const menuCats = [...new Set(MENUS.map((m) => m.cat))];
     const TB = (id, lbl) => /* @__PURE__ */ React.createElement("button", { onClick: () => setTab(id), style: { padding: "7px 14px", borderRadius: 8, border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, background: tab === id ? "#e11d48" : "transparent", color: tab === id ? "white" : "#6b7280" } }, lbl);
-    return /* @__PURE__ */ React.createElement("div", { className: "approot", style: { fontFamily: "system-ui,sans-serif", minHeight: "100vh", background: "#f9fafb", fontSize: 14, color: "#111" } }, /* @__PURE__ */ React.createElement("style", null, `@media(max-width:680px){.g2c{grid-template-columns:1fr!important}.mg{grid-template-columns:1fr!important}}`), /* @__PURE__ */ React.createElement("div", { className: "hdrbar", style: { background: "white", borderBottom: "1px solid #e5e7eb", padding: "10px 14px", position: "sticky", top: 0, zIndex: 30, display: "flex", alignItems: "center", gap: 8, columnGap: 18, flexWrap: "wrap", justifyContent: "flex-start" } }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 700, fontSize: 15 } }, "Veislu\xFEj\xF3nusta Su\xF0urlands"), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 10, color: "#9ca3af" } }, "Catering Quote Calculator")), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 4, background: "#f3f4f6", borderRadius: 10, padding: 3 } }, TB("standard", "\u{1F4CB} Standard"), TB("custom", "\u{1F527} Custom Event"), TB("chef", "\u{1F468}\u200D\u{1F373} Private chef")), /* @__PURE__ */ React.createElement("div", { className: "tbar", style: { display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center", marginLeft: "auto" } }, /* @__PURE__ */ React.createElement("button", { onClick: () => { setModal("changelog"); clMarkSeen(); setClNew(false); }, title: "What changed and when", style: { ...BS("#fff", "#e5e7eb", "#374151"), position: "relative" } }, "\u{1F195} What's new", clNew && React.createElement("span", { style: { position: "absolute", top: -3, right: -3, width: 9, height: 9, borderRadius: "50%", background: "#e11d48", border: "2px solid white" } })), React.createElement("button", { onClick: () => setModal("help"), title: "How the calculator works", style: BS("#eff6ff", "#bfdbfe", "#1d4ed8") }, "\u2139\uFE0F How it works"), /* @__PURE__ */ React.createElement("button", { onClick: () => setModal("history"), style: BS("#fff", "#e5e7eb", "#374151") }, "\u{1F4DC} History", quotes.length > 0 && /* @__PURE__ */ React.createElement(Bge, { n: quotes.length })), /* @__PURE__ */ React.createElement("button", { onClick: () => setModal("templates"), style: BS("#fff", "#e5e7eb", "#374151") }, "\u{1F4DA} Menus", templates.length > 0 && /* @__PURE__ */ React.createElement(Bge, { n: templates.length, color: "#7c3aed" })), false && /* @__PURE__ */ React.createElement("button", { onClick: () => {
+    return /* @__PURE__ */ React.createElement("div", { className: "approot", style: { fontFamily: "system-ui,sans-serif", minHeight: "100vh", background: "#f9fafb", fontSize: 14, color: "#111" } }, /* @__PURE__ */ React.createElement("style", null, `@media(max-width:680px){.g2c{grid-template-columns:1fr!important}.mg{grid-template-columns:1fr!important}}`), /* @__PURE__ */ React.createElement("div", { className: "hdrbar", style: { background: "white", borderBottom: "1px solid #e5e7eb", padding: "10px 14px", position: "sticky", top: 0, zIndex: 30, display: "flex", alignItems: "center", gap: 8, columnGap: 18, flexWrap: "wrap", justifyContent: "flex-start" } }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 700, fontSize: 15 } }, "Veislu\xFEj\xF3nusta Su\xF0urlands"), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 10, color: "#9ca3af" } }, "Catering Quote Calculator")), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 4, background: "#f3f4f6", borderRadius: 10, padding: 3 } }, TB("standard", "\u{1F4CB} Standard"), TB("custom", "\u{1F527} Custom Event"), TB("chef", "\u{1F468}\u200D\u{1F373} Private chef")), /* @__PURE__ */ React.createElement("div", { className: "tbar", style: { display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center", marginLeft: "auto" } }, /* @__PURE__ */ React.createElement("button", { onClick: () => setModal("suggest"), title: "Report a bug, a missing menu or an idea", style: { ...BS("#fffbeb", "#fcd34d", "#92400e"), fontWeight: 600 } }, "\u{1F4A1} Suggest"), /* @__PURE__ */ React.createElement("button", { onClick: () => { setModal("changelog"); clMarkSeen(); setClNew(false); }, title: "What changed and when", style: { ...BS("#fff", "#e5e7eb", "#374151"), position: "relative" } }, "\u{1F195} What's new", clNew && React.createElement("span", { style: { position: "absolute", top: -3, right: -3, width: 9, height: 9, borderRadius: "50%", background: "#e11d48", border: "2px solid white" } })), React.createElement("button", { onClick: () => setModal("help"), title: "How the calculator works", style: BS("#eff6ff", "#bfdbfe", "#1d4ed8") }, "\u2139\uFE0F How it works"), /* @__PURE__ */ React.createElement("button", { onClick: () => setModal("history"), style: BS("#fff", "#e5e7eb", "#374151") }, "\u{1F4DC} History", quotes.length > 0 && /* @__PURE__ */ React.createElement(Bge, { n: quotes.length })), /* @__PURE__ */ React.createElement("button", { onClick: () => setModal("templates"), style: BS("#fff", "#e5e7eb", "#374151") }, "\u{1F4DA} Menus", templates.length > 0 && /* @__PURE__ */ React.createElement(Bge, { n: templates.length, color: "#7c3aed" })), false && /* @__PURE__ */ React.createElement("button", { onClick: () => {
       setJsonPaste("");
       setJsonError("");
       setModal("loadJson");
@@ -1231,7 +1231,7 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
   React.createElement("input", { type: "range", min: 0, max: 25, step: 1, value: C.overheadPct, onChange: (e) => upd("overheadPct", Number(e.target.value)), style: { width: "100%", accentColor: "#0369a1" } }),
   React.createElement("div", { style: { display: "flex", gap: 4, marginTop: 6 } }, [5, 8, 10, 12, 15].map((v) => React.createElement("button", { key: v, onClick: () => upd("overheadPct", v), style: { flex: 1, padding: "4px 0", fontSize: 11, fontWeight: 600, border: `1px solid ${C.overheadPct === v ? "#0369a1" : "#e5e7eb"}`, borderRadius: 6, background: C.overheadPct === v ? "#e0f2fe" : "white", color: C.overheadPct === v ? "#0369a1" : "#6b7280", cursor: "pointer" } }, v, "%"))),
   React.createElement("div", { style: { marginTop: 7, fontSize: 11, color: "#6b7280", lineHeight: 1.6 } }, "This quote: ", React.createElement("strong", { style: { color: "#0369a1" } }, fmt(overheadContribution)), " (", fmt(Math.round(overheadContribution / Math.max(C.guests, 1))), "/guest). Typical 8\u201312%; 12\u201318% if catering carries all fixed costs alone."),
-  React.createElement("div", { style: { marginTop: 8, padding: "7px 10px", background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 8, fontSize: 11.5, color: "#15803d", fontWeight: 600 } }, "Revenue split: ", C.targetMarginPct, "% profit \u00B7 ", C.overheadPct, "% overhead \u00B7 ", Math.round(100 - C.targetMarginPct - C.overheadPct), "% direct costs"))), /* @__PURE__ */ React.createElement("div", { style: { background: "white", borderRadius: 10, border: "1px solid #e5e7eb", padding: "12px 14px" } }, /* @__PURE__ */ React.createElement("div", { style: { borderBottom: "1px solid #f3f4f6", paddingBottom: 10, marginBottom: 10, fontSize: 12 } }, /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 700, fontSize: 14 } }, C.eventName), /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 600, marginTop: 2 } }, cc.name || "Client"), cc.company && /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, color: "#6b7280" } }, cc.company), cc.email && /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, color: "#6b7280" } }, cc.email), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, color: "#9ca3af", marginTop: 2 } }, cDate || "Date TBD", " \xB7 ", C.guests, " guests")), /* @__PURE__ */ React.createElement(LR, { label: "Ingredients", sub: `${fmt(C.ingredientPP)}/pax\xD7${C.guests}`, val: fmt(ingCost) }), /* @__PURE__ */ React.createElement(LR, { label: "Labour (all)", val: fmt(labourTotal) }), drinks.units > 0 && React.createElement(LR, { label: "Drinks stock", sub: `${Math.round(drinks.consumed)} units \xD7 ${fmt(drinks.avgCost)}`, val: fmt(drinks.cost) }), soda.units > 0 && React.createElement(LR, { label: "Soda stock", val: fmt(soda.cost) }), rental.cost > 0 && React.createElement(LR, { label: "Hired-out staff (cost)", val: fmt(rental.cost) }), venueIn.on && React.createElement(LR, { label: `Landlord ${C.landlordPct}%`, val: fmt(ev.landlord) }), /* @__PURE__ */ React.createElement(LR, { label: isBundle ? "Transport (bundled 11%)" : "Transport (pass-through, 24% VAT)", val: fmt(transCost), muted: transCost === 0 }), /* @__PURE__ */ React.createElement(LR, { label: `Equipment (${equipOn.filter((e) => !e.pass).length + customItems.filter((e) => !e.pass).length} items, margined)`, val: fmt(equipMarginTotal) }), passTotal > 0 && /* @__PURE__ */ React.createElement(LR, { label: `Third-party (pass-through)`, val: fmt(passTotal) }), /* @__PURE__ */ React.createElement(LR, { label: "Consumables", val: fmt(consCost) }), /* @__PURE__ */ React.createElement(LR, { label: `Contingency (${C.contingencyPct}%)`, val: fmt(contingencyAmt) }), /* @__PURE__ */ React.createElement("div", { style: { borderTop: "1px dashed #e5e7eb", margin: "8px 0 4px" } }), /* @__PURE__ */ React.createElement(LR, { label: "Total cost", val: fmt(totalCost), muted: true }), /* @__PURE__ */ React.createElement(LR, { label: `Catering margin (${C.targetMarginPct}% target)`, val: fmt(Math.round(cateringRevNeeded - (cateringDirectCost + contingencyAmt))), green: true }), /* @__PURE__ */ React.createElement("div", { style: { borderTop: "1px solid #f3f4f6", margin: "8px 0 4px" } }), /* @__PURE__ */ React.createElement(LR, { label: `Catering ex. VAT`, val: fmt(Math.round(cateringRevNeeded)), muted: true }), /* @__PURE__ */ React.createElement(LR, { label: `Food VAT (${C.vatRate}%)`, val: fmt(foodVAT), muted: true }), drinks.units > 0 && React.createElement(LR, { label: `Drinks ${drinks.billed.toFixed(0)} \xD7 ${fmt(drinks.price)} incl. VAT`, val: fmt(drinks.revIncl), muted: true }), soda.units > 0 && React.createElement(LR, { label: `Soda ${soda.units} \xD7 ${fmt(C.sodaPrice)} incl. VAT`, val: fmt(soda.revIncl), muted: true }), rental.revEx > 0 && React.createElement(LR, { label: "Staff hire incl. 24% VAT", val: fmt(rental.revEx + rentalVAT), muted: true }), venueIn.on && React.createElement(LR, { label: `Hall ${fmt(ev.hallGross)} ex. VAT${hallFolded ? " (in menu)" : ""}${ev.credit > 0 ? ` \u2212 credit ${fmt(ev.credit)}` : ""}`, val: fmt(ev.hallAfterGross), green: ev.credit > 0 }), hasExtras && React.createElement(LR, { label: `Event profit after landlord & overhead (${pct(eventMargin)})`, val: fmt(eventProfit), green: eventProfit > 0 }), hasExtras && C.guests > 0 && React.createElement(LR, { label: hallFolded ? "Menu price per guest incl. VAT (hall folded in)" : "Menu price per guest (food) incl. VAT", val: fmt((cateringRevNeeded + (hallFolded ? ev.hallEx : 0)) * (1 + C.vatRate / 100) / C.guests) }), !isBundle && transCost > 0 && /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(LR, { label: "Transport ex. VAT", val: fmt(transCost), muted: true }), /* @__PURE__ */ React.createElement(LR, { label: "Transport VAT (24%)", val: fmt(transVAT), muted: true })), passTotal > 0 && /* @__PURE__ */ React.createElement(LR, { label: "Third-party at cost (VAT per supplier)", val: fmt(passTotal), muted: true }), /* @__PURE__ */ React.createElement("div", { style: { borderTop: "2px solid #111", marginTop: 8, paddingTop: 10 } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", fontWeight: 700, fontSize: 16, marginBottom: 6 } }, /* @__PURE__ */ React.createElement("span", null, "Total (incl. VAT)"), /* @__PURE__ */ React.createElement("span", { style: { color: "#be123c" } }, fmt(totalInclVAT))), /* @__PURE__ */ React.createElement("div", { style: { background: "#fef3c7", borderRadius: 8, padding: "10px 12px" } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, color: "#92400e", fontWeight: 700 } }, "Recommended per person"), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 22, fontWeight: 700, color: "#78350f" } }, fmt(ppInclVAT)), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "#92400e" } }, fmt(ppExVAT), " ex. VAT")))), /* @__PURE__ */ React.createElement(PC, { policies, selected: policySel, info: polInfo, onReset: resetPolicies, onToggle: togglePolicy, onAdd: addPolicy, onDelete: delPolicy, busy: polBusy }))), tab === "chef" && React.createElement(ChefTab, { CH, setCH, modal, templates: templates.filter(isChefTpl), onLoadTpl: loadTemplate, onDeleteTpl: deleteTemplate, onSaveTpl: saveChefTemplate, onToCustom: chefToCustom, onToStandard: chefToStandard }), tab === "custom" && !modal && React.createElement("div", { className: "sumbk", onClick: () => document.documentElement.classList.remove("sumopen") }), tab === "custom" && !modal && React.createElement("div", { className: "mbar", "data-bar": JSON.stringify({ label: (C.eventName || "Quote") + " \u00B7 " + C.guests + " guests", total: fmt(totalInclVAT), pp: fmt(ppInclVAT), margin: "margin " + pct(hasExtras ? eventMargin : actualMargin - C.overheadPct / 100), ok: (hasExtras ? eventMargin * 100 : actualMargin * 100 - C.overheadPct) >= C.targetMarginPct - 0.05 }), onClick: () => { document.documentElement.classList.toggle("sumopen"); }, style: { position: "fixed", left: 0, right: 0, bottom: 0, zIndex: 40, background: "#111827", color: "white", padding: "10px 14px", paddingBottom: "max(10px, env(safe-area-inset-bottom))", alignItems: "center", gap: 12, boxShadow: "0 -4px 12px rgba(0,0,0,.15)", cursor: "pointer" } }, React.createElement("div", { style: { flex: 1, minWidth: 0 } }, React.createElement("div", { style: { fontSize: 10.5, color: "#9ca3af", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" } }, C.eventName || "Quote", " \u00B7 ", C.guests, " guests"), React.createElement("div", { style: { fontSize: 17, fontWeight: 800 } }, fmt(totalInclVAT))), React.createElement("div", { style: { textAlign: "right" } }, React.createElement("div", { style: { fontSize: 13, fontWeight: 700 } }, fmt(ppInclVAT), React.createElement("span", { style: { fontWeight: 400, fontSize: 10.5, color: "#9ca3af" } }, " /guest")), React.createElement("div", { style: { fontSize: 11, color: (hasExtras ? eventMargin * 100 : actualMargin * 100 - C.overheadPct) >= C.targetMarginPct - 0.05 ? "#86efac" : "#fca5a5" } }, "margin ", pct(hasExtras ? eventMargin : actualMargin - C.overheadPct / 100))), React.createElement("div", { className: "mbar-ar", style: { fontSize: 18, color: "#9ca3af" } }, "\u2191")), modal === "menu" && React.createElement(Mdl, { title: "\u{1F9EE} Menu builder \u2014 food cost per guest", xwide: true, onClose: () => setModal(null) }, React.createElement(MenuBuilder, { comps: C.menuComponents || [], setComps: setMenuComps, overPct: C.menuOverPct || 0, setOverPct: setMenuOver, targetG: C.menuTargetG === void 0 ? 600 : C.menuTargetG, setTargetG: (v) => setC((p) => ({ ...p, menuTargetG: v })), guests: C.guests, priceBook, recipes, live: mbLive, busy: mbBusy, onSaveIngredient: (g) => postMb({ action: "saveIngredient", ingredient: g }, setPriceBook), onDeleteIngredient: (id) => postMb({ action: "deleteIngredient", id }, setPriceBook), onSaveRecipe: (r) => postMb({ action: "saveRecipe", recipe: r }, setRecipes), onDeleteRecipe: (id) => postMb({ action: "deleteRecipe", id }, setRecipes) })), modal === "changelog" && React.createElement(Mdl, { title: "\u{1F195} What's new", wide: true, onClose: () => setModal(null) }, React.createElement(ChangelogContent, null)), modal === "help" && React.createElement(Mdl, { title: "\u2139\uFE0F How the calculator works", wide: true, onClose: () => setModal(null) }, React.createElement(HelpContent, null)), modal === "history" && React.createElement(Mdl, { title: `\u{1F4DC} Quote History (${quotes.length})`, wide: true, onClose: () => setModal(null) }, React.createElement(HistoryList, { quotes, onLoad: loadQuote, onDelete: deleteQuote })), modal === "templates" && /* @__PURE__ */ React.createElement(Mdl, { title: `\u{1F4DA} Menu Templates (${templates.length})`, onClose: () => setModal(null) }, templates.length === 0 ? /* @__PURE__ */ React.createElement("p", { style: { color: "#9ca3af", fontSize: 13 } }, "No templates yet.") : templates.map((t) => /* @__PURE__ */ React.createElement("div", { key: t.id, style: { display: "flex", gap: 10, padding: "10px 12px", border: "1px solid #ddd6fe", borderRadius: 9, marginBottom: 6, background: "#faf5ff" } }, /* @__PURE__ */ React.createElement("div", { style: { flex: 1, cursor: "pointer" }, onClick: () => loadTemplate(t) }, /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 700, fontSize: 13, color: "#5b21b6" } }, t.name), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, color: "#7c3aed" } }, t.config && t.config.guests, " pax \xB7 ", fmt(t.config && t.config.ingredientPP || 0), "/pax \xB7 ", t.config && t.config.targetMarginPct, "% margin"), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 10, color: "#9ca3af" } }, "Saved ", dStr(t.savedAt))), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 4, alignItems: "flex-end", justifyContent: "center" } }, /* @__PURE__ */ React.createElement("button", { onClick: () => loadTemplate(t), style: { fontSize: 11, padding: "4px 10px", border: "none", borderRadius: 6, cursor: "pointer", background: "#7c3aed", color: "white", fontWeight: 600 } }, "Load"), /* @__PURE__ */ React.createElement("button", { onClick: () => deleteTemplate(t.id), style: { fontSize: 11, padding: "3px 8px", border: "1px solid #fecaca", borderRadius: 6, cursor: "pointer", background: "white", color: "#ef4444" } }, "\u2715")))), /* @__PURE__ */ React.createElement("button", { onClick: () => setModal("saveTemplate"), style: { marginTop: 8, width: "100%", padding: 9, border: "1.5px dashed #c4b5fd", borderRadius: 9, background: "none", cursor: "pointer", fontSize: 13, color: "#7c3aed" } }, "+ Save current as template")), false && modal === "loadJson" && /* @__PURE__ */ React.createElement(Mdl, { title: "\u{1F4E5} Load Quote from JSON", onClose: () => setModal(null) }, /* @__PURE__ */ React.createElement("p", { style: { fontSize: 12, color: "#6b7280", marginBottom: 10, lineHeight: 1.6 } }, "Paste the quote JSON from a saved email (the box at the bottom of the quote email) to restore it into the calculator \u2014 useful for reloading quotes on a different device."), /* @__PURE__ */ React.createElement("textarea", { value: jsonPaste, onChange: (e) => {
+  React.createElement("div", { style: { marginTop: 8, padding: "7px 10px", background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 8, fontSize: 11.5, color: "#15803d", fontWeight: 600 } }, "Revenue split: ", C.targetMarginPct, "% profit \u00B7 ", C.overheadPct, "% overhead \u00B7 ", Math.round(100 - C.targetMarginPct - C.overheadPct), "% direct costs"))), /* @__PURE__ */ React.createElement("div", { style: { background: "white", borderRadius: 10, border: "1px solid #e5e7eb", padding: "12px 14px" } }, /* @__PURE__ */ React.createElement("div", { style: { borderBottom: "1px solid #f3f4f6", paddingBottom: 10, marginBottom: 10, fontSize: 12 } }, /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 700, fontSize: 14 } }, C.eventName), /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 600, marginTop: 2 } }, cc.name || "Client"), cc.company && /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, color: "#6b7280" } }, cc.company), cc.email && /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, color: "#6b7280" } }, cc.email), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, color: "#9ca3af", marginTop: 2 } }, cDate || "Date TBD", " \xB7 ", C.guests, " guests")), /* @__PURE__ */ React.createElement(LR, { label: "Ingredients", sub: `${fmt(C.ingredientPP)}/pax\xD7${C.guests}`, val: fmt(ingCost) }), /* @__PURE__ */ React.createElement(LR, { label: "Labour (all)", val: fmt(labourTotal) }), drinks.units > 0 && React.createElement(LR, { label: "Drinks stock", sub: `${Math.round(drinks.consumed)} units \xD7 ${fmt(drinks.avgCost)}`, val: fmt(drinks.cost) }), soda.units > 0 && React.createElement(LR, { label: "Soda stock", val: fmt(soda.cost) }), rental.cost > 0 && React.createElement(LR, { label: "Hired-out staff (cost)", val: fmt(rental.cost) }), venueIn.on && React.createElement(LR, { label: `Landlord ${C.landlordPct}%`, val: fmt(ev.landlord) }), /* @__PURE__ */ React.createElement(LR, { label: isBundle ? "Transport (bundled 11%)" : "Transport (pass-through, 24% VAT)", val: fmt(transCost), muted: transCost === 0 }), /* @__PURE__ */ React.createElement(LR, { label: `Equipment (${equipOn.filter((e) => !e.pass).length + customItems.filter((e) => !e.pass).length} items, margined)`, val: fmt(equipMarginTotal) }), passTotal > 0 && /* @__PURE__ */ React.createElement(LR, { label: `Third-party (pass-through)`, val: fmt(passTotal) }), /* @__PURE__ */ React.createElement(LR, { label: "Consumables", val: fmt(consCost) }), /* @__PURE__ */ React.createElement(LR, { label: `Contingency (${C.contingencyPct}%)`, val: fmt(contingencyAmt) }), /* @__PURE__ */ React.createElement("div", { style: { borderTop: "1px dashed #e5e7eb", margin: "8px 0 4px" } }), /* @__PURE__ */ React.createElement(LR, { label: "Total cost", val: fmt(totalCost), muted: true }), /* @__PURE__ */ React.createElement(LR, { label: `Catering margin (${C.targetMarginPct}% target)`, val: fmt(Math.round(cateringRevNeeded - (cateringDirectCost + contingencyAmt))), green: true }), /* @__PURE__ */ React.createElement("div", { style: { borderTop: "1px solid #f3f4f6", margin: "8px 0 4px" } }), /* @__PURE__ */ React.createElement(LR, { label: `Catering ex. VAT`, val: fmt(Math.round(cateringRevNeeded)), muted: true }), /* @__PURE__ */ React.createElement(LR, { label: `Food VAT (${C.vatRate}%)`, val: fmt(foodVAT), muted: true }), drinks.units > 0 && React.createElement(LR, { label: `Drinks ${drinks.billed.toFixed(0)} \xD7 ${fmt(drinks.price)} incl. VAT`, val: fmt(drinks.revIncl), muted: true }), soda.units > 0 && React.createElement(LR, { label: `Soda ${soda.units} \xD7 ${fmt(C.sodaPrice)} incl. VAT`, val: fmt(soda.revIncl), muted: true }), rental.revEx > 0 && React.createElement(LR, { label: "Staff hire incl. 24% VAT", val: fmt(rental.revEx + rentalVAT), muted: true }), venueIn.on && React.createElement(LR, { label: `Hall ${fmt(ev.hallGross)} ex. VAT${hallFolded ? " (in menu)" : ""}${ev.credit > 0 ? ` \u2212 credit ${fmt(ev.credit)}` : ""}`, val: fmt(ev.hallAfterGross), green: ev.credit > 0 }), hasExtras && React.createElement(LR, { label: `Event profit after landlord & overhead (${pct(eventMargin)})`, val: fmt(eventProfit), green: eventProfit > 0 }), hasExtras && C.guests > 0 && React.createElement(LR, { label: hallFolded ? "Menu price per guest incl. VAT (hall folded in)" : "Menu price per guest (food) incl. VAT", val: fmt((cateringRevNeeded + (hallFolded ? ev.hallEx : 0)) * (1 + C.vatRate / 100) / C.guests) }), !isBundle && transCost > 0 && /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(LR, { label: "Transport ex. VAT", val: fmt(transCost), muted: true }), /* @__PURE__ */ React.createElement(LR, { label: "Transport VAT (24%)", val: fmt(transVAT), muted: true })), passTotal > 0 && /* @__PURE__ */ React.createElement(LR, { label: "Third-party at cost (VAT per supplier)", val: fmt(passTotal), muted: true }), /* @__PURE__ */ React.createElement("div", { style: { borderTop: "2px solid #111", marginTop: 8, paddingTop: 10 } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", fontWeight: 700, fontSize: 16, marginBottom: 6 } }, /* @__PURE__ */ React.createElement("span", null, "Total (incl. VAT)"), /* @__PURE__ */ React.createElement("span", { style: { color: "#be123c" } }, fmt(totalInclVAT))), /* @__PURE__ */ React.createElement("div", { style: { background: "#fef3c7", borderRadius: 8, padding: "10px 12px" } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, color: "#92400e", fontWeight: 700 } }, "Recommended per person"), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 22, fontWeight: 700, color: "#78350f" } }, fmt(ppInclVAT)), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "#92400e" } }, fmt(ppExVAT), " ex. VAT")))), /* @__PURE__ */ React.createElement(PC, { policies, selected: policySel, info: polInfo, onReset: resetPolicies, onToggle: togglePolicy, onAdd: addPolicy, onDelete: delPolicy, busy: polBusy }))), tab === "chef" && React.createElement(ChefTab, { CH, setCH, modal, templates: templates.filter(isChefTpl), onLoadTpl: loadTemplate, onDeleteTpl: deleteTemplate, onSaveTpl: saveChefTemplate, onToCustom: chefToCustom, onToStandard: chefToStandard }), tab === "custom" && !modal && React.createElement("div", { className: "sumbk", onClick: () => document.documentElement.classList.remove("sumopen") }), tab === "custom" && !modal && React.createElement("div", { className: "mbar", "data-bar": JSON.stringify({ label: (C.eventName || "Quote") + " \u00B7 " + C.guests + " guests", total: fmt(totalInclVAT), pp: fmt(ppInclVAT), margin: "margin " + pct(hasExtras ? eventMargin : actualMargin - C.overheadPct / 100), ok: (hasExtras ? eventMargin * 100 : actualMargin * 100 - C.overheadPct) >= C.targetMarginPct - 0.05 }), onClick: () => { document.documentElement.classList.toggle("sumopen"); }, style: { position: "fixed", left: 0, right: 0, bottom: 0, zIndex: 40, background: "#111827", color: "white", padding: "10px 14px", paddingBottom: "max(10px, env(safe-area-inset-bottom))", alignItems: "center", gap: 12, boxShadow: "0 -4px 12px rgba(0,0,0,.15)", cursor: "pointer" } }, React.createElement("div", { style: { flex: 1, minWidth: 0 } }, React.createElement("div", { style: { fontSize: 10.5, color: "#9ca3af", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" } }, C.eventName || "Quote", " \u00B7 ", C.guests, " guests"), React.createElement("div", { style: { fontSize: 17, fontWeight: 800 } }, fmt(totalInclVAT))), React.createElement("div", { style: { textAlign: "right" } }, React.createElement("div", { style: { fontSize: 13, fontWeight: 700 } }, fmt(ppInclVAT), React.createElement("span", { style: { fontWeight: 400, fontSize: 10.5, color: "#9ca3af" } }, " /guest")), React.createElement("div", { style: { fontSize: 11, color: (hasExtras ? eventMargin * 100 : actualMargin * 100 - C.overheadPct) >= C.targetMarginPct - 0.05 ? "#86efac" : "#fca5a5" } }, "margin ", pct(hasExtras ? eventMargin : actualMargin - C.overheadPct / 100))), React.createElement("div", { className: "mbar-ar", style: { fontSize: 18, color: "#9ca3af" } }, "\u2191")), modal === "menu" && React.createElement(Mdl, { title: "\u{1F9EE} Menu builder \u2014 food cost per guest", xwide: true, onClose: () => setModal(null) }, React.createElement(MenuBuilder, { comps: C.menuComponents || [], setComps: setMenuComps, overPct: C.menuOverPct || 0, setOverPct: setMenuOver, targetG: C.menuTargetG === void 0 ? 600 : C.menuTargetG, setTargetG: (v) => setC((p) => ({ ...p, menuTargetG: v })), guests: C.guests, priceBook, recipes, live: mbLive, busy: mbBusy, onSaveIngredient: (g) => postMb({ action: "saveIngredient", ingredient: g }, setPriceBook), onDeleteIngredient: (id) => postMb({ action: "deleteIngredient", id }, setPriceBook), onSaveRecipe: (r) => postMb({ action: "saveRecipe", recipe: r }, setRecipes), onDeleteRecipe: (id) => postMb({ action: "deleteRecipe", id }, setRecipes) })), modal === "suggest" && React.createElement(Mdl, { title: "\u{1F4A1} Suggestion box", wide: true, onClose: () => setModal(null) }, React.createElement(SuggestBox, { page: { standard: "Standard", custom: "Custom Event", chef: "Private chef" }[tab] || tab, onClose: () => setModal(null) })), modal === "changelog" && React.createElement(Mdl, { title: "\u{1F195} What's new", wide: true, onClose: () => setModal(null) }, React.createElement(ChangelogContent, null)), modal === "help" && React.createElement(Mdl, { title: "\u2139\uFE0F How the calculator works", wide: true, onClose: () => setModal(null) }, React.createElement(HelpContent, null)), modal === "history" && React.createElement(Mdl, { title: `\u{1F4DC} Quote History (${quotes.length})`, wide: true, onClose: () => setModal(null) }, React.createElement(HistoryList, { quotes, onLoad: loadQuote, onDelete: deleteQuote })), modal === "templates" && /* @__PURE__ */ React.createElement(Mdl, { title: `\u{1F4DA} Menu Templates (${templates.length})`, onClose: () => setModal(null) }, templates.length === 0 ? /* @__PURE__ */ React.createElement("p", { style: { color: "#9ca3af", fontSize: 13 } }, "No templates yet.") : templates.map((t) => /* @__PURE__ */ React.createElement("div", { key: t.id, style: { display: "flex", gap: 10, padding: "10px 12px", border: "1px solid #ddd6fe", borderRadius: 9, marginBottom: 6, background: "#faf5ff" } }, /* @__PURE__ */ React.createElement("div", { style: { flex: 1, cursor: "pointer" }, onClick: () => loadTemplate(t) }, /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 700, fontSize: 13, color: "#5b21b6" } }, t.name), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, color: "#7c3aed" } }, t.config && t.config.guests, " pax \xB7 ", fmt(t.config && t.config.ingredientPP || 0), "/pax \xB7 ", t.config && t.config.targetMarginPct, "% margin"), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 10, color: "#9ca3af" } }, "Saved ", dStr(t.savedAt))), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 4, alignItems: "flex-end", justifyContent: "center" } }, /* @__PURE__ */ React.createElement("button", { onClick: () => loadTemplate(t), style: { fontSize: 11, padding: "4px 10px", border: "none", borderRadius: 6, cursor: "pointer", background: "#7c3aed", color: "white", fontWeight: 600 } }, "Load"), /* @__PURE__ */ React.createElement("button", { onClick: () => deleteTemplate(t.id), style: { fontSize: 11, padding: "3px 8px", border: "1px solid #fecaca", borderRadius: 6, cursor: "pointer", background: "white", color: "#ef4444" } }, "\u2715")))), /* @__PURE__ */ React.createElement("button", { onClick: () => setModal("saveTemplate"), style: { marginTop: 8, width: "100%", padding: 9, border: "1.5px dashed #c4b5fd", borderRadius: 9, background: "none", cursor: "pointer", fontSize: 13, color: "#7c3aed" } }, "+ Save current as template")), false && modal === "loadJson" && /* @__PURE__ */ React.createElement(Mdl, { title: "\u{1F4E5} Load Quote from JSON", onClose: () => setModal(null) }, /* @__PURE__ */ React.createElement("p", { style: { fontSize: 12, color: "#6b7280", marginBottom: 10, lineHeight: 1.6 } }, "Paste the quote JSON from a saved email (the box at the bottom of the quote email) to restore it into the calculator \u2014 useful for reloading quotes on a different device."), /* @__PURE__ */ React.createElement("textarea", { value: jsonPaste, onChange: (e) => {
       setJsonPaste(e.target.value);
       setJsonError("");
     }, placeholder: "Paste quote JSON here\u2026", rows: 10, style: { ...I, fontFamily: "monospace", fontSize: 11, resize: "vertical", width: "100%" } }), jsonError && /* @__PURE__ */ React.createElement("div", { style: { color: "#dc2626", fontSize: 12, marginTop: 6 } }, jsonError), /* @__PURE__ */ React.createElement("button", { onClick: () => {
@@ -1481,9 +1481,22 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
     ["Price ladder", ["Only shown for Ingólfshvoll quotes, folded away by default. It guesses the food price per guest the same setup would need at 50 to 1,000 guests, scaling prep and service staff (a little less than in proportion, in whole people). The staffing at each size is an estimate, so use it to sanity-check a price list for a repeat format, not to quote a one-off event."]],
     ["VAT", ["Food and drinks 11%. Transport as a separate line, staff hire and the hall 24% (or none / folded — to be confirmed with the accountant)."]],
     ["Quotes, templates, roles and policies", ["\u{1F4BE} Save stores the whole quote (staff lines, drinks, hall) in History and in the Catering Quotes Log Sheet. Templates store a setup to reuse. Roles live in the Roles tab and booking policies in the Policies tab of the same Sheet — tick which policies go on each quote.", "Client PDF shows prices only: the cost lines are scaled up to the selling price, so no costs or margins are shown. Review PDF is internal: costs, landlord, margin and profit."]]
+    ["Private chef \u2014 how days are counted", ["We count the Nordic Luxury way. A service day is one breakfast and one dinner. An arrival dinner and a departure breakfast together make one day, so a 3-day villa stay (dinner, full day, breakfast) is 2 service days. The tab takes the larger of the two counts: 2 breakfasts and 3 dinners is 3 days. There are no partial days.", "With no breakfast at all, each dinner is a one-off dinner (95,000 kr + 7,000 kr per guest), which carries the drive in its fee."]],
+    ["Private chef \u2014 the price", ["Service day: 110,000 kr chef fee + 11,000 kr per guest for guests 1\u20135 + 9,000 kr per guest above 5. For 8 guests: 110,000 + 55,000 + 27,000 = 192,000 kr. The per-guest part pays for the food.", "Public holidays: the chef fee (not the per-guest part) \xD71.9, and the same for extra staff and the on-site lunch fee that day. Easter Monday and 26 December are included.", "Lunch is extra: boxes 3,800 kr per guest; lunch on site 60,000 kr + ingredients at cost + 30%.", "Each day has its own extra staff (waiter or bartender: 58,800 kr a meal, 98,000 kr a full day), purchases at cost + 30% (wine, drinks, private shopping), fixed-price extras (welcome cocktails 800 kr, host dinners 2,900 kr) and a note that prints on the quote.", "All prices include 11% VAT; the invoice is one \u201CPrivate chef\u201D line. The panel shows what the booking earns with a contractor chef (65,000 kr a day) and with an employed chef (hours \xD7 3,500 \xD7 1.33, \xD71.45 weekends and holidays). \u{1F9EE} How it's worked out in the panel shows every step with this quote's numbers."]],
+    ["Private chef \u2014 menus", ["Pick a dinner menu per day: Ing\xF3lfsfjall, \xD6lfus\xE1, Lax\xE1, Haginn, Vegetarian, Farewell feast or Celebration tasting. They come from the menus we have actually sent and cooked; the dishes print on the client PDF. Breakfast is the standard buffet."]],
+    ["\u{1F4A1} Suggestion box", ["Every tab has a \u{1F4A1} Suggest button: report a bug, a missing menu or dish, or an idea. It goes to the Suggestions tab in the Catering Quotes Log Sheet, where \xC1rni sets the status and can reply; replies show in the box."]],
   ];
   var HelpContent = () => React.createElement("div", { style: { fontSize: 13, lineHeight: 1.55, color: "#374151" } }, HELP.map(([h, ps]) => React.createElement("div", { key: h, style: { marginBottom: 14 } }, React.createElement("div", { style: { fontWeight: 700, fontSize: 13.5, color: "#111827", marginBottom: 4 } }, h), ps.map((p, i) => React.createElement("p", { key: i, style: { margin: "0 0 6px" } }, p)))));
   var CHANGELOG = [
+    { v: "2026-10-10", title: "Private chef: per-day extras, menus, explanations; suggestion box", items: [
+      "\u{1F4A1} Suggest button on every tab: report a bug, a missing menu or an idea. It lands in the Suggestions tab of the Quotes Log Sheet; status and replies show in the box.",
+      "Private chef: extra staff, purchases and extras are now added per day. Wine, drinks and private shopping are charged at cost + 30%; welcome cocktails and host dinners have fixed prices. Staff on a public holiday are \xD71.9.",
+      "Private chef: a note per day (times, allergies, plans) that prints on the quote.",
+      "Private chef: pick a dinner menu per day (Ing\xF3lfsfjall, \xD6lfus\xE1, Lax\xE1, Haginn, Vegetarian, Farewell feast, Celebration tasting). The dishes print on the client PDF.",
+      "Private chef: \u{1F9EE} How it's worked out in the panel explains every step with the quote's own numbers, including the Nordic day count (no partial days). The help page has the same.",
+      "Private chef policies: purchases at cost + 30%, drinks and bartender, host dinners and allergies are back, ticked automatically.",
+      "Load JSON is gone from every tab."
+    ] },
     { v: "2026-10-08", title: "Works on phones", items: [
       "Portrait phone layout: the top buttons sit in one row you can swipe, and the header no longer covers half the screen.",
       "A bar at the bottom of the screen always shows the total, price per guest and margin \u2014 tap it to open the full summary over the form, tap again (or outside) to close. Works inside the frokenselfoss.is page too.",
@@ -1729,9 +1742,27 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
     d.setDate(d.getDate() + n);
     return d.toISOString().slice(0, 10);
   };
-  var chefDay = (o) => ({ b: true, d: true, lunch: "none", style: "plated", ...(o || {}) });
   var chefStaffId = () => "st" + Math.random().toString(36).slice(2, 8);
-  var CHEF_WAITER = () => ({ id: chefStaffId(), role: "Waiter-bartender", kind: "single", qty: 1, days: 1, hours: 5, base: 3e3 });
+  var chefDay = (o) => ({ b: true, d: true, lunch: "none", style: "plated", menu: "", note: "", staff: [], extras: [], ...(o || {}) });
+  var CHEF_WAITER = (role) => ({ id: chefStaffId(), role: role || "Waiter-bartender", kind: "single", qty: 1, hours: 5, base: 3e3 });
+  var CHEF_EXTRA_PRESETS = [
+    { k: "drinks", icon: "\u{1F377}", label: "Wine / drinks", mode: "markup", tag: "drinks", hint: "Estimated purchase incl. VAT; charged at cost + 30%" },
+    { k: "shop", icon: "\u{1F6D2}", label: "Private shopping", mode: "markup", tag: "shop", hint: "Groceries or requests bought for the guests; cost + 30%" },
+    { k: "cocktail", icon: "\u{1F378}", label: "Welcome cocktails", mode: "unit", tag: "drinks", unit: 800, unitCost: 554, perGuest: true },
+    { k: "host", icon: "\u{1F37D}️", label: "Host / staff dinner", mode: "unit", tag: "host", unit: 2900, unitCost: 1500, qty: 1 },
+    { k: "other", icon: "➕", label: "", mode: "unit", tag: "other", unit: 0, unitCost: 0, qty: 1 }
+  ];
+  var CHEF_BREAKFAST = "Breakfast buffet: egg course of the day, bacon, sausages, baked beans, sourdough with butter and jams, Icelandic pastry of the day, cheese and ham, skyr, cereals, fresh fruit, juice, coffee and tea.";
+  var CHEF_MENUS = [
+    { id: "ingolfsfjall", name: "Ing\xF3lfsfjall", sub: "Icelandic classic", c: ["Creamy seafood or langoustine soup with sea-truffle cream", "Slow-cooked lamb sirloin, potato gratin, pickled red onion, port-wine wild mushroom sauce", "Warm rhubarb & apple crumble with ice cream"] },
+    { id: "olfusa", name: "\xD6lfus\xE1", sub: "reindeer & Arctic char", c: ["Reindeer carpaccio, sorrel pesto, Grettir cheese, toasted nuts", "Pan-fried Arctic char, roasted vegetables, pickled fennel, garlic-caper butter", "Lava cake with pistachio centre, caramel and bilberries"] },
+    { id: "laxa", name: "Lax\xE1", sub: "salmon & steak", c: ["Smoked salmon, tartar sauce, roe and Icelandic flatbread", "Grilled beef steak with b\xE9arnaise", "Lemon skyr posset with crumble and bilberries"] },
+    { id: "haginn", name: "Haginn", sub: "beets & beef tenderloin", c: ["Smoked beets, goat cheese, hazelnut vinaigrette, popped barley", "Beef tenderloin with sunchokes and demi-glace", "Lemon skyr posset with crumble and bilberries"] },
+    { id: "veg", name: "Vegetarian", sub: "", c: ["Smoked beets with goat cheese, or wild mushroom velout\xE9 with truffle cream", "Vegan Wellington, or nut steak with thyme sauce", "Rhubarb & apple crumble, or lava cake"] },
+    { id: "feast", name: "Farewell feast", sub: "family-style", c: ["Icelandic charcuterie and garlic-roasted langoustine tails with garlic bread", "Rack of Icelandic lamb, caramelised potatoes, pickled red cabbage, peas, demi-glace", "Randal\xEDna with skyr ganache and bilberry compote, Icelandic craft liqueurs"] },
+    { id: "celebration", name: "Celebration tasting", sub: "", c: ["Appetiser trio: broccoli tempura, cured wild goose, reindeer carpaccio", "Lamb sirloin with smashed cheese potatoes", "Brownie with skyr ganache and traditional skyr"] }
+  ];
+  var chefMenu = (id) => CHEF_MENUS.find((m) => m.id === id) || null;
   var defaultChef = () => ({
     kind: "chef",
     id: genId(),
@@ -1742,8 +1773,6 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
     guests: 8,
     start: "",
     days: [chefDay()],
-    staff: [],
-    extras: [],
     travel: { km: 0, trips: 0, charge: true },
     chefMode: "contractor",
     dayFee: 11e4,
@@ -1756,6 +1785,7 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
     lunchFee: 6e4,
     lunchMarkupPct: 30,
     lunchBoxPrice: 3800,
+    markupPct: 30,
     staffFull: 98e3,
     staffSingle: 58800,
     contractorDay: 65e3,
@@ -1775,20 +1805,42 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
     pdfMode: "detail",
     polOv: {}
   });
+  /* older quotes kept staff and extras for the whole stay: move them onto the last dinner day */
+  var normChef = (CH) => {
+    const days = (CH.days || []).map((d) => chefDay(d));
+    const old = (CH.staff || []).length + (CH.extras || []).length;
+    if (old && days.length) {
+      let at = days.length - 1;
+      for (let i = days.length - 1; i >= 0; i--) if (days[i].d) { at = i; break; }
+      const staff = (CH.staff || []).map((s) => ({ ...s, qty: (Number(s.qty) || 0) * (Number(s.days) || 1) }));
+      const extras = (CH.extras || []).map((x) => ({ id: x.id || chefStaffId(), label: x.label, mode: "unit", tag: "other", qty: 1, unit: Number(x.price) || 0, unitCost: Number(x.cost) || 0 }));
+      days[at] = { ...days[at], staff: days[at].staff.concat(staff), extras: days[at].extras.concat(extras) };
+    }
+    return { ...CH, days, staff: [], extras: [] };
+  };
   var CHEF_TEMPLATES = [
-    { id: "dinner", icon: "\u{1F37D}️", name: "Single dinner", desc: "One dinner, 95,000 kr + 7,000 kr per guest", days: [{ b: false, d: true }], staff: [] },
-    { id: "service", icon: "☀️", name: "Service day", desc: "Breakfast + 3-course dinner", days: [{ b: true, d: true }], staff: [] },
-    { id: "villa", icon: "\u{1F3E1}", name: "Villa stay", desc: "Arrival dinner, middle day, departure breakfast (2 service days)", days: [{ b: false, d: true }, { b: true, d: true }, { b: true, d: false }], staff: [] },
-    { id: "farewell", icon: "\u{1F942}", name: "Farewell dinner", desc: "Dinner with a waiter who doubles as bartender", days: [{ b: false, d: true }], staff: "waiter" },
-    { id: "blank", icon: "⬜", name: "Blank", desc: "One day, no meals ticked", days: [{ b: false, d: false }], staff: [] }
+    { id: "dinner", icon: "\u{1F37D}️", name: "Single dinner", desc: "One dinner, 95,000 kr + 7,000 kr per guest", days: [{ b: false, d: true }] },
+    { id: "service", icon: "☀️", name: "Service day", desc: "Breakfast + 3-course dinner", days: [{ b: true, d: true }] },
+    { id: "villa", icon: "\u{1F3E1}", name: "Villa stay", desc: "Arrival dinner, middle day, departure breakfast (2 service days)", days: [{ b: false, d: true }, { b: true, d: true }, { b: true, d: false }] },
+    { id: "farewell", icon: "\u{1F942}", name: "Farewell dinner", desc: "Dinner with a waiter who doubles as bartender", days: [{ b: false, d: true, menu: "feast", waiter: true }] },
+    { id: "blank", icon: "⬜", name: "Blank", desc: "One day, no meals ticked", days: [{ b: false, d: false }] }
   ];
-  var chefCalc = (CH) => {
+  var chefExtraCalc = (x, CH) => {
+    if (x.mode === "markup") {
+      const c = Number(x.cost) || 0;
+      return { price: c * (1 + (CH.markupPct || 0) / 100), cost: c / CHEF_VAT, sub: `est. ${fmt(c)} incl. VAT + ${CH.markupPct}%` };
+    }
+    const q = Number(x.qty) || 0;
+    return { price: q * (Number(x.unit) || 0), cost: q * (Number(x.unitCost) || 0), sub: `${q} \xD7 ${fmt(Number(x.unit) || 0)}` };
+  };
+  var chefCalc = (CH0) => {
+    const CH = normChef(CH0);
     const g = Math.max(0, Number(CH.guests) || 0), SC = Number(CH.salaryCosts) || 1;
-    const dates = (CH.days || []).map((d, i) => {
+    const dates = CH.days.map((d, i) => {
       const date = chefAddDays(CH.start, i), dt = date ? new Date(date + "T12:00:00") : null;
       const dow = dt ? dt.getDay() : -1, hol = chefHoliday(date);
       const lunch = d.lunch || "none", meals = (d.b ? 1 : 0) + (d.d ? 1 : 0);
-      return { ...d, i, date, hol, wkd: dow === 0 || dow === 6, label: dt ? dt.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" }) : `Day ${i + 1}`, lunch, meals, active: meals > 0 || lunch !== "none" };
+      return { ...d, i, date, hol, wkd: dow === 0 || dow === 6, label: dt ? dt.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" }) : `Day ${i + 1}`, lunch, meals, active: meals > 0 || lunch !== "none" || d.staff.length > 0 || d.extras.length > 0 };
     });
     const B = dates.filter((d) => d.b).length, D = dates.filter((d) => d.d).length;
     const oneOff = B === 0 ? D : 0, serviceDays = B === 0 ? 0 : Math.max(B, D);
@@ -1801,23 +1853,30 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
     if (oneOff > 0) lines.push({ key: "din", label: `Private chef — ${oneOff} dinner${oneOff > 1 ? "s" : ""} (3 courses)`, sub: `${oneOff} \xD7 (${fmt(CH.dinnerFee)} + ${g} \xD7 ${fmt(CH.dinnerPP)})`, amt: oneOff * (CH.dinnerFee + g * CH.dinnerPP) });
     const holAmt = holService * CH.dayFee * (CH.holMult - 1) + holDinners * CH.dinnerFee * (CH.holMult - 1);
     if (holAmt > 0) lines.push({ key: "hol", label: `Public holiday rate (\xD7${CH.holMult}) — ${holMealDates.map((d) => d.hol).join(", ")}`, sub: `chef fee \xD7 ${(CH.holMult - 1).toFixed(1)} on ${holService + holDinners} day${holService + holDinners > 1 ? "s" : ""}`, amt: holAmt });
-    let lunchFood = 0, boxCost = 0, lunchHrs = [];
+    let lunchFood = 0, boxCost = 0;
+    const lunchOnsite = [], staff = [], extras = [];
     dates.forEach((d) => {
       if (d.lunch === "onsite") {
         const food = g * CH.foodL * (1 + CH.lunchMarkupPct / 100) * CHEF_VAT, fee = CH.lunchFee * (d.hol ? CH.holMult : 1);
         lunchFood += g * CH.foodL;
-        lunchHrs.push(d);
+        lunchOnsite.push(d);
         lines.push({ key: "l" + d.i, label: `Lunch on site — ${d.label}`, sub: `${fmt(fee)} service + ingredients ${g} \xD7 ${fmt(CH.foodL * (1 + CH.lunchMarkupPct / 100) * CHEF_VAT)}`, amt: fee + food });
       } else if (d.lunch === "box") {
         boxCost += g * CH.lunchBoxCost;
         lines.push({ key: "l" + d.i, label: `Lunch boxes — ${d.label}`, sub: `${g} \xD7 ${fmt(CH.lunchBoxPrice)}`, amt: g * CH.lunchBoxPrice });
       }
+      d.staff.forEach((s) => {
+        const n = Number(s.qty) || 0, rate = (s.kind === "full" ? CH.staffFull : CH.staffSingle) * (d.hol ? CH.holMult : 1);
+        const st = { ...s, day: d, n, price: n * rate, cost: n * (Number(s.hours) || 0) * (Number(s.base) || 0) * SC * (d.wkd || d.hol ? CH.weekendMult : 1) };
+        staff.push(st);
+        if (st.price > 0) lines.push({ key: s.id, label: `${s.role || "Extra staff"} — ${d.label}${n > 1 ? ` \xD7 ${n}` : ""}`, sub: `${n} \xD7 ${fmt(rate)} (${s.kind === "full" ? "full day" : "single meal"}${d.hol ? `, holiday \xD7${CH.holMult}` : ""})`, amt: st.price });
+      });
+      d.extras.forEach((x) => {
+        const e = chefExtraCalc(x, CH), ex = { ...x, day: d, ...e };
+        extras.push(ex);
+        if (e.price !== 0) lines.push({ key: x.id, label: `${x.label || "Extra"} — ${d.label}${x.mode === "markup" ? ` (cost + ${CH.markupPct}%)` : ""}`, sub: e.sub, amt: e.price });
+      });
     });
-    const staff = (CH.staff || []).map((s) => {
-      const n = (Number(s.qty) || 0) * (Number(s.days) || 0);
-      return { ...s, n, price: n * (s.kind === "full" ? CH.staffFull : CH.staffSingle), cost: n * (Number(s.hours) || 0) * (Number(s.base) || 0) * SC };
-    });
-    staff.forEach((s) => s.price > 0 && lines.push({ key: s.id, label: `${s.role || "Extra staff"} — ${s.kind === "full" ? "full day" : "single meal"}${s.n > 1 ? ` \xD7 ${s.n}` : ""}`, sub: `${s.n} \xD7 ${fmt(s.kind === "full" ? CH.staffFull : CH.staffSingle)}`, amt: s.price }));
     const T = CH.travel || {}, km = Number(T.km) || 0, trips = Number(T.trips) || 0;
     const vpk = defaultCustom.fuelPricePerL * (defaultCustom.fuelConsumptionPer100 / 100) + KM_TAX + defaultCustom.vehicleOverheadPerKm;
     const driveH = km > 0 ? round5(km * 2 / (defaultCustom.avgSpeedKmh || 80)) : 0;
@@ -1825,38 +1884,40 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
     const travelCost = trips * (km * 2 * vpk + driveH * chefHrCost);
     const travelCharge = T.charge ? travelCost * CHEF_VAT : 0;
     if (travelCharge > 0) lines.push({ key: "trav", label: `Travel — ${trips} return drive${trips > 1 ? "s" : ""}, ${km} km each way`, sub: `${km * 2} km \xD7 ${fmt(vpk)}/km + ${driveH} h drive, at cost`, amt: travelCharge });
-    const extras = (CH.extras || []).filter((x) => (Number(x.price) || 0) !== 0 || (Number(x.cost) || 0) !== 0);
-    extras.forEach((x) => lines.push({ key: x.id, label: x.label || "Extra", sub: "", amt: Number(x.price) || 0 }));
     const total = Math.round(lines.reduce((s, l) => s + l.amt, 0));
     const ex = total / CHEF_VAT, vat = total - ex;
     const foodCost = g * (B * CH.foodB + D * CH.foodD) + lunchFood + boxCost;
     const staffCost = staff.reduce((s, x) => s + x.cost, 0);
-    const extrasCost = extras.reduce((s, x) => s + (Number(x.cost) || 0), 0);
+    const extrasCost = extras.reduce((s, x) => s + x.cost, 0);
     const empDates = dates.map((d) => ({ d, h: (d.b ? CH.hrsB : 0) + (d.d ? CH.hrsD : 0) + (d.lunch === "onsite" ? CH.hrsL : 0) }));
     const employed = empDates.reduce((s, x) => s + x.h * chefHrCost * (x.d.wkd || x.d.hol ? CH.weekendMult : 1), 0);
     const empHours = empDates.reduce((s, x) => s + x.h, 0);
-    const contractor = serviceDays * CH.contractorDay + oneOff * CH.contractorDinner + lunchHrs.length * CH.contractorDay * (CH.hrsL / ((CH.hrsB + CH.hrsD) || 8));
+    const contractor = serviceDays * CH.contractorDay + oneOff * CH.contractorDinner + lunchOnsite.length * CH.contractorDay * (CH.hrsL / ((CH.hrsB + CH.hrsD) || 8));
     const overhead = ex * CH.overheadPct / 100;
     const other = foodCost + staffCost + travelCost + extrasCost + overhead;
     const mk = (chef) => { const profit = ex - other - chef; return { chef, profit, margin: ex > 0 ? profit / ex : 0 }; };
     const modes = { contractor: mk(contractor), employed: mk(employed) };
     const cur = modes[CH.chefMode] || modes.contractor;
     const warn = [];
-    const plated = dates.some((d) => d.d && d.style === "plated");
+    const waiterDay = dates.find((d) => d.d && d.style === "plated" && g >= 9 && !d.staff.some((s) => (Number(s.qty) || 0) > 0));
     if (g >= 14) warn.push({ k: "big", tone: "amber", text: `${g} guests: a private chef is priced for small groups. Quote this as a Custom Event (catering) instead.`, act: "custom" });
-    if (plated && g >= 9 && !staff.some((s) => s.n > 0)) warn.push({ k: "waiter", tone: "amber", text: `Plated 3–4 course dinner for ${g} guests usually needs a waiter.`, act: "waiter" });
+    if (waiterDay) warn.push({ k: "waiter", tone: "amber", text: `Plated 3–4 course dinner for ${g} guests on ${waiterDay.label} usually needs a waiter.`, act: "waiter", day: waiterDay.i });
     if (B === 0 && D > 1) warn.push({ k: "dinners", tone: "blue", text: `No breakfasts, so each of the ${D} dinners is priced as a one-off dinner.` });
-    if (dates.some((d) => d.b && !d.d) && B > D && B > 1) warn.push({ k: "bfonly", tone: "blue", text: "More breakfasts than dinners: each breakfast counts as a service day." });
+    if (B > D && B > 1) warn.push({ k: "bfonly", tone: "blue", text: "More breakfasts than dinners: each breakfast counts as a service day." });
     if (!CH.start) warn.push({ k: "nodate", tone: "gray", text: "Set a start date to check weekends and public holidays." });
     if (total > 0 && cur.margin < 0) warn.push({ k: "loss", tone: "red", text: `This quote loses money with a ${CH.chefMode === "employed" ? "employed" : "contractor"} chef. Check the costs in the panel.` });
-    return { g, dates, B, D, serviceDays, oneOff, guestFee, holMealDates, lines, total, ex, vat, pp: g ? total / g : 0, foodCost, staffCost, travelCost, extrasCost, overhead, modes, cur, staff, km, trips, driveH, vpk, empHours, warn, chefHrCost };
+    return { CH, g, dates, B, D, serviceDays, oneOff, guestFee, holMealDates, lines, total, ex, vat, pp: g ? total / g : 0, foodCost, staffCost, travelCost, extrasCost, overhead, modes, cur, staff, extras, km, trips, driveH, vpk, empHours, warn, chefHrCost, lunchOnsite };
   };
   var CHEF_POLICIES = [
     { id: "cp_service", icon: "\u{1F468}‍\u{1F373}", text: "A service day is breakfast and a 3-course dinner for the group, with menu planning, shopping, cooking, service and clean-up. Travel within 30 minutes of Selfoss is included." },
+    { id: "cp_markup", icon: "\u{1F6D2}", text: "Anything we buy for you beyond the menu — wine and drinks, private shopping, special requests — is charged at cost + 30%. Amounts in this quote are estimates; the invoice uses the actual receipts." },
+    { id: "cp_drinks", icon: "\u{1F377}", text: "Drinks are served by the chef; a welcome cocktail is about 800 kr per guest. A full bar needs a bartender (58,800 kr per evening)." },
     { id: "cp_lunch", icon: "\u{1F96A}", text: "Lunch is not part of a service day. Lunch on site is 60,000 kr plus ingredients; lunch boxes are 3,800 kr per guest." },
-    { id: "cp_staff", icon: "\u{1F935}", text: "Extra staff are priced like the chef: 98,000 kr for a full day, 58,800 kr for a single meal." },
+    { id: "cp_staff", icon: "\u{1F935}", text: "Extra staff are priced like the chef: 98,000 kr for a full day, 58,800 kr for a single meal, \xD71.9 on public holidays." },
+    { id: "cp_host", icon: "\u{1F37D}️", text: "Meals for lodge staff or hosts are 2,900 kr per person." },
     { id: "cp_holiday", icon: "\u{1F384}", text: "Public holidays are charged at 1.9\xD7 the chef fee: New Year's Day, Maundy Thursday, Good Friday, Easter Sunday, Easter Monday, First Day of Summer, 1 May, Ascension Day, Whit Sunday, Whit Monday, 17 June, Commerce Day, 24, 25, 26 and 31 December." },
     { id: "cp_travel", icon: "\u{1F697}", text: "When breakfast is before 08:30 and the location is more than 30 minutes from Selfoss, the chef needs accommodation nearby; it is invoiced at cost." },
+    { id: "cp_diet", icon: "\u{1F95C}", text: "Please send allergies and dietary needs at least 7 days before the first day." },
     { id: "cp_kitchen", icon: "\u{1F525}", text: "We need a working oven and stove. Please tell us in advance if the kitchen is limited." },
     { id: "cp_froken", icon: "\u{1F377}", text: "Fr\xF6ken Selfoss, our restaurant in Selfoss, welcomes the group for dinner with a 15% group discount on the set menu." },
     { id: "cp_payment", icon: "\u{1F4B3}", text: "30% non-refundable retainer on booking. 80% of the total is due 14 days before the first day. The balance is invoiced within 7 days after the stay, due in 7 days." },
@@ -1864,11 +1925,15 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
     { id: "cp_force", icon: "⛈️", text: "If the chef falls ill we arrange a replacement. Weather, road closures or supply problems are handled together, with rescheduling at no charge where possible. No chef fee is charged for a day without service." }
   ];
   var chefPolAuto = (p, k) => {
+    const has = (t) => k.extras.some((x) => x.tag === t);
     switch (p.id) {
+      case "cp_drinks": return has("drinks") || k.staff.some((s) => /bar/i.test(s.role || "")) ? [true, "drinks or a bartender in this quote"] : [false, "no drinks in this quote"];
       case "cp_lunch": return k.dates.some((d) => d.lunch !== "none") ? [true, "lunch in this quote"] : [false, "no lunch"];
       case "cp_staff": return k.staff.some((s) => s.n > 0) ? [true, "extra staff in this quote"] : [false, "no extra staff"];
+      case "cp_host": return has("host") ? [true, "host / staff dinner in this quote"] : [false, "no host dinners"];
       case "cp_holiday": return k.holMealDates.length ? [true, "a public holiday in this quote"] : [false, "no public holiday"];
       case "cp_travel": return k.km > 0 && k.B > 0 ? [true, "breakfast outside Selfoss"] : [false, "no breakfast away from Selfoss"];
+      case "cp_diet": return k.dates.length > 1 ? [true, "multi-day stay"] : [false, "single day: ask at booking"];
       case "cp_froken": return [true, "the promise, on by default"];
       default: return [true, "always"];
     }
@@ -1877,21 +1942,26 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
     const a = chefPolAuto(p, k), ov = CH.polOv || {}, has = Object.prototype.hasOwnProperty.call(ov, p.id);
     return { ...p, auto: a[0], why: a[1], on: has ? ov[p.id] : a[0], manual: has && ov[p.id] !== a[0] };
   });
-  var chefHTML = (CH, k, reviewMode) => {
-    const cl = CH.client || {}, esc = (t) => String(t == null ? "" : t).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  var chefHTML = (CH0, k, reviewMode) => {
+    const CH = normChef(CH0), cl = CH.client || {}, esc = (t) => String(t == null ? "" : t).replace(/&/g, "&amp;").replace(/</g, "&lt;");
     const td = '<td style="padding:4px 8px;border:1px solid #e5e7eb';
-    const dateTxt = k.dates.length ? k.dates.filter((d) => d.active).map((d) => `${d.label}: ${[d.b && "breakfast", d.lunch === "onsite" && "lunch on site", d.lunch === "box" && "lunch boxes", d.d && (d.style === "plated" ? "plated dinner" : "shared dinner")].filter(Boolean).join(", ")}${d.hol ? ` (${d.hol})` : ""}`).join("<br>") : "";
+    const dayHtml = k.dates.filter((d) => d.active || d.note).map((d) => {
+      const m = d.d ? chefMenu(d.menu) : null;
+      const parts = [d.b && "breakfast", d.lunch === "onsite" && "lunch on site", d.lunch === "box" && "lunch boxes", d.d && (m ? `dinner: ${m.name}` : d.style === "plated" ? "plated dinner" : "shared dinner")].filter(Boolean).join(", ");
+      return `<div style="margin-bottom:6px"><strong>${d.label}</strong>${d.hol ? ` <span style="color:#92400e">(${d.hol})</span>` : ""} — ${parts || "no meals"}${m ? `<div style="color:#555;font-size:11.5px;margin-left:10px">${m.c.map(esc).join(" \xB7 ")}</div>` : ""}${d.note ? `<div style="color:#555;font-size:11.5px;margin-left:10px;font-style:italic">${esc(d.note)}</div>` : ""}</div>`;
+    }).join("");
+    const bfTxt = k.B > 0 ? `<div style="font-size:11.5px;color:#555;margin-top:4px">${esc(CHEF_BREAKFAST)}</div>` : "";
     const rows = CH.pdfMode === "single" ? `<tr><td>Private chef — ${k.serviceDays ? `${k.serviceDays} service day${k.serviceDays > 1 ? "s" : ""}` : `${k.oneOff} dinner${k.oneOff > 1 ? "s" : ""}`}, ${k.g} guests, food and service included</td><td style="text-align:right">${fmt(k.total)}</td></tr>` : k.lines.map((l) => `<tr><td>${esc(l.label)}</td><td style="text-align:right">${fmt(l.amt)}</td></tr>`).join("");
     const pols = chefPolicyState(CH, k).filter((p) => p.on);
     const m = k.modes, row = (a, b, c, st) => `<tr${st || ""}>${td}">${a}</td>${td};color:#6b7280">${b}</td>${td};text-align:right">${c}</td></tr>`;
     const review = reviewMode ? `<h3 style="font-size:13px;margin:20px 0 8px;border-top:1px solid #e5e7eb;padding-top:16px">What this booking earns (internal, ex. VAT)</h3><table style="font-size:12px;border-collapse:collapse;width:100%">
       ${row("<strong>Revenue</strong>", `${fmt(k.total)} \xF7 ${CHEF_VAT}`, `<strong>${fmt(k.ex)}</strong>`)}
       ${row("Food at cost", `${k.g} guests \xD7 (${k.B} breakfast${k.B === 1 ? "" : "s"} \xD7 ${fmt(CH.foodB)} + ${k.D} dinner${k.D === 1 ? "" : "s"} \xD7 ${fmt(CH.foodD)})${k.dates.some((d) => d.lunch !== "none") ? " + lunches" : ""}`, "−" + fmt(k.foodCost))}
-      ${k.staffCost > 0 ? row("Extra staff", k.staff.filter((s) => s.n > 0).map((s) => `${s.role}: ${s.n} \xD7 ${s.hours}h \xD7 ${fmt(s.base)} \xD7${CH.salaryCosts}`).join("; "), "−" + fmt(k.staffCost)) : ""}
+      ${k.staff.filter((s) => s.n > 0).map((s) => row(`${esc(s.role)} — ${s.day.label}`, `${s.n} \xD7 ${s.hours}h \xD7 ${fmt(s.base)} \xD7${CH.salaryCosts}${s.day.wkd || s.day.hol ? ` \xD7${CH.weekendMult}` : ""}`, "−" + fmt(s.cost))).join("")}
+      ${k.extras.filter((x) => x.cost > 0).map((x) => row(`${esc(x.label || "Extra")} — ${x.day.label}`, x.mode === "markup" ? "purchase ex. VAT" : `${x.qty} \xD7 ${fmt(x.unitCost || 0)}`, "−" + fmt(x.cost))).join("")}
       ${k.travelCost > 0 ? row("Travel", `${k.trips} \xD7 (${k.km * 2} km \xD7 ${fmt(k.vpk)} + ${k.driveH} h \xD7 ${fmt(k.chefHrCost)})`, "−" + fmt(k.travelCost)) : ""}
-      ${k.extrasCost > 0 ? row("Extras", "", "−" + fmt(k.extrasCost)) : ""}
       ${row(`Overhead ${CH.overheadPct}%`, "rent, power, subscriptions, insurance, accounting", "−" + fmt(k.overhead))}
-      ${row("Chef — contractor", `${k.serviceDays} \xD7 ${fmt(CH.contractorDay)}${k.oneOff ? ` + ${k.oneOff} \xD7 ${fmt(CH.contractorDinner)}` : ""}`, "−" + fmt(m.contractor.chef), CH.chefMode === "contractor" ? ' style="background:#f0fdf4"' : "")}
+      ${row("Chef — contractor", `${k.serviceDays} \xD7 ${fmt(CH.contractorDay)}${k.oneOff ? ` + ${k.oneOff} \xD7 ${fmt(CH.contractorDinner)}` : ""}${k.lunchOnsite.length ? " + on-site lunches" : ""}`, "−" + fmt(m.contractor.chef), CH.chefMode === "contractor" ? ' style="background:#f0fdf4"' : "")}
       ${row("Chef — employed", `${k.empHours} h \xD7 ${fmt(k.chefHrCost)} (\xD7${CH.weekendMult} weekends and holidays)`, "−" + fmt(m.employed.chef), CH.chefMode === "employed" ? ' style="background:#f0fdf4"' : "")}
       ${row("<strong>Profit, contractor chef</strong>", "", `<strong>${fmt(m.contractor.profit)} (${pct(m.contractor.margin)})</strong>`, ' style="background:#ecfdf5"')}
       ${row("<strong>Profit, employed chef</strong>", "", `<strong>${fmt(m.employed.profit)} (${pct(m.employed.margin)})</strong>`, ' style="background:#ecfdf5"')}
@@ -1900,7 +1970,7 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
     ${reviewMode ? `<div style="background:#fef9c3;border:2px dashed #ca8a04;border-radius:8px;padding:12px 16px;margin-bottom:20px;font-size:13px;color:#78350f"><strong>⚠️ INTERNAL REVIEW DRAFT — Not for client distribution</strong></div>` : ""}<div class="hdr"><div><strong style="font-size:20px">Veislu\xFEj\xF3nusta Su\xF0urlands</strong><br><span style="font-size:13px;color:#666">Private Chef Quote${reviewMode ? " — Internal Review" : ""}</span><br><span style="font-size:11px;color:#aaa">Br\xFAartorg, Selfoss \xB7 +354 451-3320 \xB7 frokenselfoss.is</span></div>
     <div style="text-align:right"><span style="font-size:11px;color:#aaa">Quote</span><br><strong style="font-size:15px">${CH.id}</strong><br><span style="font-size:11px;color:#aaa">${(/* @__PURE__ */ new Date()).toLocaleDateString("en-GB")}</span></div></div>
     <div style="margin-bottom:16px;font-size:13px;line-height:1.7"><strong>${esc(cl.name) || "Client"}</strong>${cl.company ? `<br>${esc(cl.company)}` : ""}${cl.email ? `<br>${esc(cl.email)}` : ""}${cl.phone ? `<br>${esc(cl.phone)}` : ""}
-    <br><em>${esc(CH.eventName) || "Private chef"} \xB7 ${k.g} guests</em>${dateTxt ? `<div style="font-size:12px;color:#555;margin-top:6px">${dateTxt}</div>` : ""}</div>
+    <br><em>${esc(CH.eventName) || "Private chef"} \xB7 ${k.g} guests</em>${dayHtml ? `<div style="font-size:12px;color:#333;margin-top:8px">${dayHtml}${bfTxt}</div>` : ""}</div>
     <table>${rows}<tr class="sub"><td>Included VAT 11%</td><td style="text-align:right">${fmt(k.vat)}</td></tr><tr class="tot"><td>TOTAL (incl. VAT)</td><td style="text-align:right">${fmt(k.total)}</td></tr>
     <tr><td style="padding-top:5px;color:#92400e"><strong>Per guest incl. VAT</strong></td><td style="text-align:right;color:#92400e"><strong>${fmt(Math.round(k.pp))}</strong></td></tr>
     <tr><td style="padding-top:5px;color:#6b7280">Retainer 30% on booking</td><td style="text-align:right;color:#6b7280">${fmt(Math.round(k.total * 0.3))}</td></tr>
@@ -1910,89 +1980,131 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
     ${review}
     ${!reviewMode && pols.length ? `<div class="pol"><strong>Booking Policy</strong><br>${pols.map((p) => `${p.icon} ${p.text}`).join("<br>")}</div>` : ""}</body></html>`;
   };
-  var ChefTab = ({ CH, setCH, modal, templates, onLoadTpl, onDeleteTpl, onSaveTpl, onToCustom, onToStandard }) => {
+  /* the live "how it's worked out" steps, with this quote's numbers */
+  var chefExplain = (CH, k) => {
+    const g = k.g, s = [];
+    s.push(["Service days", `${k.B} breakfast${k.B === 1 ? "" : "s"} and ${k.D} dinner${k.D === 1 ? "" : "s"} → ${k.serviceDays ? `${k.serviceDays} service day${k.serviceDays === 1 ? "" : "s"}` : k.oneOff ? `${k.oneOff} one-off dinner${k.oneOff === 1 ? "" : "s"}` : "nothing yet"}. We count like Nordic Luxury: a service day is one breakfast and one dinner, and an arrival dinner plus a departure breakfast together make one day, so the larger of the two counts wins. There are no partial days. With no breakfast at all, each dinner is a one-off dinner.`]);
+    s.push(["Price of a service day", `${fmt(CH.dayFee)} chef fee + ${Math.min(g, CH.ppBreak)} \xD7 ${fmt(CH.pp1)}${g > CH.ppBreak ? ` + ${g - CH.ppBreak} \xD7 ${fmt(CH.pp2)}` : ""} for the guests = ${fmt(CH.dayFee + k.guestFee)}. The per-guest part pays for the food; guests above ${CH.ppBreak} are cheaper because the chef's work barely grows.`]);
+    s.push(["One-off dinner", `${fmt(CH.dinnerFee)} + ${g} \xD7 ${fmt(CH.dinnerPP)} = ${fmt(CH.dinnerFee + g * CH.dinnerPP)}. The drive is included in the fee.`]);
+    s.push(["Public holidays", `On a public holiday the chef fee (not the per-guest part) is \xD7${CH.holMult}, and so are extra staff and the on-site lunch fee that day.`]);
+    s.push(["Lunch", `Not part of a service day. Lunch boxes ${fmt(CH.lunchBoxPrice)} per guest (made the day before). Lunch on site ${fmt(CH.lunchFee)} + ingredients at cost + ${CH.lunchMarkupPct}% (about ${fmt(CH.foodL * (1 + CH.lunchMarkupPct / 100) * CHEF_VAT)} per guest).`]);
+    s.push(["Extra staff, per day", `${fmt(CH.staffSingle)} for a single meal, ${fmt(CH.staffFull)} for a full day. Our cost: hours \xD7 base wage \xD7 ${CH.salaryCosts} (\xD7${CH.weekendMult} on weekends and holidays).`]);
+    s.push(["Purchases, per day", `Wine, drinks and private shopping: the estimated cost incl. VAT + ${CH.markupPct}%. The invoice uses the real receipts. Fixed-price extras (welcome cocktails, host dinners) are quantity \xD7 price.`]);
+    s.push(["Travel", "Within 30 minutes of Selfoss it is included. For stays further out without accommodation for the chef, each return drive is charged at cost: km \xD7 vehicle cost per km + drive hours \xD7 the chef's hourly cost."]);
+    s.push(["VAT", `Every price includes 11% VAT. The invoice is one “Private chef” line at 11%. This quote: ${fmt(k.total)} incl. VAT = ${fmt(k.ex)} + ${fmt(k.vat)} VAT.`]);
+    s.push(["What it earns", `Revenue ex. VAT − food at cost (${fmt(CH.foodB)} per breakfast, ${fmt(CH.foodD)} per dinner, per guest) − staff − purchases − travel − overhead ${CH.overheadPct}% − the chef. Contractor: ${fmt(CH.contractorDay)} a service day. Employed: ${CH.hrsB} h breakfast + ${CH.hrsD} h dinner \xD7 ${fmt(CH.chefHourly)} \xD7 ${CH.salaryCosts}.`]);
+    return s;
+  };
+  var ChefTab = ({ CH: CHraw, setCH, modal, templates, onLoadTpl, onDeleteTpl, onSaveTpl, onToCustom, onToStandard }) => {
     const h = React.createElement;
+    const CH = normChef(CHraw);
+    React.useEffect(() => { if ((CHraw.staff || []).length || (CHraw.extras || []).length) setCH(normChef); }, [CHraw.staff, CHraw.extras]);
     const k = chefCalc(CH);
     const up = (key, v) => setCH((p) => ({ ...p, [key]: v }));
     const upN = (key) => (e) => up(key, e.target.value === "" ? 0 : Number(e.target.value));
-    const setDay = (i, patch) => setCH((p) => ({ ...p, days: p.days.map((d, j) => j === i ? { ...d, ...patch } : d) }));
+    const setDay = (i, patch) => setCH((p) => ({ ...p, days: p.days.map((d, j) => j === i ? { ...chefDay(d), ...(typeof patch === "function" ? patch(chefDay(d)) : patch) } : d) }));
     const setDays = (n) => setCH((p) => {
       const cur = p.days || [];
       if (n < 1) return p;
       if (n > cur.length) return { ...p, days: cur.concat(Array.from({ length: n - cur.length }, () => chefDay())) };
       return { ...p, days: cur.slice(0, n) };
     });
-    const upStaff = (id, patch) => setCH((p) => ({ ...p, staff: p.staff.map((s) => s.id === id ? { ...s, ...patch } : s) }));
-    const addWaiter = () => setCH((p) => ({ ...p, staff: (p.staff || []).concat(CHEF_WAITER()) }));
-    const upX = (id, patch) => setCH((p) => ({ ...p, extras: p.extras.map((x) => x.id === id ? { ...x, ...patch } : x) }));
+    const upStaff = (i, id, patch) => setDay(i, (d) => ({ staff: d.staff.map((s) => s.id === id ? { ...s, ...patch } : s) }));
+    const addWaiter = (i, role) => setDay(i, (d) => ({ staff: d.staff.concat(CHEF_WAITER(role)) }));
+    const upX = (i, id, patch) => setDay(i, (d) => ({ extras: d.extras.map((x) => x.id === id ? { ...x, ...patch } : x) }));
+    const addX = (i, pr) => setDay(i, (d) => ({ extras: d.extras.concat({ id: chefStaffId(), label: pr.label, mode: pr.mode, tag: pr.tag, qty: pr.perGuest ? CH.guests : pr.qty || 1, unit: pr.unit || 0, unitCost: pr.unitCost || 0, cost: 0 }) }));
     const upT = (patch) => setCH((p) => ({ ...p, travel: { ...(p.travel || {}), ...patch } }));
-    const applyTpl = (t) => setCH((p) => ({ ...p, tpl: t.id, days: t.days.map((d) => chefDay(d)), staff: t.staff === "waiter" ? [CHEF_WAITER()] : [] }));
+    const applyTpl = (t) => setCH((p) => ({ ...p, staff: [], extras: [], tpl: t.id, days: t.days.map(({ waiter, ...d }) => chefDay({ ...d, staff: waiter ? [CHEF_WAITER()] : [] })) }));
     const [tplName, setTplName] = React.useState("");
     const [showRates, setShowRates] = React.useState(false);
-    const [mode, setMode] = [CH.chefMode, (v) => up("chefMode", v)];
+    const [showHow, setShowHow] = React.useState(true);
+    const [openNote, setOpenNote] = React.useState({});
+    const mode = CH.chefMode, setMode = (v) => up("chefMode", v);
     const ok = k.cur.margin * 100 >= CH.targetPct - 0.05;
     const pill = (on, onClick, label, extra) => h("button", { onClick, style: { padding: "6px 10px", borderRadius: 8, border: `1.5px solid ${on ? "#e11d48" : "#e5e7eb"}`, background: on ? "#fff1f2" : "white", color: on ? "#be123c" : "#6b7280", fontWeight: 600, fontSize: 12, cursor: "pointer", ...(extra || {}) } }, label);
+    const chip = (onClick, label, title) => h("button", { onClick, title, style: { padding: "4px 9px", borderRadius: 20, border: "1px dashed #d1d5db", background: "white", color: "#4b5563", fontSize: 11.5, cursor: "pointer", whiteSpace: "nowrap" } }, label);
     const tone = { amber: ["#fffbeb", "#fcd34d", "#92400e"], blue: ["#eff6ff", "#bfdbfe", "#1e40af"], red: ["#fef2f2", "#fecaca", "#b91c1c"], gray: ["#f9fafb", "#e5e7eb", "#6b7280"] };
     const sec = (t) => h("div", { style: { fontSize: 11, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.05em", margin: "10px 0 6px" } }, t);
     const num = (val, onChange, extra) => h("input", { type: "number", value: val, onChange, style: { ...I, ...(extra || {}) } });
+    const small = { ...I, padding: "5px 8px", fontSize: 12 };
+    const xBtn = (onClick) => h("button", { onClick, title: "Remove", style: { border: "none", background: "none", color: "#9ca3af", cursor: "pointer", fontSize: 14, padding: "0 4px" } }, "✕");
     const pols = chefPolicyState(CH, k);
-    const lunchSel = (d) => h("select", { value: d.lunch, onChange: (e) => setDay(d.i, { lunch: e.target.value }), style: { ...I, width: "auto", background: "white", padding: "5px 8px", fontSize: 12 } }, h("option", { value: "none" }, "No lunch"), h("option", { value: "box" }, `Lunch boxes (${fmt(CH.lunchBoxPrice)}/guest)`), h("option", { value: "onsite" }, `Lunch on site (${fmt(CH.lunchFee)} + food)`));
+    const sel = (value, onChange, opts) => h("select", { value, onChange, style: { ...I, width: "auto", maxWidth: "100%", background: "white", padding: "5px 8px", fontSize: 12 } }, opts.map(([v, t]) => h("option", { key: v, value: v }, t)));
+    const staffRow = (d, s) => h("div", { key: s.id, style: { background: "#f9fafb", borderRadius: 8, padding: "6px 8px", marginTop: 6 } },
+      h("div", { style: { display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" } },
+        h("span", { style: { fontSize: 13 } }, "\u{1F935}"),
+        h("input", { value: s.role, onChange: (e) => upStaff(d.i, s.id, { role: e.target.value }), style: { ...small, flex: "1 1 130px", width: "auto" } }),
+        pill(s.kind !== "full", () => upStaff(d.i, s.id, { kind: "single", hours: s.kind === "full" ? 5 : s.hours }), `Meal ${fmt(CH.staffSingle)}`, { padding: "4px 8px", fontSize: 11 }),
+        pill(s.kind === "full", () => upStaff(d.i, s.id, { kind: "full", hours: s.kind === "full" ? s.hours : 8 }), `Full day ${fmt(CH.staffFull)}`, { padding: "4px 8px", fontSize: 11 }),
+        xBtn(() => setDay(d.i, (dd) => ({ staff: dd.staff.filter((x) => x.id !== s.id) })))),
+      h("div", { style: { display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap", marginTop: 5, fontSize: 11, color: "#6b7280" } },
+        "People", num(s.qty, (e) => upStaff(d.i, s.id, { qty: Number(e.target.value) || 0 }), { ...small, width: 56 }),
+        "Hours (cost)", num(s.hours, (e) => upStaff(d.i, s.id, { hours: Number(e.target.value) || 0 }), { ...small, width: 56 }),
+        "Base kr/hr", num(s.base, (e) => upStaff(d.i, s.id, { base: Number(e.target.value) || 0 }), { ...small, width: 76 }),
+        h("span", { style: { marginLeft: "auto", color: "#374151", fontWeight: 600 } }, (() => { const st = k.staff.find((x) => x.id === s.id); return st ? `${fmt(st.price)} \xB7 cost ${fmt(st.cost)}` : ""; })())));
+    const extraRow = (d, x) => {
+      const e = chefExtraCalc(x, CH), pr = CHEF_EXTRA_PRESETS.find((p) => p.tag === x.tag && p.mode === x.mode);
+      return h("div", { key: x.id, style: { background: "#f9fafb", borderRadius: 8, padding: "6px 8px", marginTop: 6 } },
+        h("div", { style: { display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" } },
+          h("span", { style: { fontSize: 13 } }, pr ? pr.icon : "➕"),
+          h("input", { value: x.label, placeholder: "What is it? e.g. cake, wine pairing, flowers", onChange: (ev) => upX(d.i, x.id, { label: ev.target.value }), style: { ...small, flex: "1 1 150px", width: "auto" } }),
+          pill(x.mode === "markup", () => upX(d.i, x.id, { mode: "markup" }), `Cost + ${CH.markupPct}%`, { padding: "4px 8px", fontSize: 11 }),
+          pill(x.mode !== "markup", () => upX(d.i, x.id, { mode: "unit" }), "Fixed price", { padding: "4px 8px", fontSize: 11 }),
+          xBtn(() => setDay(d.i, (dd) => ({ extras: dd.extras.filter((y) => y.id !== x.id) })))),
+        h("div", { style: { display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap", marginTop: 5, fontSize: 11, color: "#6b7280" } },
+          x.mode === "markup" ? h(React.Fragment, null, "Est. cost incl. VAT", num(x.cost || 0, (ev) => upX(d.i, x.id, { cost: Number(ev.target.value) || 0 }), { ...small, width: 100 })) : h(React.Fragment, null,
+            "Qty", num(x.qty, (ev) => upX(d.i, x.id, { qty: Number(ev.target.value) || 0 }), { ...small, width: 56 }),
+            "\xD7 price incl. VAT", num(x.unit, (ev) => upX(d.i, x.id, { unit: Number(ev.target.value) || 0 }), { ...small, width: 84 }),
+            "our cost each", num(x.unitCost, (ev) => upX(d.i, x.id, { unitCost: Number(ev.target.value) || 0 }), { ...small, width: 76 })),
+          h("span", { style: { marginLeft: "auto", color: "#374151", fontWeight: 600 } }, `${fmt(e.price)}${x.mode === "markup" ? ` (cost + ${CH.markupPct}%)` : ""}`)));
+    };
+    const dayCard = (d) => {
+      const m = d.d ? chefMenu(d.menu) : null, noteOpen = openNote[d.i] || !!d.note;
+      return h("div", { key: d.i, style: { border: `1px solid ${d.hol ? "#fcd34d" : "#e5e7eb"}`, background: d.hol ? "#fffbeb" : d.active ? "white" : "#f9fafb", borderRadius: 10, padding: "9px 10px", marginBottom: 8 } },
+        h("div", { style: { display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" } },
+          h("div", { style: { fontWeight: 700, fontSize: 13, minWidth: 92 } }, d.label),
+          d.hol && h("span", { style: { fontSize: 10.5, fontWeight: 700, color: "#92400e", background: "#fef3c7", borderRadius: 6, padding: "2px 6px" } }, "\u{1F384} ", d.hol, " \xD7", CH.holMult),
+          !d.hol && d.wkd && h("span", { style: { fontSize: 10.5, color: "#6b7280", background: "#f3f4f6", borderRadius: 6, padding: "2px 6px" } }, "weekend"),
+          h("div", { style: { flex: 1 } }),
+          pill(d.b, () => setDay(d.i, { b: !d.b }), (d.b ? "✓ " : "") + "Breakfast"),
+          pill(d.d, () => setDay(d.i, { d: !d.d }), (d.d ? "✓ " : "") + "Dinner")),
+        h("div", { style: { display: "flex", gap: 6, marginTop: 6, flexWrap: "wrap", alignItems: "center" } },
+          sel(d.lunch, (e) => setDay(d.i, { lunch: e.target.value }), [["none", "No lunch"], ["box", `Lunch boxes (${fmt(CH.lunchBoxPrice)}/guest)`], ["onsite", `Lunch on site (${fmt(CH.lunchFee)} + food)`]]),
+          d.d && sel(d.style, (e) => setDay(d.i, { style: e.target.value }), [["plated", "Plated 3–4 courses"], ["shared", "Casual / shared"]]),
+          d.d && sel(d.menu || "", (e) => setDay(d.i, { menu: e.target.value }), [["", "Dinner menu: to be chosen"]].concat(CHEF_MENUS.map((mm) => [mm.id, `${mm.name}${mm.sub ? ` — ${mm.sub}` : ""}`])))),
+        m && h("div", { style: { fontSize: 11.5, color: "#4b5563", marginTop: 5, lineHeight: 1.45 } }, m.c.map((c, j) => h("div", { key: j }, ["Starter", "Main", "Dessert"][j], ": ", c))),
+        d.staff.map((s) => staffRow(d, s)),
+        d.extras.map((x) => extraRow(d, x)),
+        noteOpen && h("textarea", { rows: 2, value: d.note, placeholder: "Note for this day: times, allergies, plans (shown on the quote)", onChange: (e) => setDay(d.i, { note: e.target.value }), style: { ...small, resize: "vertical", marginTop: 6, width: "100%" } }),
+        h("div", { style: { display: "flex", gap: 5, flexWrap: "wrap", marginTop: 7 } },
+          chip(() => addWaiter(d.i), "+ Waiter / bartender", `${fmt(CH.staffSingle)} a meal`),
+          CHEF_EXTRA_PRESETS.map((pr) => h(React.Fragment, { key: pr.k }, chip(() => addX(d.i, pr), `+ ${pr.label || "Other"}`, pr.hint || (pr.unit ? `${fmt(pr.unit)}${pr.perGuest ? " per guest" : " each"}` : "")))),
+          !noteOpen && chip(() => setOpenNote({ ...openNote, [d.i]: true }), "\u{1F4DD} Note")));
+    };
     const form = h("div", { style: { display: "flex", flexDirection: "column", gap: 10 } },
       h("div", { style: { background: "white", borderRadius: 10, border: "1px solid #e5e7eb", padding: "10px 14px" } },
         h("div", { style: { fontSize: 11, fontWeight: 700, color: "#6b7280", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.05em" } }, "\u{1F468}‍\u{1F373} Start from a template"),
-        h("div", { style: { display: "flex", gap: 6, flexWrap: "wrap" } }, CHEF_TEMPLATES.map((t) => h("button", { key: t.id, onClick: () => applyTpl(t), title: t.desc, style: { flex: "1 1 150px", maxWidth: 230, padding: "7px 11px", borderRadius: 9, border: `1.5px solid ${CH.tpl === t.id ? "#e11d48" : "#e5e7eb"}`, background: CH.tpl === t.id ? "#fff1f2" : "white", cursor: "pointer", textAlign: "left" } }, h("div", { style: { fontSize: 12.5, fontWeight: 700, color: CH.tpl === t.id ? "#be123c" : "#111827" } }, t.icon, " ", t.name), h("div", { style: { fontSize: 10, color: "#9ca3af", maxWidth: 170 } }, t.desc)))),
+        h("div", { style: { display: "flex", gap: 6, flexWrap: "wrap" } }, CHEF_TEMPLATES.map((t) => h("button", { key: t.id, onClick: () => applyTpl(t), title: t.desc, style: { flex: "1 1 150px", maxWidth: 230, padding: "7px 11px", borderRadius: 9, border: `1.5px solid ${CH.tpl === t.id ? "#e11d48" : "#e5e7eb"}`, background: CH.tpl === t.id ? "#fff1f2" : "white", cursor: "pointer", textAlign: "left" } }, h("div", { style: { fontSize: 12.5, fontWeight: 700, color: CH.tpl === t.id ? "#be123c" : "#111827" } }, t.icon, " ", t.name), h("div", { style: { fontSize: 10, color: "#9ca3af" } }, t.desc)))),
         templates.length > 0 && h("div", { style: { display: "flex", gap: 6, flexWrap: "wrap", marginTop: 8 } }, templates.map((t) => h("div", { key: t.id, style: { display: "flex", borderRadius: 8, overflow: "hidden", border: "1px solid #ddd6fe" } }, h("button", { onClick: () => onLoadTpl(t), style: { background: "#f5f3ff", color: "#5b21b6", border: "none", padding: "5px 10px", fontSize: 12, fontWeight: 600, cursor: "pointer" } }, t.name), h("button", { onClick: () => { if (window.confirm(`Delete the template “${t.name}”?`)) onDeleteTpl(t.id); }, title: "Delete template", style: { background: "#faf5ff", color: "#c4b5fd", border: "none", borderLeft: "1px solid #ddd6fe", padding: "5px 8px", fontSize: 11, cursor: "pointer" } }, "✕"))))),
-      k.warn.filter((w) => w.k !== "loss").map((w) => h("div", { key: w.k, style: { background: tone[w.tone][0], border: `1px solid ${tone[w.tone][1]}`, color: tone[w.tone][2], borderRadius: 10, padding: "9px 12px", fontSize: 12.5, display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" } }, h("span", { style: { flex: 1, minWidth: 180 } }, w.tone === "amber" ? "⚠️ " : "ℹ️ ", w.text), w.act === "custom" && h("button", { onClick: onToCustom, style: { ...BS("#fff", tone.amber[1], tone.amber[2]), fontWeight: 700 } }, "Open as Custom Event →"), w.act === "waiter" && h("button", { onClick: addWaiter, style: { ...BS("#fff", tone.amber[1], tone.amber[2]), fontWeight: 700 } }, `+ Add waiter (${fmt(CH.staffSingle)})`))),
+      k.warn.filter((w) => w.k !== "loss").map((w) => h("div", { key: w.k, style: { background: tone[w.tone][0], border: `1px solid ${tone[w.tone][1]}`, color: tone[w.tone][2], borderRadius: 10, padding: "9px 12px", fontSize: 12.5, display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" } }, h("span", { style: { flex: 1, minWidth: 180 } }, w.tone === "amber" ? "⚠️ " : "ℹ️ ", w.text), w.act === "custom" && h("button", { onClick: onToCustom, style: { ...BS("#fff", tone.amber[1], tone.amber[2]), fontWeight: 700 } }, "Open as Custom Event →"), w.act === "waiter" && h("button", { onClick: () => addWaiter(w.day), style: { ...BS("#fff", tone.amber[1], tone.amber[2]), fontWeight: 700 } }, `+ Add waiter (${fmt(CH.staffSingle)})`))),
       h(Card, { title: "\u{1F464} Client & Stay" },
         h("div", { className: "g2c", style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 } },
           h(F, { label: "Stay / event name", span2: true }, h("input", { value: CH.eventName, onChange: (e) => up("eventName", e.target.value), placeholder: "e.g. Smith family, Villa Hella", style: I })),
           [["Name", "name", "text"], ["Company / agency", "company", "text"], ["Email", "email", "email"], ["Phone", "phone", "tel"]].map(([l, key, t]) => h(F, { key, label: l }, h("input", { type: t, value: (CH.client || {})[key] || "", onChange: (e) => up("client", { ...CH.client, [key]: e.target.value }), style: I }))),
-          h(F, { label: "Notes", span2: true }, h("textarea", { rows: 2, value: CH.notes, onChange: (e) => up("notes", e.target.value), style: { ...I, resize: "vertical" } })))),
-      h(Card, { title: "\u{1F4C5} Dates, guests & meals" },
+          h(F, { label: "Notes for the whole stay", span2: true }, h("textarea", { rows: 2, value: CH.notes, onChange: (e) => up("notes", e.target.value), style: { ...I, resize: "vertical" } })))),
+      h(Card, { title: "\u{1F4C5} Days, meals & extras" },
         h("div", { className: "g2c", style: { display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 10 } },
           h(F, { label: "First day" }, h("input", { type: "date", value: CH.start, onChange: (e) => up("start", e.target.value), style: I })),
           h(F, { label: "Days" }, h("div", { style: { display: "flex", gap: 4, alignItems: "center" } }, h(SB, { onClick: () => setDays(CH.days.length - 1) }, "−"), h("div", { style: { ...I, textAlign: "center", fontWeight: 700 } }, CH.days.length), h(SB, { onClick: () => setDays(CH.days.length + 1) }, "+"))),
           h(F, { label: "Guests" }, h("div", { style: { display: "flex", gap: 4, alignItems: "center" } }, h(SB, { onClick: () => up("guests", Math.max(1, CH.guests - 1)) }, "−"), h("input", { type: "number", min: 1, value: CH.guests, onChange: upN("guests"), style: { ...I, textAlign: "center", fontWeight: 700 } }), h(SB, { onClick: () => up("guests", CH.guests + 1) }, "+")))),
-        k.dates.map((d) => h("div", { key: d.i, style: { border: `1px solid ${d.hol ? "#fcd34d" : "#e5e7eb"}`, background: d.hol ? "#fffbeb" : d.active ? "white" : "#f9fafb", borderRadius: 9, padding: "8px 10px", marginBottom: 6 } },
-          h("div", { style: { display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" } },
-            h("div", { style: { fontWeight: 700, fontSize: 13, minWidth: 92 } }, d.label),
-            d.hol && h("span", { style: { fontSize: 10.5, fontWeight: 700, color: "#92400e", background: "#fef3c7", borderRadius: 6, padding: "2px 6px" } }, "\u{1F384} ", d.hol, " \xD7", CH.holMult),
-            !d.hol && d.wkd && h("span", { style: { fontSize: 10.5, color: "#6b7280", background: "#f3f4f6", borderRadius: 6, padding: "2px 6px" } }, "weekend"),
-            h("div", { style: { flex: 1 } }),
-            pill(d.b, () => setDay(d.i, { b: !d.b }), (d.b ? "✓ " : "") + "Breakfast"),
-            pill(d.d, () => setDay(d.i, { d: !d.d }), (d.d ? "✓ " : "") + "Dinner")),
-          (d.d || d.lunch !== "none" || d.b) && h("div", { style: { display: "flex", gap: 8, marginTop: 6, flexWrap: "wrap", alignItems: "center" } },
-            lunchSel(d),
-            d.d && h("select", { value: d.style, onChange: (e) => setDay(d.i, { style: e.target.value }), style: { ...I, width: "auto", background: "white", padding: "5px 8px", fontSize: 12 } }, h("option", { value: "plated" }, "Plated 3–4 course dinner"), h("option", { value: "shared" }, "Casual / shared dinner"))))),
-        h("div", { style: { fontSize: 11.5, color: "#6b7280", marginTop: 4, lineHeight: 1.5 } }, k.serviceDays > 0 ? `${k.B} breakfast${k.B === 1 ? "" : "s"} + ${k.D} dinner${k.D === 1 ? "" : "s"} = ${k.serviceDays} service day${k.serviceDays === 1 ? "" : "s"} (an arrival dinner and a departure breakfast make one day).` : k.oneOff > 0 ? `${k.oneOff} one-off dinner${k.oneOff === 1 ? "" : "s"}.` : "Tick at least one meal.", " Client wants a cheaper menu? ", h("a", { href: "#", onClick: (e) => { e.preventDefault(); onToStandard(); }, style: { color: "#be123c", fontWeight: 600 } }, "Quote a drop-off catering menu instead"), ".")),
-      h(Card, { title: "\u{1F935} Extra staff" },
-        (CH.staff || []).length === 0 && h("div", { style: { fontSize: 12, color: "#9ca3af", marginBottom: 8 } }, "Chef alone. A waiter is usually only needed for a plated dinner for 9+ guests, or as a farewell waiter-bartender."),
-        k.staff.map((s) => h("div", { key: s.id, style: { border: "1px solid #e5e7eb", borderRadius: 9, padding: "8px 10px", marginBottom: 6 } },
-          h("div", { style: { display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" } },
-            h("input", { value: s.role, onChange: (e) => upStaff(s.id, { role: e.target.value }), style: { ...I, flex: "1 1 160px" } }),
-            pill(s.kind === "single", () => upStaff(s.id, { kind: "single", hours: s.kind === "single" ? s.hours : 5 }), `Single meal ${fmt(CH.staffSingle)}`),
-            pill(s.kind === "full", () => upStaff(s.id, { kind: "full", hours: s.kind === "full" ? s.hours : 8 }), `Full day ${fmt(CH.staffFull)}`),
-            h("button", { onClick: () => setCH((p) => ({ ...p, staff: p.staff.filter((x) => x.id !== s.id) })), title: "Remove", style: { border: "none", background: "none", color: "#9ca3af", cursor: "pointer", fontSize: 14 } }, "✕")),
-          h("div", { className: "g2c", style: { display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 6, marginTop: 6 } },
-            h(F, { label: "People" }, num(s.qty, (e) => upStaff(s.id, { qty: Number(e.target.value) || 0 }))),
-            h(F, { label: s.kind === "full" ? "Days" : "Meals" }, num(s.days, (e) => upStaff(s.id, { days: Number(e.target.value) || 0 }))),
-            h(F, { label: "Hours each (cost)" }, num(s.hours, (e) => upStaff(s.id, { hours: Number(e.target.value) || 0 }))),
-            h(F, { label: "Base kr/hr (cost)" }, num(s.base, (e) => upStaff(s.id, { base: Number(e.target.value) || 0 })))),
-          h("div", { style: { fontSize: 11, color: "#6b7280", marginTop: 4 } }, `Charge ${fmt(s.price)} \xB7 cost ${fmt(s.cost)}`))),
-        h("button", { onClick: addWaiter, style: BS("#fff", "#e5e7eb", "#374151") }, "+ Waiter-bartender")),
+        k.dates.map(dayCard),
+        h("div", { style: { fontSize: 11.5, color: "#6b7280", marginTop: 2, lineHeight: 1.5 } }, k.serviceDays > 0 ? `${k.B} breakfast${k.B === 1 ? "" : "s"} + ${k.D} dinner${k.D === 1 ? "" : "s"} = ${k.serviceDays} service day${k.serviceDays === 1 ? "" : "s"}, counted the Nordic way (see How it's worked out).` : k.oneOff > 0 ? `${k.oneOff} one-off dinner${k.oneOff === 1 ? "" : "s"}.` : "Tick at least one meal.", " Client wants a cheaper menu? ", h("a", { href: "#", onClick: (e) => { e.preventDefault(); onToStandard(); }, style: { color: "#be123c", fontWeight: 600 } }, "Quote a drop-off catering menu instead"), ".")),
       h(Card, { title: "\u{1F697} Travel" },
         h("div", { style: { fontSize: 11.5, color: "#6b7280", marginBottom: 8 } }, "Within 30 minutes of Selfoss travel is included, and a one-off dinner carries it in the fee. Use this for multi-day stays further away without accommodation for the chef (daily return drives)."),
         h("div", { className: "g2c", style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 } },
           h(F, { label: "Distance one way (km)" }, num((CH.travel || {}).km, (e) => upT({ km: Number(e.target.value) || 0 }))),
-          h(F, { label: "Return drives" }, h("div", { style: { display: "flex", gap: 4 } }, num((CH.travel || {}).trips, (e) => upT({ trips: Number(e.target.value) || 0 })), k.km > 0 && h("button", { onClick: () => upT({ trips: k.dates.filter((d) => d.active).length }), title: "One return drive per day with meals", style: { ...BS("#fff", "#e5e7eb", "#374151"), whiteSpace: "nowrap" } }, "↻ ", k.dates.filter((d) => d.active).length, "/day")))),
-        k.km > 0 && h("div", { style: { fontSize: 11.5, color: "#374151", marginTop: 8, display: "flex", justifyContent: "space-between", gap: 8, flexWrap: "wrap", alignItems: "center" } }, h("span", null, `${k.km * 2} km \xD7 ${fmt(k.vpk)}/km + ${k.driveH} h drive \xD7 ${fmt(k.chefHrCost)} = ${fmt(k.trips ? k.travelCost / k.trips : k.km * 2 * k.vpk + k.driveH * k.chefHrCost)} per drive`), h("label", { style: { display: "flex", gap: 6, alignItems: "center", fontSize: 12 } }, h(Tog, { val: !!(CH.travel || {}).charge, set: (v) => upT({ charge: v }) }), "Charge to client at cost"))),
-      h(Card, { title: "➕ Extras" },
-        (CH.extras || []).map((x) => h("div", { key: x.id, className: "g2c", style: { display: "grid", gridTemplateColumns: "1fr 120px 120px 24px", gap: 6, marginBottom: 6, alignItems: "end" } },
-          h(F, { label: "Item" }, h("input", { value: x.label, onChange: (e) => upX(x.id, { label: e.target.value }), placeholder: "e.g. Wine pairing, cake, complex menu", style: I })),
-          h(F, { label: "Price incl. VAT" }, num(x.price, (e) => upX(x.id, { price: Number(e.target.value) || 0 }))),
-          h(F, { label: "Our cost ex. VAT" }, num(x.cost, (e) => upX(x.id, { cost: Number(e.target.value) || 0 }))),
-          h("button", { onClick: () => setCH((p) => ({ ...p, extras: p.extras.filter((y) => y.id !== x.id) })), style: { border: "none", background: "none", color: "#9ca3af", cursor: "pointer", fontSize: 14, paddingBottom: 8 } }, "✕"))),
-        h("button", { onClick: () => setCH((p) => ({ ...p, extras: (p.extras || []).concat({ id: chefStaffId(), label: "", price: 0, cost: 0 }) })), style: BS("#fff", "#e5e7eb", "#374151") }, "+ Extra line")),
+          h(F, { label: "Return drives" }, h("div", { style: { display: "flex", gap: 4 } }, num((CH.travel || {}).trips, (e) => upT({ trips: Number(e.target.value) || 0 })), k.km > 0 && h("button", { onClick: () => upT({ trips: k.dates.filter((d) => d.meals > 0).length }), title: "One return drive per day with meals", style: { ...BS("#fff", "#e5e7eb", "#374151"), whiteSpace: "nowrap" } }, "↻ ", k.dates.filter((d) => d.meals > 0).length, "/day")))),
+        k.km > 0 && h("div", { style: { fontSize: 11.5, color: "#374151", marginTop: 8, display: "flex", justifyContent: "space-between", gap: 8, flexWrap: "wrap", alignItems: "center" } }, h("span", null, `${k.km * 2} km \xD7 ${fmt(k.vpk)}/km + ${k.driveH} h drive \xD7 ${fmt(k.chefHrCost)} = ${fmt(k.km * 2 * k.vpk + k.driveH * k.chefHrCost)} per drive`), h("label", { style: { display: "flex", gap: 6, alignItems: "center", fontSize: 12 } }, h(Tog, { val: !!(CH.travel || {}).charge, set: (v) => upT({ charge: v }) }), "Charge to client at cost"))),
       h(Card, { title: "\u{1F4D6} Policies on the quote" },
         h("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 11, color: "#6b7280", marginBottom: 6 } }, h("span", null, "Ticked automatically from the quote; click to change."), Object.keys(CH.polOv || {}).length > 0 && h("button", { onClick: () => up("polOv", {}), style: BS("#fff", "#e5e7eb", "#374151") }, "↺ Auto")),
         pols.map((p) => h("div", { key: p.id, onClick: () => up("polOv", { ...(CH.polOv || {}), [p.id]: !p.on }), style: { display: "flex", gap: 8, padding: "6px 8px", borderRadius: 8, cursor: "pointer", background: p.on ? "#f0fdf4" : "white", border: `1px solid ${p.on ? "#bbf7d0" : "#f3f4f6"}`, marginBottom: 4, opacity: p.on ? 1 : 0.6 } }, h("input", { type: "checkbox", checked: p.on, readOnly: true, style: { marginTop: 2 } }), h("div", { style: { flex: 1, fontSize: 12, color: "#374151" } }, p.icon, " ", p.text, h("div", { style: { fontSize: 10, color: p.manual ? "#be123c" : "#9ca3af", marginTop: 2 } }, p.manual ? (p.on ? "added by hand" : "removed by hand") : p.why))))),
@@ -2015,8 +2127,8 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
         h(LR, { label: "Revenue", val: fmt(k.ex) }),
         h(LR, { label: "Food at cost", sub: `${k.g} \xD7 (${k.B} \xD7 ${fmt(CH.foodB)} breakfast + ${k.D} \xD7 ${fmt(CH.foodD)} dinner)${k.dates.some((d) => d.lunch !== "none") ? " + lunch" : ""}`, val: "−" + fmt(k.foodCost) }),
         k.staffCost > 0 && h(LR, { label: "Extra staff", val: "−" + fmt(k.staffCost) }),
+        k.extrasCost > 0 && h(LR, { label: "Purchases & extras", val: "−" + fmt(k.extrasCost) }),
         k.travelCost > 0 && h(LR, { label: "Travel", val: "−" + fmt(k.travelCost) }),
-        k.extrasCost > 0 && h(LR, { label: "Extras", val: "−" + fmt(k.extrasCost) }),
         h(LR, { label: `Overhead ${CH.overheadPct}%`, val: "−" + fmt(k.overhead) }),
         h("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, marginTop: 8 } }, [["contractor", "Contractor chef", `${fmt(CH.contractorDay)}/day`], ["employed", "Employed chef", `${k.empHours} h \xD7 ${fmt(CH.chefHourly)}`]].map(([id, t, sub]) => {
           const m = k.modes[id], on = mode === id, good = m.margin * 100 >= CH.targetPct - 0.05;
@@ -2026,15 +2138,18 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
         h("div", { style: { marginTop: 10, borderTop: "1px solid #f3f4f6", paddingTop: 8 } },
           h("div", { style: { display: "flex", justifyContent: "space-between", fontSize: 12, fontWeight: 600 } }, h("span", null, "Overhead"), h("span", null, CH.overheadPct, "%")),
           h("input", { type: "range", min: 0, max: 25, step: 0.5, value: CH.overheadPct, onChange: upN("overheadPct"), style: { width: "100%", accentColor: "#e11d48" } }),
-          h("div", { style: { display: "flex", gap: 4 } }, [5, 8, 10, 12, 15].map((v) => pill(CH.overheadPct === v, () => up("overheadPct", v), v + "%", { padding: "3px 8px", fontSize: 11, flex: 1 }))),
+          h("div", { style: { display: "flex", gap: 4 } }, [5, 8, 10, 12, 15].map((v) => h(React.Fragment, { key: v }, pill(CH.overheadPct === v, () => up("overheadPct", v), v + "%", { padding: "3px 8px", fontSize: 11, flex: 1 })))),
           h("div", { style: { display: "flex", justifyContent: "space-between", fontSize: 12, fontWeight: 600, marginTop: 8 } }, h("span", null, "Target margin"), h("span", null, CH.targetPct, "%")),
           h("input", { type: "range", min: 0, max: 50, step: 1, value: CH.targetPct, onChange: upN("targetPct"), style: { width: "100%", accentColor: "#e11d48" } })),
         k.warn.filter((w) => w.k === "loss").map((w) => h("div", { key: w.k, style: { marginTop: 8, fontSize: 11.5, color: "#b91c1c", background: "#fef2f2", borderRadius: 8, padding: "6px 8px" } }, "⚠️ ", w.text))),
       h("div", { style: { background: "white", borderRadius: 10, border: "1px solid #e5e7eb", padding: "10px 14px" } },
+        h("button", { onClick: () => setShowHow(!showHow), style: { border: "none", background: "none", cursor: "pointer", fontWeight: 700, fontSize: 13, padding: 0, width: "100%", textAlign: "left" } }, showHow ? "▾" : "▸", " \u{1F9EE} How it's worked out"),
+        showHow && h("div", { style: { marginTop: 6 } }, chefExplain(CH, k).map(([t, txt]) => h("div", { key: t, style: { marginBottom: 7 } }, h("div", { style: { fontSize: 11.5, fontWeight: 700, color: "#374151" } }, t), h("div", { style: { fontSize: 11.5, color: "#4b5563", lineHeight: 1.45 } }, txt))))),
+      h("div", { style: { background: "white", borderRadius: 10, border: "1px solid #e5e7eb", padding: "10px 14px" } },
         h("button", { onClick: () => setShowRates(!showRates), style: { border: "none", background: "none", cursor: "pointer", fontWeight: 700, fontSize: 13, padding: 0, width: "100%", textAlign: "left" } }, showRates ? "▾" : "▸", " Prices & costs for this quote"),
         showRates && h("div", null,
           sec("Client prices (incl. VAT)"),
-          h("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 } }, rate("Service day fee", "dayFee"), rate(`Per guest 1–${CH.ppBreak}`, "pp1"), rate(`Per guest above ${CH.ppBreak}`, "pp2"), rate("One-off dinner fee", "dinnerFee"), rate("One-off dinner per guest", "dinnerPP"), rate("Holiday \xD7", "holMult", 0.1), rate("Lunch on site fee", "lunchFee"), rate("Lunch food markup %", "lunchMarkupPct"), rate("Lunch box per guest", "lunchBoxPrice"), rate("Staff single meal", "staffSingle"), rate("Staff full day", "staffFull")),
+          h("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 } }, rate("Service day fee", "dayFee"), rate(`Per guest 1–${CH.ppBreak}`, "pp1"), rate(`Per guest above ${CH.ppBreak}`, "pp2"), rate("One-off dinner fee", "dinnerFee"), rate("One-off dinner per guest", "dinnerPP"), rate("Holiday \xD7", "holMult", 0.1), rate("Lunch on site fee", "lunchFee"), rate("Lunch food markup %", "lunchMarkupPct"), rate("Lunch box per guest", "lunchBoxPrice"), rate("Purchases markup %", "markupPct"), rate("Staff single meal", "staffSingle"), rate("Staff full day", "staffFull")),
           sec("Food cost per guest (ex. VAT)"),
           h("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 } }, rate("Breakfast", "foodB"), rate("3-course dinner", "foodD"), rate("Lunch on site", "foodL"), rate("Lunch box", "lunchBoxCost")),
           h("div", { style: { fontSize: 10.5, color: "#92400e", marginTop: 4 } }, "Breakfast is not costed properly yet; 3,000 kr is a placeholder."),
@@ -2048,6 +2163,62 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
         h("div", { style: { flex: 1, minWidth: 0 } }, h("div", { style: { fontSize: 10.5, color: "#9ca3af", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" } }, bar.label), h("div", { style: { fontSize: 17, fontWeight: 800 } }, bar.total)),
         h("div", { style: { textAlign: "right" } }, h("div", { style: { fontSize: 13, fontWeight: 700 } }, bar.pp, h("span", { style: { fontWeight: 400, fontSize: 10.5, color: "#9ca3af" } }, " /guest")), h("div", { style: { fontSize: 11, color: ok ? "#86efac" : "#fca5a5" } }, bar.margin)),
         h("div", { className: "mbar-ar", style: { fontSize: 18, color: "#9ca3af" } }, "↑")));
+  };
+  /* ---------- Staff suggestion box (all tabs) ---------- */
+  var SUG_TYPES = [["Bug", "\u{1F41E} Something's wrong"], ["Missing menu", "\u{1F37D}️ Missing menu / dish"], ["Idea", "\u{1F4A1} Idea or change"], ["Other", "\u{1F4AC} Other"]];
+  var sugLS = (k, v) => { try { if (v === void 0) return JSON.parse(localStorage.getItem(k) || "null"); localStorage.setItem(k, JSON.stringify(v)); } catch (e) { return null; } };
+  var sugSend = (s) => fetch(SHEET_API, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action: "saveSuggestion", suggestion: s }) }).then((r) => r.json()).then((res) => res && res.ok ? res : Promise.reject(res && res.error || "not saved"));
+  var SuggestBox = ({ page, onClose }) => {
+    const h = React.createElement;
+    const [type, setType] = React.useState("Idea");
+    const [text, setText] = React.useState("");
+    const [name, setName] = React.useState(() => sugLS("fs:sugname") || "");
+    const [items, setItems] = React.useState(null);
+    const [queue, setQueue] = React.useState(() => sugLS("fs:sugq") || []);
+    const [busy, setBusy] = React.useState(false);
+    const [msg, setMsg] = React.useState("");
+    const load = () => fetch(`${SHEET_API}?action=listSuggestions`).then((r) => r.json()).then((res) => setItems(res && res.ok && Array.isArray(res.items) ? res.items : [])).catch(() => setItems([]));
+    const flush = () => {
+      const q = sugLS("fs:sugq") || [];
+      if (!q.length) return Promise.resolve();
+      return q.reduce((p, s) => p.then((left) => sugSend(s).then(() => left).catch(() => left.concat(s))), Promise.resolve([])).then((left) => { sugLS("fs:sugq", left); setQueue(left); });
+    };
+    React.useEffect(() => { flush().then(load); }, []);
+    const submit = () => {
+      const t = text.trim();
+      if (!t) return;
+      sugLS("fs:sugname", name.trim());
+      const s = { id: "sg_" + Date.now() + "_" + Math.random().toString(36).slice(2, 5), ts: Date.now(), type, page, tool: "Catering quote calculator", name: name.trim(), text: t };
+      setBusy(true);
+      sugSend(s).then((res) => { setText(""); setMsg("✓ Thanks — sent to \xC1rni."); if (Array.isArray(res.items)) setItems(res.items); }).catch(() => {
+        const q = (sugLS("fs:sugq") || []).concat(s);
+        sugLS("fs:sugq", q); setQueue(q); setText("");
+        setMsg("Saved on this device. It goes to the Sheet automatically once the backend update is live.");
+      }).finally(() => setBusy(false));
+    };
+    const statusColor = (st) => /done|fixed|added/i.test(st) ? ["#ecfdf5", "#047857"] : /no|won|declin/i.test(st) ? ["#f3f4f6", "#6b7280"] : /prog|doing|plan/i.test(st) ? ["#eff6ff", "#1d4ed8"] : ["#fff7ed", "#c2410c"];
+    const row = (s, waiting) => {
+      const [bg, fg] = waiting ? ["#f3f4f6", "#6b7280"] : statusColor(s.status || "New");
+      return h("div", { key: s.id, style: { border: "1px solid #e5e7eb", borderRadius: 9, padding: "8px 10px", marginBottom: 6 } },
+        h("div", { style: { display: "flex", gap: 6, alignItems: "center", fontSize: 10.5, color: "#9ca3af", flexWrap: "wrap" } },
+          h("span", { style: { background: bg, color: fg, borderRadius: 10, padding: "1px 7px", fontWeight: 700 } }, waiting ? "waiting to send" : s.status || "New"),
+          h("span", null, s.type), s.page && h("span", null, "\xB7 ", s.page), s.name && h("span", null, "\xB7 ", s.name),
+          h("span", { style: { marginLeft: "auto" } }, s.ts ? new Date(s.ts).toLocaleDateString("en-GB", { day: "numeric", month: "short" }) : "")),
+        h("div", { style: { fontSize: 12.5, color: "#111827", marginTop: 4, whiteSpace: "pre-wrap" } }, s.text),
+        s.reply && h("div", { style: { fontSize: 12, color: "#1e40af", background: "#eff6ff", borderRadius: 7, padding: "5px 8px", marginTop: 5 } }, "↳ ", s.reply));
+    };
+    return h("div", null,
+      h("div", { style: { fontSize: 12.5, color: "#4b5563", marginBottom: 10 } }, "Found a bug, missing a menu or dish, or have an idea for this page? Write it here — it goes straight to \xC1rni's list."),
+      h("div", { style: { display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 8 } }, SUG_TYPES.map(([v, t]) => h("button", { key: v, onClick: () => setType(v), style: { padding: "6px 10px", borderRadius: 8, border: `1.5px solid ${type === v ? "#e11d48" : "#e5e7eb"}`, background: type === v ? "#fff1f2" : "white", color: type === v ? "#be123c" : "#4b5563", fontWeight: 600, fontSize: 12, cursor: "pointer" } }, t))),
+      h("textarea", { rows: 4, value: text, onChange: (e) => { setText(e.target.value); setMsg(""); }, placeholder: type === "Bug" ? "What did you do, and what went wrong?" : type === "Missing menu" ? "Which menu or dish is missing, and where should it go?" : "What should change?", style: { ...I, resize: "vertical", marginBottom: 8 } }),
+      h("div", { style: { display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" } },
+        h("input", { value: name, onChange: (e) => setName(e.target.value), placeholder: "Your name", style: { ...I, flex: "1 1 140px", width: "auto" } }),
+        h("span", { style: { fontSize: 11, color: "#9ca3af" } }, "Page: ", page),
+        h("button", { onClick: submit, disabled: busy || !text.trim(), style: { ...BS("#e11d48", "#e11d48", "white"), fontWeight: 700, opacity: busy || !text.trim() ? 0.5 : 1 } }, busy ? "Sending…" : "Send")),
+      msg && h("div", { style: { fontSize: 12, color: msg[0] === "✓" ? "#047857" : "#92400e", marginTop: 8 } }, msg),
+      h("div", { style: { fontSize: 11, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.05em", margin: "16px 0 6px" } }, "Suggestions so far"),
+      queue.map((s) => row(s, true)),
+      items === null ? h("div", { style: { fontSize: 12, color: "#9ca3af" } }, "Loading…") : items.length === 0 && !queue.length ? h("div", { style: { fontSize: 12, color: "#9ca3af" } }, "None yet.") : items.slice(0, 40).map((s) => row(s, false)));
   };
   var PC = ({ policies, selected, info, onReset, onToggle, onAdd, onDelete, busy }) => {
     const [open, setOpen] = React.useState(false);
