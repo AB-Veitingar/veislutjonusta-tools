@@ -16,6 +16,8 @@ input,select,textarea{font-family:inherit;}
 .emb .approot{min-height:0!important}
 .sumbk{display:none}
 @media(min-width:701px){
+.host .mg:has(#cq-summary){grid-template-columns:minmax(0,1fr)!important;max-width:880px!important}
+.host:not(.sumopen) #cq-summary{display:none!important}
 .host.sumopen #cq-summary{position:fixed!important;left:auto;right:max(16px,calc(50% - 530px));width:390px;top:calc(var(--vt,0px) + 14px)!important;height:calc(var(--vb,100vh) - var(--vt,0px) - 124px);overflow-y:auto;overscroll-behavior:contain;z-index:45;background:#f3f4f6;border-radius:16px;padding:10px;box-shadow:0 18px 50px rgba(0,0,0,.3)}
 .host.sumopen .sumbk{display:block;position:fixed;left:0;right:0;top:var(--vt,0px);height:calc(var(--vb,100vh) - var(--vt,0px));background:rgba(17,24,39,.28);z-index:44}
 }
@@ -1417,6 +1419,7 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
       "Inside the website, nothing is cut off on the right any more.",
       "Booking policies tick themselves from the quote: drinks package A or B, soft drinks, Ingólfshvoll hall credit or food-only rule, delivery. Tap a box to override; \u21BA Auto puts it back.",
       "Date and time boxes no longer spill over the edge on iPhone.",
+      "Desktop, on the website: the same floating bar at the bottom; Summary opens the full summary as a panel on the right. The summary column is gone there, so the form gets the full width.",
       "Staff lines open in compact view on phones; tap a line to edit it. Edit fields are laid out two or three per row instead of one.",
       "Wide tables (menu builder, price book, roles) scroll sideways on phones. Desktop is unchanged."
     ] },
