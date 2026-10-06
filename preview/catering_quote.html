@@ -24,7 +24,7 @@ $$ 1
 )", val: fmt(labourTotal) }), drinks.units > 0 && React.createElement(LR, { label: "Drinks stock", sub: `${Math.round(drinks.consumed)} units \xD7 ${fmt(drinks.avgCost)}`, val: fmt(drinks.cost) }), soda.units > 0 && React.createElement(LR, { label: "Soda stock", val: fmt(soda.cost) }), rental.cost > 0 && React.createElement(LR, { label: "Hired-out staff (cost)", val: fmt(rental.cost) }), venueIn.on && React.createElement(LR, { label: `Landlord ${C.landlordPct}%`, val: fmt(ev.landlord) }), /* @__PURE__ */ React.createEl
 $$ 1
 fmt(foodVAT), muted: true }), !isBundle && transCost > 0 && 
-fmt(foodVAT), muted: true }), drinks.units > 0 && React.createElement(LR, { label: `Drinks ${drinks.billed.toFixed(0)} \xD7 ${fmt(drinks.price)} incl. VAT`, val: fmt(drinks.revIncl), muted: true }), soda.units > 0 && React.createElement(LR, { label: `Soda ${soda.units} \xD7 ${fmt(C.sodaPrice)} incl. VAT`, val: fmt(soda.revIncl), muted: true }), rental.revEx > 0 && React.createElement(LR, { label: "Staff hire incl. 24% VAT", val: fmt(rental.revEx + rentalVAT), muted: true }), venueIn.on && React.createElement(LR, { label: `Hall ${fmt(ev.hallGross)}${ev.credit > 0 ? ` \u2212 credit ${fmt(ev.credit)}` : ""}`, val: fmt(ev.hallAfterGross), green: ev.credit > 0 }), hasExtras && React.createElement(LR, { label: `Event profit after landlord & overhead (${pct(eventMargin)})`, val: fmt(eventProfit), green: eventProfit > 0 }), hasExtras && C.guests > 0 && React.createElement(LR, { label: "Menu price per guest (food) incl. VAT", val: fmt(cateringRevNeeded * (1 + C.vatRate / 100) / C.guests) }), !isBundle && transCost > 0 && 
+fmt(foodVAT), muted: true }), drinks.units > 0 && React.createElement(LR, { label: `Drinks ${drinks.billed.toFixed(0)} \xD7 ${fmt(drinks.price)} incl. VAT`, val: fmt(drinks.revIncl), muted: true }), soda.units > 0 && React.createElement(LR, { label: `Soda ${soda.units} \xD7 ${fmt(C.sodaPrice)} incl. VAT`, val: fmt(soda.revIncl), muted: true }), rental.revEx > 0 && React.createElement(LR, { label: "Staff hire incl. 24% VAT", val: fmt(rental.revEx + rentalVAT), muted: true }), venueIn.on && React.createElement(LR, { label: `Hall ${fmt(ev.hallGross)} ex. VAT${hallFolded ? " (in menu)" : ""}${ev.credit > 0 ? ` \u2212 credit ${fmt(ev.credit)}` : ""}`, val: fmt(ev.hallAfterGross), green: ev.credit > 0 }), hasExtras && React.createElement(LR, { label: `Event profit after landlord & overhead (${pct(eventMargin)})`, val: fmt(eventProfit), green: eventProfit > 0 }), hasExtras && C.guests > 0 && React.createElement(LR, { label: hallFolded ? "Menu price per guest incl. VAT (hall folded in)" : "Menu price per guest (food) incl. VAT", val: fmt((cateringRevNeeded + (hallFolded ? ev.hallEx : 0)) * (1 + C.vatRate / 100) / C.guests) }), !isBundle && transCost > 0 && 
 $$ 1
 __ */ React.createElement(PC, null))), modal === "history" && /*
 __ */ React.createElement(PC, { policies, selected: policySel, onToggle: togglePolicy, onAdd: addPolicy, onDelete: delPolicy, busy: polBusy }))), modal === "history" && /*
@@ -80,7 +80,8 @@ __ */ React.createElement(PC, { policies, selected: policySel, onToggle: toggleP
     sodaPrice: 500,
     sodaCost: 150,
     venueOn: false,
-    hallRentNet: 18e4,
+    hallRentNet: 17e4,
+    hallFold: false,
     hallVat: "24",
     creditPct: 9,
     minUnitsPP: 2,
@@ -91,16 +92,17 @@ __ */ React.createElement(PC, { policies, selected: policySel, onToggle: toggleP
       const fbIncl = F * (1 + o.vat / 100) + o.drinks.revIncl + o.soda.revIncl;
       let hallGross = 0, credit = 0, hallEx = 0;
       if (o.venue.on) {
-        hallGross = o.venue.hallNet * (o.venue.vat24 ? 1.24 : 1);
-        credit = o.venue.eligible ? Math.min(hallGross, fbIncl * o.venue.creditPct / 100) : 0;
-        hallEx = (hallGross - credit) / (o.venue.vat24 ? 1.24 : 1);
+        hallGross = o.venue.hallNet;
+        credit = o.venue.eligible ? Math.min(o.venue.hallNet, fbIncl * o.venue.creditPct / 100) : 0;
+        hallEx = o.venue.hallNet - credit;
       }
       const rev = F + o.drinks.revEx + o.soda.revEx + o.rental.revEx + hallEx;
       const landlord = o.venue.on ? rev * o.venue.landlordPct / 100 : 0;
       const oh = (F + o.drinks.revEx + o.soda.revEx + o.rental.revEx) * o.oh / 100;
       const profit = rev - o.pool - o.cont - o.drinks.cost - o.soda.cost - o.rental.cost - landlord - oh;
       const zeroAt = o.venue.on && o.venue.creditPct > 0 ? hallGross / (o.venue.creditPct / 100) : 0;
-      return { F, fbIncl, hallGross, credit, hallEx, hallAfterGross: hallGross - credit, rev, landlord, oh, profit, zeroAt };
+      const hallRate = o.venue.fold ? o.vat / 100 : o.venue.vat24 ? 0.24 : 0;
+      return { F, fbIncl, hallGross, credit, hallEx, hallAfterGross: hallEx * (1 + hallRate), hallGrossIncl: hallGross * (1 + hallRate), rev, landlord, oh, profit, zeroAt };
     };
     const m = o.m / 100;
     if (m + o.oh / 100 >= 1) return evalAt((o.pool + o.cont) * 2);
@@ -164,7 +166,8 @@ __ */ React.createElement(PC, { policies, selected: policySel, onToggle: toggleP
     const sodaFor = (n) => ({ units: n, revIncl: n * (C.sodaPrice || 0), revEx: n * (C.sodaPrice || 0) / dVat, cost: n * (C.sodaCost || 0) });
     const drinks = drinksFor(C.guests), soda = sodaFor(C.sodaUnits || 0);
     const venueEligible = !!C.venueOn && (C.drinkUnitsPP || 0) > 0 && (C.drinkUnitsPP || 0) >= (C.minUnitsPP || 0);
-    const venueIn = { on: !!C.venueOn, eligible: venueEligible, hallNet: C.hallRentNet || 0, vat24: C.hallVat !== "0", creditPct: C.creditPct || 0, landlordPct: C.landlordPct || 0 };
+    const hallFolded = !!C.venueOn && !!C.hallFold;
+    const venueIn = { on: !!C.venueOn, eligible: venueEligible, hallNet: C.hallRentNet || 0, vat24: C.hallVat !== "0", fold: hallFolded, creditPct: C.creditPct || 0, landlordPct: C.landlordPct || 0 };
 @@ 522 1
 @@ 524 3
     const ev = solveEvent({ pool: cateringDirectCost, cont: contingencyAmt, m: C.targetMarginPct, oh: C.overheadPct, vat: C.vatRate, drinks, soda, rental, venue: venueIn });
@@ -186,11 +189,11 @@ __ */ React.createElement(PC, { policies, selected: policySel, onToggle: toggleP
     const hasExtras = drinks.units > 0 || soda.units > 0 || rental.revEx > 0 || venueIn.on;
     const ladder = [50, 90, 150, 300, 500, 1e3].map((g) => {
       const r = C.guests > 0 ? g / C.guests : 1;
-      const scaleLine = (l) => /Prep|Service/.test(l.phase || "") && (l.staff || 0) > 0 ? { ...l, staff: Math.max(1, Math.ceil((l.staff || 0) * Math.pow(r, 0.8) - 1e-9)) } : l;
+      const scaleLine = (l) => /Prep|Service/.test(l.phase || "") && (l.staff || 0) > 0 ? { ...l, staff: Math.max(1, Math.round((l.staff || 0) * Math.pow(r, 0.8))) } : l;
       const own = isLegacyStaff ? ownStaffCost * Math.pow(r, 0.8) : ownLines.map(scaleLine).reduce((s, l) => s + lineCost(l), 0);
       const pool = g * C.ingredientPP + own + planCost + (isBundle ? transCost : 0) + equipMarginTotal * r + g * C.consumablesPP;
       const e = solveEvent({ pool, cont: pool * C.contingencyPct / 100, m: C.targetMarginPct, oh: C.overheadPct, vat: C.vatRate, drinks: drinksFor(g), soda: sodaFor(Math.round((C.sodaUnits || 0) * r)), rental, venue: venueIn });
-      return { g, ppIncl: e.F * (1 + C.vatRate / 100) / g, staffPP: own / g, hall: e.hallAfterGross };
+      return { g, ppIncl: (e.F + (hallFolded ? e.hallEx : 0)) * (1 + C.vatRate / 100) / g, staffPP: own / g, hall: e.hallAfterGross };
     });
 @@ 537 1
       setC((prev) => ({ ...defaultCustom, ...prev, staffLines: null, drinkUnitsPP: 0, sodaUnits: 0, venueOn: false, ...p.cfg }));
@@ -227,8 +230,8 @@ __ */ React.createElement(PC, { policies, selected: policySel, onToggle: toggleP
       // revenue subtotal is why the client quote did not add up. Scale
       // every component by the same factor so the column sums exactly to
       // the subtotal, without exposing cost or margin.
-      const custSubtotal = Math.round(cateringRevNeeded);
-      const revScale = cateringDirectCost > 0 ? cateringRevNeeded / cateringDirectCost : 1;
+      const custSubtotal = Math.round(cateringRevNeeded + (hallFolded ? ev.hallEx : 0));
+      const revScale = cateringDirectCost > 0 ? custSubtotal / cateringDirectCost : 1;
       const clientLines = [
         { label: "Food &amp; beverage preparation", raw: ingCost },
         { label: "Kitchen &amp; service staff", raw: labourTotal },
@@ -240,21 +243,21 @@ __ */ React.createElement(PC, { policies, selected: policySel, onToggle: toggleP
         const drift = custSubtotal - clientLines.reduce((s2, l) => s2 + l.amt, 0);
         clientLines[clientLines.length - 1].amt += drift;
       }
-      const custTotal = custSubtotal + foodVAT + (isBundle2 ? 0 : transCost + transVAT) + passTotal + Math.round(drinks.revIncl) + Math.round(soda.revIncl) + Math.round(rental.revEx) + rentalVAT + Math.round(ev.hallAfterGross);
+      const custTotal = custSubtotal + foodVAT + (isBundle2 ? 0 : transCost + transVAT) + passTotal + Math.round(drinks.revIncl) + Math.round(soda.revIncl) + Math.round(rental.revEx) + rentalVAT + (hallFolded ? hallVAT : Math.round(ev.hallAfterGross));
       const stdVATamt = Math.round(fSub * VAT_FOOD) + Math.round(bSub * VAT_BAR);
       const stdAdjAmt = stdTotal - (exVAT + stdVATamt);
       const listSub = menu ? menu.price * guests : 0;
-@@ 714 6
+@@ 714 9
       <tr><td><strong>${C.eventName}</strong> — ${C.guests} guests</td><td></td></tr>
       ${clientLines.map((l) => `<tr><td style="color:#6b7280;padding-left:12px">${l.label}</td><td style="text-align:right;color:#6b7280">${fmt(l.amt)}</td></tr>`).join("")}
       <tr class="sub"><td>Catering subtotal ex. VAT</td><td style="text-align:right">${fmt(custSubtotal)}</td></tr>
-@@ 721 2
+      <tr class="sub"><td>VAT ${C.vatRate}%</td><td style="text-align:right">${fmt(foodVAT + (hallFolded ? hallVAT : 0))}</td></tr>
       ${!isBundle2 && transCost > 0 ? `<tr class="sub"><td>Transport ex. VAT (${C.vehicles} vehicle${C.vehicles > 1 ? "s" : ""}, ${C.kmOneWay * 2}km)</td><td style="text-align:right">${fmt(transCost)}</td></tr><tr class="sub"><td>Transport VAT 24%</td><td style="text-align:right">${fmt(transVAT)}</td></tr>` : ""}
       ${passTotal > 0 ? `<tr class="sub"><td>Third-party services (at cost — VAT per supplier invoice)</td><td style="text-align:right">${fmt(passTotal)}</td></tr>` : ""}
       ${drinks.units > 0 ? `<tr class="sub"><td>Drinks package \u2014 ${Math.round(drinks.billed)} units \xD7 ${fmt(drinks.price)} incl. VAT (${C.drinkUnitsPP}/guest, ${C.drinkOption === "B" ? `billed on consumption, min. ${C.drinkMinPctB}%` : "pre-paid"})</td><td style="text-align:right">${fmt(drinks.revIncl)}</td></tr>` : ""}
       ${soda.units > 0 ? `<tr class="sub"><td>Soft drinks \u2014 ${soda.units} \xD7 ${fmt(C.sodaPrice)} incl. VAT</td><td style="text-align:right">${fmt(soda.revIncl)}</td></tr>` : ""}
       ${rental.revEx > 0 ? `<tr class="sub"><td>Staff hire ex. VAT</td><td style="text-align:right">${fmt(rental.revEx)}</td></tr><tr class="sub"><td>Staff hire VAT 24%</td><td style="text-align:right">${fmt(rentalVAT)}</td></tr>` : ""}
-      ${venueIn.on ? `<tr class="sub"><td>Ing\xF3lfshvoll hall rental${venueIn.vat24 ? " incl. 24% VAT" : ""}</td><td style="text-align:right">${fmt(ev.hallGross)}</td></tr>${ev.credit > 0 ? `<tr class="sub"><td style="color:#059669">Hall credit \u2014 ${C.creditPct}% of food &amp; drink incl. VAT</td><td style="text-align:right;color:#059669">\u2212${fmt(ev.credit)}</td></tr>` : ""}` : ""}
+      ${venueIn.on && !hallFolded ? `<tr class="sub"><td>Ing\xF3lfshvoll hall rental${venueIn.vat24 ? " incl. 24% VAT" : ""}</td><td style="text-align:right">${fmt(ev.hallGrossIncl)}</td></tr>${ev.credit > 0 ? `<tr class="sub"><td style="color:#059669">Hall credit \u2014 ${C.creditPct}% of food &amp; drink incl. VAT</td><td style="text-align:right;color:#059669">\u2212${fmt(ev.credit * (venueIn.vat24 ? 1.24 : 1))}</td></tr>` : ""}` : ""}
 @@ 724 2
       <tr><td><strong>${menu.name}</strong> — ${fmt(menu.price)}/pax \xD7 ${guests}</td><td style="text-align:right">${fmt(listSub)}</td></tr>
       ${savedAmt !== 0 ? `<tr><td style="color:#059669">Discount (${Math.round((1 - (1 - gDisc) * (1 - cDisc)) * 100)}%)</td><td style="text-align:right;color:#059669">−${fmt(savedAmt)}</td></tr>` : ""}
@@ -341,18 +344,19 @@ __ */ React.createElement(PC, { policies, selected: policySel, onToggle: toggleP
         "Revenue ", fmt(d.revEx), " ex. VAT (", fmt(d.revIncl), " incl.) \xB7 cost ", fmt(d.cost), " \xB7 contribution ", React.createElement("strong", null, fmt(d.revEx - d.cost)),
         d.mixOff && React.createElement("div", { style: { color: "#dc2626" } }, "⚠️ Mix adds up to ", d.mixSum, "%, not 100%."))));
   var VenueCard = ({ C, upd, updN, v }) => React.createElement(Card, { title: "\u{1F3DB}️ Ingólfshvoll hall" },
-    React.createElement("label", { style: { display: "flex", alignItems: "center", gap: 8, marginBottom: C.venueOn ? 10 : 0, cursor: "pointer", fontSize: 12 } }, React.createElement(Tog, { val: C.venueOn, set: (x) => upd("venueOn", x) }), "Event is at Ingólfshvoll (hall rental, rent credit, landlord share)"),
+    React.createElement("label", { onClick: () => upd("venueOn", !C.venueOn), style: { display: "flex", alignItems: "center", gap: 8, marginBottom: C.venueOn ? 10 : 0, cursor: "pointer", fontSize: 12 } }, React.createElement(Tog, { val: C.venueOn, set: () => {} }), "Event is at Ingólfshvoll (hall rental, rent credit, landlord share)"),
+    C.venueOn && React.createElement("label", { onClick: () => upd("hallFold", !C.hallFold), style: { display: "flex", alignItems: "center", gap: 8, marginBottom: 10, cursor: "pointer", fontSize: 12 } }, React.createElement(Tog, { val: !!C.hallFold, set: () => {} }), "Fold the hall into the menu price (no hall line on the quote; billed with the food at ", C.vatRate, "% VAT)"),
     C.venueOn && React.createElement(React.Fragment, null,
       React.createElement("div", { className: "g2c", style: { display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 8 } },
-        React.createElement(F, { label: "Hall rental ex. VAT" }, React.createElement("input", { type: "number", value: C.hallRentNet, onChange: updN("hallRentNet"), style: I })),
-        React.createElement(F, { label: "VAT on hall" }, React.createElement("select", { value: C.hallVat, onChange: (e) => upd("hallVat", e.target.value), style: I }, React.createElement("option", { value: "24" }, "24% (company)"), React.createElement("option", { value: "0" }, "None (private)"))),
+        React.createElement(F, { label: "Hall rental ex. VAT (credit base)" }, React.createElement("input", { type: "number", value: C.hallRentNet, onChange: updN("hallRentNet"), style: I })),
+        React.createElement(F, { label: "VAT on hall" }, C.hallFold ? React.createElement(Ro, { val: "Folded \u2014 menu VAT" }) : React.createElement("select", { value: C.hallVat, onChange: (e) => upd("hallVat", e.target.value), style: I }, React.createElement("option", { value: "24" }, "24% (separate line)"), React.createElement("option", { value: "0" }, "None (separate line)"))),
         React.createElement(F, { label: "Landlord share %" }, React.createElement("input", { type: "number", step: 0.5, value: C.landlordPct, onChange: updN("landlordPct"), style: I }))),
       React.createElement("div", { className: "g2c", style: { display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 8 } },
         React.createElement(F, { label: "Rent credit % of F&B incl. VAT" }, React.createElement("input", { type: "number", step: 0.5, value: C.creditPct, onChange: updN("creditPct"), style: I })),
         React.createElement(F, { label: "Min. drink units / guest" }, React.createElement("input", { type: "number", step: 0.5, value: C.minUnitsPP, onChange: updN("minUnitsPP"), style: I })),
         React.createElement(F, { label: "Hall after credit (client)" }, React.createElement(Ro, { val: fmt(v.hallAfterGross), bold: true }))),
       React.createElement("div", { style: { fontSize: 11.5, background: v.eligible ? "#f0fdf4" : "#fef2f2", color: v.eligible ? "#166534" : "#991b1b", borderRadius: 8, padding: "7px 10px", lineHeight: 1.6 } },
-        v.eligible ? React.createElement(React.Fragment, null, "Credit ", fmt(v.credit), " of ", fmt(v.hallGross), v.credit >= v.hallGross ? " — hall is free." : ` — hall reaches 0 kr at about ${fmt(v.zeroAt)} F&B incl. VAT.`) : `No credit: drinks package is below ${C.minUnitsPP} units/guest. Food-only rule applies — add a House manager line as Hire (10,000 kr/hr + VAT, min. 4h).`,
+        v.eligible ? React.createElement(React.Fragment, null, "Credit ", fmt(v.credit), " off the ", fmt(v.hallGross), " rent ex. VAT", v.credit >= v.hallGross ? " \u2014 hall is free." : ` \u2014 rent reaches 0 kr at about ${fmt(v.zeroAt)} food & drink incl. VAT.`) : `No credit: drinks package is below ${C.minUnitsPP} units/guest. Food-only rule applies — add a House manager line as Hire (10,000 kr/hr + VAT, min. 4h).`,
         React.createElement("br", null), "Landlord ", C.landlordPct, "% of event revenue ex. VAT: ", fmt(v.landlord))));
   var LadderCard = ({ rows, onPick }) => React.createElement(Card, { title: "\u{1FA9C} Price ladder (same setup, scaled)" },
     React.createElement("div", { style: { fontSize: 11, color: "#6b7280", marginBottom: 6 } }, "Food price per guest needed for the target margin. Prep and service staff scale with guests (less than proportionally); setup, cleanup and travel stay fixed; equipment scales with guests. A guide \u2014 check the staffing at each size."),
@@ -390,7 +394,7 @@ __ */ React.createElement(PC, { policies, selected: policySel, onToggle: toggleP
    Refuses to render unless the production file is byte-for-byte the one
    this patch was built against AND the patched result is byte-for-byte
    the build that was tested. */
-var SRC_HASH = 3961280512, OUT_LINES = 1143, OUT_HASH = 2442925328;
+var SRC_HASH = 3961280512, OUT_LINES = 1147, OUT_HASH = 608747856;
 function fnv(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i)&0xFF;h=(h*0x01000193)>>>0;}return h;}
 function fail(m){document.body.innerHTML='<div class="err"><h1>Preview did not build</h1><p>'+m+'</p><p>The live calculator is unaffected. Send this message to Claude.</p></div>';}
 function apply(src,t){
