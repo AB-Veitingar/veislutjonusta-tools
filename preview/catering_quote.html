@@ -7,15 +7,117 @@ h1{font-size:17px;margin-bottom:8px;color:#991b1b}p{font-size:14px;line-height:1
 </head><body>
 <div id="boot" style="text-align:center;color:#6b7280;font-size:14px">Building preview…</div>
 <script id="patch" type="text/plain">
-$$ 2
-React.createElement(PC, null)
-React.createElement(PC, { policies, selected: policySel, onToggle: togglePolicy, onAdd: addPolicy, onDelete: delPolicy, busy: polBusy })
 $$ 1
-custom: C, equipment, customItems }
-custom: C, equipment, customItems, policyIds: policySel }
+__ */ React.createElement(PC, null))), tab === "custom" && /* @_
+__ */ React.createElement(PC, { policies, selected: policySel, onToggle: togglePolicy, onAdd: addPolicy, onDelete: delPolicy, busy: polBusy }))), tab === "custom" && /* @_
 $$ 1
-menuName: menu.name }
-menuName: menu.name, policyIds: policySel }
+ color: "#9ca3af" } }, "Salary costs: \xD7", SALARY_COSTS, " fixed (pension + holiday pay)")), /* @__PURE__ */ React.cre
+ color: "#9ca3af" } }, "Salary-related costs: \xD7", SC, " \u2014 default for every line; set a line's own base kr/hr for heads or hands")), /* @__PURE__ */ React.cre
+$$ 1
+updN("baseRate"), style: I }))), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 } }, "Hours breakdown"), /* @__PURE__ */ React.createElement("div", { className: "g2c", style: { display: "grid", gridTemplateColumns: "1fr 1fr 80px 100px", gap: 6, marginBottom: 4, alignItems: "end" } }, /* @__PURE__ */ React.createElement(F, { label: "Prep hrs per staff (all days)" }, /* @__PURE__ */ React.createElement("input", { type: "number", step: 0.5, value: C.prepHours, onChange: updN("prepHours"), style: I })), /* @__PURE__ */ React.createElement(F, { label: "Staff" }, /* @__PURE__ */ React.createElement("input", { type: "number", value: C.prepStaff, onChange: updN("prepStaff"), style: I })), /* @__PURE__ */ React.createElement(F, { label: "Staff-hrs" }, /* @__PURE__ */ React.createElement(Ro, { val: (C.prepHours * C.prepStaff).toFixed(1) + "h" })), /* @__PURE__ */ React.createElement(F, { label: "Cost" }, /* @__PURE__ */ React.createElement(Ro, { val: fmt(prepCost), bold: true }))), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, color: "#6b7280", padding: "4px 8px", background: "#f9fafb", borderRadius: 6, marginBottom: 8 } }, "\u{1F4A1} Total wall-clock prep hours per person across all days combined."), /* @__PURE__ */ React.createElement("div", { className: "g2c", style: { display: "grid", gridTemplateColumns: "1fr 1fr 80px 100px", gap: 6, marginBottom: 2, alignItems: "end" } }, /* @__PURE__ */ React.createElement(F, { label: "On-location hrs (all staff simultaneous)" }, /* @__PURE__ */ React.createElement("input", { type: "number", step: 0.5, value: C.locationHours, onChange: updN("locationHours"), style: I })), /* @__PURE__ */ React.createElement(F, { label: "Staff" }, /* @__PURE__ */ React.createElement("input", { type: "number", value: C.locationStaff, onChange: updN("locationStaff"), style: I })), /* @__PURE__ */ React.createElement(F, { label: "Staff-hrs" }, /* @__PURE__ */ React.createElement(Ro, { val: (C.locationHours * C.locationStaff).toFixed(1) + "h" })), /* @__PURE__ */ React.createElement(F, { label: "Cost" }, /* @__PURE__ */ React.createElement(Ro, { val: fmt(locCost), bold: true }))), dayType.type === "daytime" && (dayHrs > 0 || eveHrs > 0) && /* @__PURE__ */ React.createElement("div", { style: { marginLeft: 8, marginBottom: 8, padding: "5px 10px", background: "#f5f3ff", borderRadius: 6, fontSize: 11, color: "#6b7280" } }, "\u21B3 ", dayHrs.toFixed(1), "h until 17:00 @ ", fmt(prepRate), "/hr + ", eveHrs.toFixed(1), "h after 17:00 @ ", fmt(Math.round(C.baseRate * 1.33 * C.salaryCosts)), "/hr"), /* @__PURE__ */ React.createElement("div", { className: "g2c", style: { display: "grid", gridTemplateColumns: "1fr 1fr 80px 100px", gap: 6, marginBottom: 2, alignItems: "end" } }, /* @__PURE__ */ React.createElement(F, { label: `Travel hrs${suggestedTravelHrs > 0 ? ` (${C.kmOneWay * 2}km \xF7 ${C.avgSpeedKmh}km/h = ${suggestedTravelHrs}h suggested)` : ""}` }, /* @__PURE__ */ React.createElement("div", { style: { position: "relative" } }, /* @__PURE__ */ React.createElement("input", { type: "number", step: 0.5, value: C.travelHours, onChange: updN("travelHours"), style: I }), suggestedTravelHrs > 0 && !travelLinked && /* @__PURE__ */ React.createElement("div", { style: { position: "absolute", right: 6, top: "50%", transform: "translateY(-50%)", fontSize: 10, color: "#e11d48", cursor: "pointer", fontWeight: 700 }, onClick: () => upd("travelHours", suggestedTravelHrs), title: "Sync to km" }, "\u21BB", suggestedTravelHrs, "h"), travelLinked && /* @__PURE__ */ React.createElement("div", { style: { position: "absolute", right: 6, top: "50%", transform: "translateY(-50%)", fontSize: 10, color: "#15803d" } }, "\u{1F517}"))), /* @__PURE__ */ React.createElement(F, { label: "Staff" }, /* @__PURE__ */ React.createElement("input", { type: "number", value: C.travelStaff, onChange: updN("travelStaff"), style: I })), /* @__PURE__ */ React.createElement(F, { label: "Staff-hrs" }, /* @__PURE__ */ React.createElement(Ro, { val: (C.travelHours * C.travelStaff).toFixed(1) + "h" })), /* @__PURE__ */ React.createElement(F, { label: "Cost" }, /* @__PURE__ */ React.createElement(Ro, { val: fmt(travCost), bold: true }))), /* @__PURE__ */ React.createElement("div", { style: { marginBottom: 8 } }, /* @__PURE__ */ React.createElement(F, { label: "Avg. speed for travel estimate (km/h)" }, /* @__PURE__ */ React.createElement("input", { type: "number", value: C.avgSpeedKmh, onChange: updN("avgSpeedKmh"), style: { ...I, width: 100 } }))), /* @__PURE__ */ React.creat
+updN("baseRate"), style: I })), React.createElement(F, { label: "Salary-related costs \xD7" }, React.createElement("input", { type: "number", step: 0.01, value: SC, onChange: updN("salaryCosts"), style: I }))), React.createElement("div", { style: { fontSize: 11, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 } }, "Staff lines"), isLegacyStaff && React.createElement("div", { style: { fontSize: 11, color: "#92400e", background: "#fffbeb", borderRadius: 6, padding: "5px 8px", marginBottom: 6 } }, "Simple 3-row labour (older quote or preset): shown as lines and priced the old way until you change a line."), React.createElement(StaffLines, { lines: staffLines, setLines: setStaffLines, costOf: lineCost, chargeOf: lineCharge, multOf, baseRate: C.baseRate }), suggestedTravelHrs > 0 && React.createElement("div", { style: { fontSize: 11, color: "#6b7280", margin: "6px 0 8px" } }, "\u{1F697} Travel estimate: ", C.kmOneWay * 2, "km \xF7 ", C.avgSpeedKmh, "km/h = ", suggestedTravelHrs, "h per driver/staff on the road"), /* @__PURE__ */ React.creat
+$$ 1
+l labour: ", fmt(labourTotal))), /* @__PURE__ */ React.creat
+l labour: ", fmt(labourTotal))), React.createElement(DrinksCard, { C, upd, updN, d: drinks }), React.createElement(VenueCard, { C, upd, updN, v: { ...ev, eligible: venueEligible } }), (C.venueOn || drinks.units > 0 || !isLegacyStaff) && React.createElement(LadderCard, { rows: ladder }), /* @__PURE__ */ React.creat
+$$ 1
+)", val: fmt(labourTotal) }), /* @__PURE__ */ React.createEl
+)", val: fmt(labourTotal) }), drinks.units > 0 && React.createElement(LR, { label: "Drinks stock", sub: `${Math.round(drinks.consumed)} units \xD7 ${fmt(drinks.avgCost)}`, val: fmt(drinks.cost) }), soda.units > 0 && React.createElement(LR, { label: "Soda stock", val: fmt(soda.cost) }), rental.cost > 0 && React.createElement(LR, { label: "Hired-out staff (cost)", val: fmt(rental.cost) }), venueIn.on && React.createElement(LR, { label: `Landlord ${C.landlordPct}%`, val: fmt(ev.landlord) }), /* @__PURE__ */ React.createEl
+$$ 1
+fmt(foodVAT), muted: true }), !isBundle && transCost > 0 && 
+fmt(foodVAT), muted: true }), drinks.units > 0 && React.createElement(LR, { label: `Drinks ${drinks.billed.toFixed(0)} \xD7 ${fmt(drinks.price)} incl. VAT`, val: fmt(drinks.revIncl), muted: true }), soda.units > 0 && React.createElement(LR, { label: `Soda ${soda.units} \xD7 ${fmt(C.sodaPrice)} incl. VAT`, val: fmt(soda.revIncl), muted: true }), rental.revEx > 0 && React.createElement(LR, { label: "Staff hire incl. 24% VAT", val: fmt(rental.revEx + rentalVAT), muted: true }), venueIn.on && React.createElement(LR, { label: `Hall ${fmt(ev.hallGross)}${ev.credit > 0 ? ` \u2212 credit ${fmt(ev.credit)}` : ""}`, val: fmt(ev.hallAfterGross), green: ev.credit > 0 }), hasExtras && React.createElement(LR, { label: `Event profit after landlord & overhead (${pct(eventMargin)})`, val: fmt(eventProfit), green: eventProfit > 0 }), hasExtras && C.guests > 0 && React.createElement(LR, { label: "Menu price per guest (food) incl. VAT", val: fmt(cateringRevNeeded * (1 + C.vatRate / 100) / C.guests) }), !isBundle && transCost > 0 && 
+$$ 1
+__ */ React.createElement(PC, null))), modal === "history" && /*
+__ */ React.createElement(PC, { policies, selected: policySel, onToggle: togglePolicy, onAdd: addPolicy, onDelete: delPolicy, busy: polBusy }))), modal === "history" && /*
+@@ 75 0
+    {
+      id: "ih_pin",
+      icon: "\u{1F362}",
+      name: "Ingólfshvoll — Pin party",
+      desc: "280 pax standing, 8 bites + 3 drink units (from 3 Oct)",
+      cfg: { eventName: "Ingólfshvoll — Pin party", guests: 280, ingredientPP: 1320, baseRate: 3e3, salaryCosts: 1.33, eventStartTime: "19:00", autoOvertime: true, deliveryZone: "selfoss", kmOneWay: 0, transportVATMode: "bundle11", consumablesPP: 100, contingencyPct: 5, overheadPct: 5, targetMarginPct: 25, planningHours: 2, drinkUnitsPP: 3, drinkOption: "A", venueOn: true, staffLines: [
+        { id: "ihp1", role: "Setup crew", phase: "Setup (day before)", staff: 1, hours: 10, rate: "day", base: 0, note: "Venue setup, coolers, bar stock, price list" },
+        { id: "ihp2", role: "Chef", phase: "Prep (day before)", staff: 2, hours: 8, rate: "day", base: 0, note: "Pin prep" },
+        { id: "ihp3", role: "Chef", phase: "Prep (event day)", staff: 6, hours: 8, rate: "wkd", base: 0, note: "Pin assembly — 3 Oct: 6 people" },
+        { id: "ihp4", role: "Chef", phase: "Service", staff: 1, hours: 6, rate: "wkd", base: 0, note: "Chef over service" },
+        { id: "ihp5", role: "Dishwasher", phase: "Service", staff: 1, hours: 6, rate: "wkd", base: 0, note: "" },
+        { id: "ihp6", role: "Bartender", phase: "Service", staff: 3, hours: 8, rate: "wkd", base: 0, note: "3 Oct: 7 front staff in total" },
+        { id: "ihp7", role: "Waiter / runner", phase: "Service", staff: 4, hours: 8, rate: "wkd", base: 0, note: "Incl. cleanup until bus leaves" }
+      ] }
+    },
+    {
+      id: "ih_burger",
+      icon: "\u{1F354}",
+      name: "Ingólfshvoll — Burger party",
+      desc: "80 pax, burgers & fries + 3 drink units (23 Oct plan)",
+      cfg: { eventName: "Ingólfshvoll — Burger party", guests: 80, ingredientPP: 1e3, baseRate: 3e3, salaryCosts: 1.33, eventStartTime: "19:00", autoOvertime: true, deliveryZone: "selfoss", kmOneWay: 0, transportVATMode: "bundle11", consumablesPP: 100, contingencyPct: 5, overheadPct: 5, targetMarginPct: 25, planningHours: 2, drinkUnitsPP: 3, drinkOption: "A", venueOn: true, staffLines: [
+        { id: "ihb1", role: "Setup crew", phase: "Setup (day before)", staff: 1, hours: 6, rate: "day", base: 0, note: "Clean, coolers, bar stock, price list" },
+        { id: "ihb2", role: "Chef", phase: "Service", staff: 1, hours: 8, rate: "wkd", base: 0, note: "Kitchen ~8h total incl. prep, fry, assemble, dishes" },
+        { id: "ihb3", role: "Bartender", phase: "Service", staff: 1, hours: 8, rate: "wkd", base: 0, note: "Reloads grab-bar for pre-paid units" },
+        { id: "ihb4", role: "Waiter / runner", phase: "Service", staff: 1, hours: 8, rate: "wkd", base: 0, note: "Waiter / bartender" },
+        { id: "ihb5", role: "Dishwasher", phase: "Service", staff: 1, hours: 8, rate: "wkd", base: 0, note: "Runner + dishwasher, also kitchen dishes" }
+      ] }
+    },
+@@ 323 1
+    baseRate: 3e3,
+@@ 325 1
+    salaryCosts: 1.33,
+@@ 350 1
+    eventsPerMonth: 4,
+    staffLines: null,
+    drinkUnitsPP: 0,
+    drinkUnitPrice: 1250,
+    drinkOption: "A",
+    drinkPriceB: 1450,
+    drinkMinPctB: 70,
+    drinkConsumedPct: 100,
+    mixBeer: 60,
+    mixCider: 15,
+    mixWine: 25,
+    costBeer: 350,
+    costCider: 450,
+    costWineBottle: 2100,
+    sodaUnits: 0,
+    sodaPrice: 500,
+    sodaCost: 150,
+    venueOn: false,
+    hallRentNet: 18e4,
+    hallVat: "24",
+    creditPct: 9,
+    minUnitsPP: 2,
+    landlordPct: 12.5
+@@ 385 0
+  function solveEvent(o) {
+    const evalAt = (F) => {
+      const fbIncl = F * (1 + o.vat / 100) + o.drinks.revIncl + o.soda.revIncl;
+      let hallGross = 0, credit = 0, hallEx = 0;
+      if (o.venue.on) {
+        hallGross = o.venue.hallNet * (o.venue.vat24 ? 1.24 : 1);
+        credit = o.venue.eligible ? Math.min(hallGross, fbIncl * o.venue.creditPct / 100) : 0;
+        hallEx = (hallGross - credit) / (o.venue.vat24 ? 1.24 : 1);
+      }
+      const rev = F + o.drinks.revEx + o.soda.revEx + o.rental.revEx + hallEx;
+      const landlord = o.venue.on ? rev * o.venue.landlordPct / 100 : 0;
+      const oh = (F + o.drinks.revEx + o.soda.revEx + o.rental.revEx) * o.oh / 100;
+      const profit = rev - o.pool - o.cont - o.drinks.cost - o.soda.cost - o.rental.cost - landlord - oh;
+      const zeroAt = o.venue.on && o.venue.creditPct > 0 ? hallGross / (o.venue.creditPct / 100) : 0;
+      return { F, fbIncl, hallGross, credit, hallEx, hallAfterGross: hallGross - credit, rev, landlord, oh, profit, zeroAt };
+    };
+    const m = o.m / 100;
+    if (m + o.oh / 100 >= 1) return evalAt((o.pool + o.cont) * 2);
+    const g = (F) => {
+      const r = evalAt(F);
+      return r.profit - m * r.rev;
+    };
+    let lo = o.pool + o.cont, hi = Math.max(1e6, lo * 20);
+    if (g(lo) >= 0) return evalAt(lo);
+    while (g(hi) < 0 && hi < 1e12) hi *= 2;
+    for (let i = 0; i < 80; i++) {
+      const mid = (lo + hi) / 2;
+      if (g(mid) < 0) lo = mid;
+      else hi = mid;
+    }
+    return evalAt(hi);
+  }
 @@ 397 0
     const [policies, setPolicies] = (0, import_react.useState)([]);
     const [policySel, setPolicySel] = (0, import_react.useState)([]);
@@ -30,6 +132,70 @@ menuName: menu.name, policyIds: policySel }
         }
       }).catch(() => {
       });
+@@ 496 1
+    const SC = C.salaryCosts || SALARY_COSTS;
+    const prepRate = C.baseRate * SC;
+@@ 499 1
+    const fieldRate = C.baseRate * fieldMult * SC;
+@@ 501 1
+    const locCost = dayType.type === "daytime" ? dayHrs * C.locationStaff * prepRate + eveHrs * C.locationStaff * C.baseRate * 1.33 * SC : C.locationHours * C.locationStaff * fieldRate;
+@@ 504 2
+    const planCost = C.planningHours * C.planningRate * SC;
+    const isLegacyStaff = !Array.isArray(C.staffLines);
+    const staffLines = isLegacyStaff ? legacyStaffLines(C) : C.staffLines;
+    const setStaffLines = (ls) => upd("staffLines", ls);
+    const multOf = (l) => l.rate === "auto" || !RATE_MULT[l.rate] ? fieldMult : RATE_MULT[l.rate];
+    const lineCost = (l) => (l.staff || 0) * (l.hours || 0) * (l.base || C.baseRate) * multOf(l) * SC;
+    const lineCharge = (l) => (l.staff || 0) * (l.hours || 0) * (l.charge || (l.base || C.baseRate) * multOf(l) * SC * 1.33);
+    const ownLines = isLegacyStaff ? [] : staffLines.filter((l) => !l.rental), rentLines = isLegacyStaff ? [] : staffLines.filter((l) => l.rental);
+    const ownStaffCost = isLegacyStaff ? prepCost + locCost + travCost : ownLines.reduce((s, l) => s + lineCost(l), 0);
+    const rental = { cost: rentLines.reduce((s, l) => s + lineCost(l), 0), revEx: rentLines.reduce((s, l) => s + lineCharge(l), 0) };
+    const labourTotal = ownStaffCost + planCost;
+    const dVat = 1 + C.vatRate / 100;
+    const mixSum = (C.mixBeer || 0) + (C.mixCider || 0) + (C.mixWine || 0);
+    const avgDrinkCost = mixSum > 0 ? ((C.mixBeer || 0) * (C.costBeer || 0) + (C.mixCider || 0) * (C.costCider || 0) + (C.mixWine || 0) * (C.costWineBottle || 0) / 5) / mixSum : 0;
+    const drinksFor = (g) => {
+      const units = Math.round((C.drinkUnitsPP || 0) * g);
+      const consumed = units * Math.min(100, Math.max(0, C.drinkConsumedPct || 0)) / 100;
+      const billed = C.drinkOption === "B" ? Math.max(consumed, units * (C.drinkMinPctB || 0) / 100) : units;
+      const price = C.drinkOption === "B" ? C.drinkPriceB : C.drinkUnitPrice;
+      return { units, consumed, billed, price, avgCost: avgDrinkCost, revIncl: billed * price, revEx: billed * price / dVat, cost: consumed * avgDrinkCost, mixSum, mixOff: units > 0 && Math.abs(mixSum - 100) > 0.5 };
+    };
+    const sodaFor = (n) => ({ units: n, revIncl: n * (C.sodaPrice || 0), revEx: n * (C.sodaPrice || 0) / dVat, cost: n * (C.sodaCost || 0) });
+    const drinks = drinksFor(C.guests), soda = sodaFor(C.sodaUnits || 0);
+    const venueEligible = !!C.venueOn && (C.drinkUnitsPP || 0) > 0 && (C.drinkUnitsPP || 0) >= (C.minUnitsPP || 0);
+    const venueIn = { on: !!C.venueOn, eligible: venueEligible, hallNet: C.hallRentNet || 0, vat24: C.hallVat !== "0", creditPct: C.creditPct || 0, landlordPct: C.landlordPct || 0 };
+@@ 522 1
+@@ 524 3
+    const ev = solveEvent({ pool: cateringDirectCost, cont: contingencyAmt, m: C.targetMarginPct, oh: C.overheadPct, vat: C.vatRate, drinks, soda, rental, venue: venueIn });
+    const cateringRevNeeded = ev.F;
+    const totalCost = cateringDirectCost + contingencyAmt + (isBundle ? 0 : transCost) + passTotal + drinks.cost + soda.cost + rental.cost + ev.landlord;
+    const extrasEx = drinks.revEx + soda.revEx + rental.revEx + ev.hallEx;
+    const revNeeded = cateringRevNeeded + extrasEx + (isBundle ? 0 : transCost) + passTotal;
+    const overheadContribution = Math.round(ev.oh);
+@@ 530 0
+    const drinkVAT = Math.round(drinks.revIncl - drinks.revEx);
+    const sodaVAT = Math.round(soda.revIncl - soda.revEx);
+    const rentalVAT = Math.round(rental.revEx * 0.24);
+    const hallVAT = Math.round(ev.hallAfterGross - ev.hallEx);
+@@ 531 1
+    const totalVAT = foodVAT + transVAT + drinkVAT + sodaVAT + rentalVAT + hallVAT;
+@@ 534 1
+    const actualMargin = ev.rev > 0 ? (ev.profit + ev.oh) / ev.rev : 0;
+    const eventProfit = ev.profit, eventMargin = ev.rev > 0 ? ev.profit / ev.rev : 0;
+    const hasExtras = drinks.units > 0 || soda.units > 0 || rental.revEx > 0 || venueIn.on;
+    const ladder = [50, 90, 150, 300, 500, 1e3].map((g) => {
+      const r = C.guests > 0 ? g / C.guests : 1;
+      const scaleLine = (l) => /Prep|Service/.test(l.phase || "") && (l.staff || 0) > 0 ? { ...l, staff: Math.max(1, Math.ceil((l.staff || 0) * Math.pow(r, 0.8) - 1e-9)) } : l;
+      const own = isLegacyStaff ? ownStaffCost * Math.pow(r, 0.8) : ownLines.map(scaleLine).reduce((s, l) => s + lineCost(l), 0);
+      const pool = g * C.ingredientPP + own + planCost + (isBundle ? transCost : 0) + equipMarginTotal * r + g * C.consumablesPP;
+      const e = solveEvent({ pool, cont: pool * C.contingencyPct / 100, m: C.targetMarginPct, oh: C.overheadPct, vat: C.vatRate, drinks: drinksFor(g), soda: sodaFor(Math.round((C.sodaUnits || 0) * r)), rental, venue: venueIn });
+      return { g, ppIncl: e.F * (1 + C.vatRate / 100) / g, staffPP: own / g, hall: e.hallAfterGross };
+    });
+@@ 537 1
+      setC((prev) => ({ ...defaultCustom, ...prev, staffLines: null, drinkUnitsPP: 0, sodaUnits: 0, venueOn: false, ...p.cfg }));
+@@ 555 1
+      const q = isCustom ? { id, ts: Date.now(), type: "custom", client: cc, evDate: cDate, notes: cNotes, eventName: C.eventName, guests: C.guests, totalCost, totalInclVAT, ppInclVAT, ppExVAT, custom: C, equipment, customItems, policyIds: policySel } : { id, ts: Date.now(), type: "standard", client, evDate, evType, notes, guests, menuId, svcId, coop, total: stdTotal, menuName: menu.name, policyIds: policySel };
 @@ 611 0
     const postPolicy = (body) => {
       setPolBusy(true);
@@ -45,6 +211,15 @@ menuName: menu.name, policyIds: policySel }
     const delPolicy = (id) => postPolicy({ action: "deletePolicy", id }).then(() => setPolicySel((sel) => sel.filter((x) => x !== id)));
 @@ 636 0
       if (Array.isArray(q.policyIds)) setPolicySel(q.policyIds);
+@@ 691 0
+      ${isLegacyStaff ? `
+@@ 694 0
+` : staffLines.map((l) => `<tr><td style="padding:4px 8px;border:1px solid #e5e7eb">${l.role} \u2014 ${l.phase}${l.rental ? " (hired out)" : ""}${l.note ? `<br><span style=\"color:#9ca3af;font-size:11px\">${l.note}</span>` : ""}</td><td style="padding:4px 8px;border:1px solid #e5e7eb;color:#6b7280">${l.staff} \xD7 ${l.hours}h \xD7 ${fmt(l.base || C.baseRate)} \xD7${multOf(l)} \xD7${SC}</td><td style="padding:4px 8px;border:1px solid #e5e7eb;text-align:right">${fmt(lineCost(l))}</td></tr>`).join("")}
+@@ 705 0
+      ${drinks.units > 0 ? `<tr><td style="padding:4px 8px;border:1px solid #e5e7eb">Drinks stock</td><td style="padding:4px 8px;border:1px solid #e5e7eb;color:#6b7280">${Math.round(drinks.consumed)} of ${drinks.units} units drunk \xD7 ${fmt(drinks.avgCost)} \u2192 revenue ${fmt(drinks.revEx)} ex. VAT</td><td style="padding:4px 8px;border:1px solid #e5e7eb;text-align:right">${fmt(drinks.cost)}</td></tr>` : ""}
+      ${soda.units > 0 ? `<tr><td style="padding:4px 8px;border:1px solid #e5e7eb">Soda stock</td><td style="padding:4px 8px;border:1px solid #e5e7eb;color:#6b7280">${soda.units} \xD7 ${fmt(C.sodaCost)}</td><td style="padding:4px 8px;border:1px solid #e5e7eb;text-align:right">${fmt(soda.cost)}</td></tr>` : ""}
+      ${venueIn.on ? `<tr><td style="padding:4px 8px;border:1px solid #e5e7eb">Landlord share</td><td style="padding:4px 8px;border:1px solid #e5e7eb;color:#6b7280">${C.landlordPct}% of ${fmt(ev.rev)} event revenue ex. VAT</td><td style="padding:4px 8px;border:1px solid #e5e7eb;text-align:right">${fmt(ev.landlord)}</td></tr><tr><td style="padding:4px 8px;border:1px solid #e5e7eb">Hall</td><td style="padding:4px 8px;border:1px solid #e5e7eb;color:#6b7280">${fmt(ev.hallGross)} \u2212 credit ${fmt(ev.credit)}${venueEligible ? "" : " (not eligible: drinks below minimum)"}</td><td style="padding:4px 8px;border:1px solid #e5e7eb;text-align:right">${fmt(ev.hallAfterGross)}</td></tr>` : ""}
+      ${hasExtras ? `<tr style="background:#ecfdf5"><td colspan="2" style="padding:6px 8px;font-weight:700;border:1px solid #e5e7eb">Event profit after landlord &amp; overhead</td><td style="padding:6px 8px;text-align:right;font-weight:700;border:1px solid #e5e7eb">${fmt(eventProfit)} (${pct(eventMargin)})</td></tr>` : ""}
 @@ 713 0
       // --- Client-facing figures -------------------------------------
       // The internal numbers are COSTS; the subtotal the client sees is
@@ -65,7 +240,7 @@ menuName: menu.name, policyIds: policySel }
         const drift = custSubtotal - clientLines.reduce((s2, l) => s2 + l.amt, 0);
         clientLines[clientLines.length - 1].amt += drift;
       }
-      const custTotal = custSubtotal + foodVAT + (isBundle2 ? 0 : transCost + transVAT) + passTotal;
+      const custTotal = custSubtotal + foodVAT + (isBundle2 ? 0 : transCost + transVAT) + passTotal + Math.round(drinks.revIncl) + Math.round(soda.revIncl) + Math.round(rental.revEx) + rentalVAT + Math.round(ev.hallAfterGross);
       const stdVATamt = Math.round(fSub * VAT_FOOD) + Math.round(bSub * VAT_BAR);
       const stdAdjAmt = stdTotal - (exVAT + stdVATamt);
       const listSub = menu ? menu.price * guests : 0;
@@ -76,6 +251,10 @@ menuName: menu.name, policyIds: policySel }
 @@ 721 2
       ${!isBundle2 && transCost > 0 ? `<tr class="sub"><td>Transport ex. VAT (${C.vehicles} vehicle${C.vehicles > 1 ? "s" : ""}, ${C.kmOneWay * 2}km)</td><td style="text-align:right">${fmt(transCost)}</td></tr><tr class="sub"><td>Transport VAT 24%</td><td style="text-align:right">${fmt(transVAT)}</td></tr>` : ""}
       ${passTotal > 0 ? `<tr class="sub"><td>Third-party services (at cost — VAT per supplier invoice)</td><td style="text-align:right">${fmt(passTotal)}</td></tr>` : ""}
+      ${drinks.units > 0 ? `<tr class="sub"><td>Drinks package \u2014 ${Math.round(drinks.billed)} units \xD7 ${fmt(drinks.price)} incl. VAT (${C.drinkUnitsPP}/guest, ${C.drinkOption === "B" ? `billed on consumption, min. ${C.drinkMinPctB}%` : "pre-paid"})</td><td style="text-align:right">${fmt(drinks.revIncl)}</td></tr>` : ""}
+      ${soda.units > 0 ? `<tr class="sub"><td>Soft drinks \u2014 ${soda.units} \xD7 ${fmt(C.sodaPrice)} incl. VAT</td><td style="text-align:right">${fmt(soda.revIncl)}</td></tr>` : ""}
+      ${rental.revEx > 0 ? `<tr class="sub"><td>Staff hire ex. VAT</td><td style="text-align:right">${fmt(rental.revEx)}</td></tr><tr class="sub"><td>Staff hire VAT 24%</td><td style="text-align:right">${fmt(rentalVAT)}</td></tr>` : ""}
+      ${venueIn.on ? `<tr class="sub"><td>Ing\xF3lfshvoll hall rental${venueIn.vat24 ? " incl. 24% VAT" : ""}</td><td style="text-align:right">${fmt(ev.hallGross)}</td></tr>${ev.credit > 0 ? `<tr class="sub"><td style="color:#059669">Hall credit \u2014 ${C.creditPct}% of food &amp; drink incl. VAT</td><td style="text-align:right;color:#059669">\u2212${fmt(ev.credit)}</td></tr>` : ""}` : ""}
 @@ 724 2
       <tr><td><strong>${menu.name}</strong> — ${fmt(menu.price)}/pax \xD7 ${guests}</td><td style="text-align:right">${fmt(listSub)}</td></tr>
       ${savedAmt !== 0 ? `<tr><td style="color:#059669">Discount (${Math.round((1 - (1 - gDisc) * (1 - cDisc)) * 100)}%)</td><td style="text-align:right;color:#059669">−${fmt(savedAmt)}</td></tr>` : ""}
@@ -94,6 +273,92 @@ menuName: menu.name, policyIds: policySel }
 @@ 743 1
     ${!reviewMode && quotePolicies.length ? `<div class="pol"><strong>Booking Policy</strong><br>${quotePolicies.map((p) => `${p.icon} ${p.text}`).join("<br>")}</div>` : ""}
 @@ 848 1
+  var STAFF_ROLES = ["Chef", "Head chef", "Waiter / runner", "Bartender", "Dishwasher", "House manager", "Setup crew", "Driver"];
+  var STAFF_PHASES = ["Prep (day before)", "Setup (day before)", "Prep (event day)", "Setup (event day)", "Service", "Cleanup", "Travel", "Other"];
+  var RATE_OPTS = [["auto", "Auto (date/time)"], ["day", "Daytime \xD71.0"], ["eve", "Evening \xD71.33"], ["wkd", "Weekend \xD71.45"], ["hol", "Holiday \xD71.9"]];
+  var RATE_MULT = { day: 1, eve: 1.33, wkd: 1.45, hol: 1.9 };
+  var newStaffId = () => "s_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  function legacyStaffLines(C) {
+    return [
+      { id: "lg_prep", role: "Chef", phase: "Prep (day before)", staff: C.prepStaff, hours: C.prepHours, rate: "day", base: 0, note: "" },
+      { id: "lg_loc", role: "Waiter / runner", phase: "Service", staff: C.locationStaff, hours: C.locationHours, rate: "auto", base: 0, note: "" },
+      { id: "lg_trav", role: "Driver", phase: "Travel", staff: C.travelStaff, hours: C.travelHours, rate: "auto", base: 0, note: "" }
+    ].filter((l) => l.hours > 0 || l.id === "lg_loc");
+  }
+  var StaffLines = ({ lines, setLines, costOf, chargeOf, multOf, baseRate }) => {
+    const sel = { ...I, padding: "6px 6px", fontSize: 12 };
+    const num = { ...I, padding: "6px 6px", fontSize: 12, textAlign: "right" };
+    const upLine = (id, k, v) => setLines(lines.map((l) => l.id === id ? { ...l, [k]: v } : l));
+    const add = () => setLines(lines.concat({ id: newStaffId(), role: "Waiter / runner", phase: "Service", staff: 1, hours: 6, rate: "auto", base: 0, note: "" }));
+    const dup = (l) => setLines(lines.concat({ ...l, id: newStaffId() }));
+    const del = (id) => setLines(lines.filter((l) => l.id !== id));
+    const byRole = {};
+    lines.forEach((l) => {
+      const k = l.role || "Other";
+      byRole[k] = byRole[k] || { hrs: 0, cost: 0 };
+      byRole[k].hrs += (l.staff || 0) * (l.hours || 0);
+      byRole[k].cost += costOf(l);
+    });
+    return React.createElement("div", null,
+      React.createElement("datalist", { id: "staff-roles" }, STAFF_ROLES.map((r) => React.createElement("option", { key: r, value: r }))),
+      lines.length === 0 && React.createElement("div", { style: { fontSize: 12, color: "#9ca3af", padding: "6px 0" } }, "No staff lines yet."),
+      lines.map((l) => React.createElement("div", { key: l.id, style: { border: `1px solid ${l.rental ? "#bae6fd" : "#e5e7eb"}`, background: l.rental ? "#f0f9ff" : "#fff", borderRadius: 8, padding: 8, marginBottom: 6 } },
+        React.createElement("div", { className: "g2c", style: { display: "grid", gridTemplateColumns: "1.3fr 1.3fr 52px 58px 1.1fr 104px 22px", gap: 5, alignItems: "end" } },
+          React.createElement(F, { label: "Role" }, React.createElement("input", { list: "staff-roles", value: l.role, onChange: (e) => upLine(l.id, "role", e.target.value), style: sel })),
+          React.createElement(F, { label: "Phase" }, React.createElement("select", { value: l.phase, onChange: (e) => upLine(l.id, "phase", e.target.value), style: sel }, STAFF_PHASES.concat(STAFF_PHASES.indexOf(l.phase) === -1 && l.phase ? [l.phase] : []).map((p) => React.createElement("option", { key: p, value: p }, p)))),
+          React.createElement(F, { label: "Staff" }, React.createElement("input", { type: "number", min: 0, value: l.staff, onChange: (e) => upLine(l.id, "staff", parseFloat(e.target.value) || 0), style: num })),
+          React.createElement(F, { label: "Hours" }, React.createElement("input", { type: "number", min: 0, step: 0.5, value: l.hours, onChange: (e) => upLine(l.id, "hours", parseFloat(e.target.value) || 0), style: num })),
+          React.createElement(F, { label: "Rate" }, React.createElement("select", { value: l.rate, onChange: (e) => upLine(l.id, "rate", e.target.value), style: sel }, RATE_OPTS.map(([v, t]) => React.createElement("option", { key: v, value: v }, t)))),
+          React.createElement(F, { label: "Cost" }, React.createElement(Ro, { val: fmt(costOf(l)), bold: true })),
+          React.createElement("button", { onClick: () => del(l.id), title: "Remove line", style: { border: "none", background: "none", color: "#d1d5db", cursor: "pointer", fontSize: 14, paddingBottom: 8 } }, "✕")),
+        React.createElement("div", { className: "g2c", style: { display: "grid", gridTemplateColumns: "96px 1fr auto auto", gap: 6, alignItems: "center", marginTop: 5 } },
+          React.createElement("input", { type: "number", value: l.base || "", placeholder: `${baseRate} base`, title: "Base kr/hr for this line (blank = default base rate). Heads cost more, hands less.", onChange: (e) => upLine(l.id, "base", parseFloat(e.target.value) || 0), style: { ...num, textAlign: "left" } }),
+          React.createElement("input", { value: l.note || "", placeholder: "Why? e.g. 'pin assembly 280 pax, 1 per 45 guests'", onChange: (e) => upLine(l.id, "note", e.target.value), style: { ...sel, fontStyle: l.note ? "normal" : "italic" } }),
+          React.createElement("label", { title: "Sold to the client as staff hire (24% VAT) instead of being built into the menu price", style: { display: "flex", alignItems: "center", gap: 4, fontSize: 11, color: "#0369a1", cursor: "pointer", whiteSpace: "nowrap" } }, React.createElement("input", { type: "checkbox", checked: !!l.rental, onChange: (e) => upLine(l.id, "rental", e.target.checked), style: { accentColor: "#0369a1" } }), "Hire"),
+          React.createElement("button", { onClick: () => dup(l), title: "Duplicate line", style: { border: "1px solid #e5e7eb", background: "white", borderRadius: 6, cursor: "pointer", fontSize: 11, padding: "3px 7px", color: "#6b7280" } }, "⧉")),
+        l.rental && React.createElement("div", { style: { display: "flex", gap: 8, alignItems: "center", marginTop: 6, fontSize: 11, color: "#0369a1" } }, "Hire price kr/hr ex. VAT", React.createElement("input", { type: "number", value: l.charge || "", placeholder: String(Math.round((l.base || baseRate) * multOf(l) * 1.33 * 1.33)), onChange: (e) => upLine(l.id, "charge", parseFloat(e.target.value) || 0), style: { ...num, width: 100 } }), "→ client pays ", React.createElement("strong", null, fmt(chargeOf(l) * 1.24)), " incl. 24% VAT"))),
+      React.createElement("button", { onClick: add, style: { width: "100%", padding: 7, border: "1.5px dashed #e5e7eb", borderRadius: 8, background: "none", cursor: "pointer", fontSize: 12, color: "#6b7280" } }, "+ Add staff line"),
+      Object.keys(byRole).length > 0 && React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 5, marginTop: 8 } }, Object.entries(byRole).map(([r, v]) => React.createElement("div", { key: r, style: { fontSize: 10.5, padding: "2px 8px", borderRadius: 20, background: "#f3f4f6", color: "#374151" } }, r, ": ", v.hrs, "h \xB7 ", fmt(v.cost)))));
+  };
+  var DrinksCard = ({ C, upd, updN, d }) => React.createElement(Card, { title: "\u{1F37A} Drinks package" },
+    React.createElement("div", { className: "g2c", style: { display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 8 } },
+      React.createElement(F, { label: "Units per guest" }, React.createElement("input", { type: "number", min: 0, step: 0.5, value: C.drinkUnitsPP, onChange: updN("drinkUnitsPP"), style: I })),
+      React.createElement(F, { label: "Option" }, React.createElement("select", { value: C.drinkOption, onChange: (e) => upd("drinkOption", e.target.value), style: I }, React.createElement("option", { value: "A" }, "A — fixed, pre-paid"), React.createElement("option", { value: "B" }, "B — pay for what's drunk"))),
+      C.drinkOption === "B" ? React.createElement(F, { label: "Price/unit incl. VAT \xB7 min %" }, React.createElement("div", { style: { display: "flex", gap: 4 } }, React.createElement("input", { type: "number", value: C.drinkPriceB, onChange: updN("drinkPriceB"), style: I }), React.createElement("input", { type: "number", value: C.drinkMinPctB, onChange: updN("drinkMinPctB"), style: { ...I, width: 60 } }))) : React.createElement(F, { label: "Price/unit incl. VAT" }, React.createElement("input", { type: "number", value: C.drinkUnitPrice, onChange: updN("drinkUnitPrice"), style: I }))),
+    C.drinkUnitsPP > 0 && React.createElement(React.Fragment, null,
+      React.createElement("div", { style: { fontSize: 11, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.05em", margin: "4px 0 5px" } }, "Mix & cost ex. VAT"),
+      React.createElement("div", { className: "g2c", style: { display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 6, marginBottom: 8 } },
+        React.createElement(F, { label: "Beer % \xB7 kr/33cl" }, React.createElement("div", { style: { display: "flex", gap: 3 } }, React.createElement("input", { type: "number", value: C.mixBeer, onChange: updN("mixBeer"), style: { ...I, padding: "7px 5px" } }), React.createElement("input", { type: "number", value: C.costBeer, onChange: updN("costBeer"), style: { ...I, padding: "7px 5px" } }))),
+        React.createElement(F, { label: "Cider % \xB7 kr/33cl" }, React.createElement("div", { style: { display: "flex", gap: 3 } }, React.createElement("input", { type: "number", value: C.mixCider, onChange: updN("mixCider"), style: { ...I, padding: "7px 5px" } }), React.createElement("input", { type: "number", value: C.costCider, onChange: updN("costCider"), style: { ...I, padding: "7px 5px" } }))),
+        React.createElement(F, { label: "Wine % \xB7 kr/bottle" }, React.createElement("div", { style: { display: "flex", gap: 3 } }, React.createElement("input", { type: "number", value: C.mixWine, onChange: updN("mixWine"), style: { ...I, padding: "7px 5px" } }), React.createElement("input", { type: "number", value: C.costWineBottle, onChange: updN("costWineBottle"), style: { ...I, padding: "7px 5px" } }))),
+        React.createElement(F, { label: "Expected drunk %" }, React.createElement("input", { type: "number", value: C.drinkConsumedPct, onChange: updN("drinkConsumedPct"), style: I }))),
+      React.createElement("div", { className: "g2c", style: { display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 8 } },
+        React.createElement(F, { label: "Soda units (total, billed separately)" }, React.createElement("input", { type: "number", value: C.sodaUnits, onChange: updN("sodaUnits"), style: I })),
+        React.createElement(F, { label: "Soda price incl. VAT" }, React.createElement("input", { type: "number", value: C.sodaPrice, onChange: updN("sodaPrice"), style: I })),
+        React.createElement(F, { label: "Soda cost ex. VAT" }, React.createElement("input", { type: "number", value: C.sodaCost, onChange: updN("sodaCost"), style: I }))),
+      React.createElement("div", { style: { fontSize: 11.5, color: "#374151", background: "#f9fafb", borderRadius: 8, padding: "7px 10px", lineHeight: 1.6 } },
+        d.units, " units \xB7 avg cost ", fmt(d.avgCost), "/unit \xB7 pour cost ", pct(d.revEx > 0 ? d.cost / d.revEx : 0), React.createElement("br", null),
+        "Revenue ", fmt(d.revEx), " ex. VAT (", fmt(d.revIncl), " incl.) \xB7 cost ", fmt(d.cost), " \xB7 contribution ", React.createElement("strong", null, fmt(d.revEx - d.cost)),
+        d.mixOff && React.createElement("div", { style: { color: "#dc2626" } }, "⚠️ Mix adds up to ", d.mixSum, "%, not 100%."))));
+  var VenueCard = ({ C, upd, updN, v }) => React.createElement(Card, { title: "\u{1F3DB}️ Ingólfshvoll hall" },
+    React.createElement("label", { style: { display: "flex", alignItems: "center", gap: 8, marginBottom: C.venueOn ? 10 : 0, cursor: "pointer", fontSize: 12 } }, React.createElement(Tog, { val: C.venueOn, set: (x) => upd("venueOn", x) }), "Event is at Ingólfshvoll (hall rental, rent credit, landlord share)"),
+    C.venueOn && React.createElement(React.Fragment, null,
+      React.createElement("div", { className: "g2c", style: { display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 8 } },
+        React.createElement(F, { label: "Hall rental ex. VAT" }, React.createElement("input", { type: "number", value: C.hallRentNet, onChange: updN("hallRentNet"), style: I })),
+        React.createElement(F, { label: "VAT on hall" }, React.createElement("select", { value: C.hallVat, onChange: (e) => upd("hallVat", e.target.value), style: I }, React.createElement("option", { value: "24" }, "24% (company)"), React.createElement("option", { value: "0" }, "None (private)"))),
+        React.createElement(F, { label: "Landlord share %" }, React.createElement("input", { type: "number", step: 0.5, value: C.landlordPct, onChange: updN("landlordPct"), style: I }))),
+      React.createElement("div", { className: "g2c", style: { display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 8 } },
+        React.createElement(F, { label: "Rent credit % of F&B incl. VAT" }, React.createElement("input", { type: "number", step: 0.5, value: C.creditPct, onChange: updN("creditPct"), style: I })),
+        React.createElement(F, { label: "Min. drink units / guest" }, React.createElement("input", { type: "number", step: 0.5, value: C.minUnitsPP, onChange: updN("minUnitsPP"), style: I })),
+        React.createElement(F, { label: "Hall after credit (client)" }, React.createElement(Ro, { val: fmt(v.hallAfterGross), bold: true }))),
+      React.createElement("div", { style: { fontSize: 11.5, background: v.eligible ? "#f0fdf4" : "#fef2f2", color: v.eligible ? "#166534" : "#991b1b", borderRadius: 8, padding: "7px 10px", lineHeight: 1.6 } },
+        v.eligible ? React.createElement(React.Fragment, null, "Credit ", fmt(v.credit), " of ", fmt(v.hallGross), v.credit >= v.hallGross ? " — hall is free." : ` — hall reaches 0 kr at about ${fmt(v.zeroAt)} F&B incl. VAT.`) : `No credit: drinks package is below ${C.minUnitsPP} units/guest. Food-only rule applies — add a House manager line as Hire (10,000 kr/hr + VAT, min. 4h).`,
+        React.createElement("br", null), "Landlord ", C.landlordPct, "% of event revenue ex. VAT: ", fmt(v.landlord))));
+  var LadderCard = ({ rows, onPick }) => React.createElement(Card, { title: "\u{1FA9C} Price ladder (same setup, scaled)" },
+    React.createElement("div", { style: { fontSize: 11, color: "#6b7280", marginBottom: 6 } }, "Food price per guest needed for the target margin. Prep and service staff scale with guests (less than proportionally); setup, cleanup and travel stay fixed; equipment scales with guests. A guide \u2014 check the staffing at each size."),
+    React.createElement("table", { style: { width: "100%", fontSize: 12, borderCollapse: "collapse" } },
+      React.createElement("thead", null, React.createElement("tr", { style: { color: "#6b7280", textAlign: "right" } }, React.createElement("th", { style: { textAlign: "left", padding: "3px 4px" } }, "Guests"), React.createElement("th", null, "Food/guest incl."), React.createElement("th", null, "Staff cost/guest"), React.createElement("th", null, "Hall to client"))),
+      React.createElement("tbody", null, rows.map((r) => React.createElement("tr", { key: r.g, style: { borderTop: "1px solid #f3f4f6", textAlign: "right" } }, React.createElement("td", { style: { textAlign: "left", padding: "4px" } }, r.g), React.createElement("td", { style: { fontWeight: 700 } }, fmt(r.ppIncl)), React.createElement("td", { style: { color: "#6b7280" } }, fmt(r.staffPP)), React.createElement("td", { style: { color: "#6b7280" } }, fmt(r.hall)))))));
   var PC = ({ policies, selected, onToggle, onAdd, onDelete, busy }) => {
     const [open, setOpen] = React.useState(false);
     const [icon, setIcon] = React.useState("\u{1F4CB}");
@@ -125,7 +390,7 @@ menuName: menu.name, policyIds: policySel }
    Refuses to render unless the production file is byte-for-byte the one
    this patch was built against AND the patched result is byte-for-byte
    the build that was tested. */
-var SRC_HASH = 3961280512, OUT_LINES = 925, OUT_HASH = 25621736;
+var SRC_HASH = 3961280512, OUT_LINES = 1143, OUT_HASH = 2442925328;
 function fnv(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i)&0xFF;h=(h*0x01000193)>>>0;}return h;}
 function fail(m){document.body.innerHTML='<div class="err"><h1>Preview did not build</h1><p>'+m+'</p><p>The live calculator is unaffected. Send this message to Claude.</p></div>';}
 function apply(src,t){
