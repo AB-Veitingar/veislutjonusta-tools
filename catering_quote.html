@@ -1043,8 +1043,8 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
     ].filter((l) => l.hours > 0 || l.id === "lg_loc");
   }
   var StaffLines = ({ lines, setLines, costOf, chargeOf, multOf, baseRate }) => {
-    const sel = { ...I, padding: "6px 6px", fontSize: 12 };
-    const num = { ...I, padding: "6px 6px", fontSize: 12, textAlign: "right" };
+    const sel = { ...I, padding: "8px 10px", fontSize: 13 };
+    const num = { ...I, padding: "8px 10px", fontSize: 13, textAlign: "right" };
     const upLine = (id, k, v) => setLines(lines.map((l) => l.id === id ? { ...l, [k]: v } : l));
     const add = () => setLines(lines.concat({ id: newStaffId(), role: "Waiter / runner", phase: "Service", staff: 1, hours: 6, rate: "auto", base: 0, note: "" }));
     const dup = (l) => setLines(lines.concat({ ...l, id: newStaffId() }));
@@ -1059,22 +1059,25 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
     return React.createElement("div", null,
       React.createElement("datalist", { id: "staff-roles" }, STAFF_ROLES.map((r) => React.createElement("option", { key: r, value: r }))),
       lines.length === 0 && React.createElement("div", { style: { fontSize: 12, color: "#9ca3af", padding: "6px 0" } }, "No staff lines yet."),
-      lines.map((l) => React.createElement("div", { key: l.id, style: { border: `1px solid ${l.rental ? "#bae6fd" : "#e5e7eb"}`, background: l.rental ? "#f0f9ff" : "#fff", borderRadius: 8, padding: 8, marginBottom: 6 } },
-        React.createElement("div", { className: "g2c", style: { display: "grid", gridTemplateColumns: "1.3fr 1.3fr 52px 58px 1.1fr 104px 22px", gap: 5, alignItems: "end" } },
+      lines.map((l) => React.createElement("div", { key: l.id, style: { border: `1px solid ${l.rental ? "#bae6fd" : "#e5e7eb"}`, background: l.rental ? "#f0f9ff" : "#fff", borderRadius: 10, padding: "12px 14px", marginBottom: 10 } },
+        React.createElement("div", { className: "g2c", style: { display: "grid", gridTemplateColumns: "1.4fr 1.3fr 1.1fr", gap: 10, marginBottom: 10 } },
           React.createElement(F, { label: "Role" }, React.createElement("input", { list: "staff-roles", value: l.role, onChange: (e) => upLine(l.id, "role", e.target.value), style: sel })),
           React.createElement(F, { label: "Phase" }, React.createElement("select", { value: l.phase, onChange: (e) => upLine(l.id, "phase", e.target.value), style: sel }, STAFF_PHASES.concat(STAFF_PHASES.indexOf(l.phase) === -1 && l.phase ? [l.phase] : []).map((p) => React.createElement("option", { key: p, value: p }, p)))),
+          React.createElement(F, { label: "Rate" }, React.createElement("select", { value: l.rate, onChange: (e) => upLine(l.id, "rate", e.target.value), style: sel }, RATE_OPTS.map(([v, t]) => React.createElement("option", { key: v, value: v }, t))))),
+        React.createElement("div", { className: "g2c", style: { display: "grid", gridTemplateColumns: "80px 80px 130px 1fr", gap: 10, alignItems: "end", marginBottom: 10 } },
           React.createElement(F, { label: "Staff" }, React.createElement("input", { type: "number", min: 0, value: l.staff, onChange: (e) => upLine(l.id, "staff", parseFloat(e.target.value) || 0), style: num })),
           React.createElement(F, { label: "Hours" }, React.createElement("input", { type: "number", min: 0, step: 0.5, value: l.hours, onChange: (e) => upLine(l.id, "hours", parseFloat(e.target.value) || 0), style: num })),
-          React.createElement(F, { label: "Rate" }, React.createElement("select", { value: l.rate, onChange: (e) => upLine(l.id, "rate", e.target.value), style: sel }, RATE_OPTS.map(([v, t]) => React.createElement("option", { key: v, value: v }, t)))),
-          React.createElement(F, { label: "Cost" }, React.createElement(Ro, { val: fmt(costOf(l)), bold: true })),
-          React.createElement("button", { onClick: () => del(l.id), title: "Remove line", style: { border: "none", background: "none", color: "#d1d5db", cursor: "pointer", fontSize: 14, paddingBottom: 8 } }, "✕")),
-        React.createElement("div", { className: "g2c", style: { display: "grid", gridTemplateColumns: "96px 1fr auto auto", gap: 6, alignItems: "center", marginTop: 5 } },
-          React.createElement("input", { type: "number", value: l.base || "", placeholder: `${baseRate} base`, title: "Base kr/hr for this line (blank = default base rate). Heads cost more, hands less.", onChange: (e) => upLine(l.id, "base", parseFloat(e.target.value) || 0), style: { ...num, textAlign: "left" } }),
-          React.createElement("input", { value: l.note || "", placeholder: "Why? e.g. 'pin assembly 280 pax, 1 per 45 guests'", onChange: (e) => upLine(l.id, "note", e.target.value), style: { ...sel, fontStyle: l.note ? "normal" : "italic" } }),
-          React.createElement("label", { title: "Sold to the client as staff hire (24% VAT) instead of being built into the menu price", style: { display: "flex", alignItems: "center", gap: 4, fontSize: 11, color: "#0369a1", cursor: "pointer", whiteSpace: "nowrap" } }, React.createElement("input", { type: "checkbox", checked: !!l.rental, onChange: (e) => upLine(l.id, "rental", e.target.checked), style: { accentColor: "#0369a1" } }), "Hire"),
-          React.createElement("button", { onClick: () => dup(l), title: "Duplicate line", style: { border: "1px solid #e5e7eb", background: "white", borderRadius: 6, cursor: "pointer", fontSize: 11, padding: "3px 7px", color: "#6b7280" } }, "⧉")),
-        l.rental && React.createElement("div", { style: { display: "flex", gap: 8, alignItems: "center", marginTop: 6, fontSize: 11, color: "#0369a1" } }, "Hire price kr/hr ex. VAT", React.createElement("input", { type: "number", value: l.charge || "", placeholder: String(Math.round((l.base || baseRate) * multOf(l) * 1.33 * 1.33)), onChange: (e) => upLine(l.id, "charge", parseFloat(e.target.value) || 0), style: { ...num, width: 100 } }), "→ client pays ", React.createElement("strong", null, fmt(chargeOf(l) * 1.24)), " incl. 24% VAT"))),
-      React.createElement("button", { onClick: add, style: { width: "100%", padding: 7, border: "1.5px dashed #e5e7eb", borderRadius: 8, background: "none", cursor: "pointer", fontSize: 12, color: "#6b7280" } }, "+ Add staff line"),
+          React.createElement(F, { label: "Base kr/hr" }, React.createElement("input", { type: "number", value: l.base || "", placeholder: `${baseRate}`, title: "Leave blank for the default base rate. Heads cost more, hands less.", onChange: (e) => upLine(l.id, "base", parseFloat(e.target.value) || 0), style: num })),
+          React.createElement("div", { style: { display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 10, paddingBottom: 6 } },
+            React.createElement("span", { style: { fontSize: 11, color: "#9ca3af" } }, (l.staff || 0) * (l.hours || 0), " staff-hrs \xD7", multOf(l)),
+            React.createElement("span", { style: { fontSize: 15, fontWeight: 700, color: "#111827" } }, fmt(costOf(l))))),
+        React.createElement("div", { style: { display: "flex", gap: 10, alignItems: "center" } },
+          React.createElement("input", { value: l.note || "", placeholder: "Why? e.g. 'pin assembly 280 pax, 1 per 45 guests'", onChange: (e) => upLine(l.id, "note", e.target.value), style: { ...sel, flex: 1, fontStyle: l.note ? "normal" : "italic" } }),
+          React.createElement("label", { title: "Sold to the client as staff hire (24% VAT) instead of being built into the menu price", style: { display: "flex", alignItems: "center", gap: 5, fontSize: 12, color: "#0369a1", cursor: "pointer", whiteSpace: "nowrap" } }, React.createElement("input", { type: "checkbox", checked: !!l.rental, onChange: (e) => upLine(l.id, "rental", e.target.checked), style: { accentColor: "#0369a1" } }), "Hire out"),
+          React.createElement("button", { onClick: () => dup(l), title: "Duplicate line", style: { border: "1px solid #e5e7eb", background: "white", borderRadius: 6, cursor: "pointer", fontSize: 12, padding: "5px 9px", color: "#6b7280" } }, "\u29C9"),
+          React.createElement("button", { onClick: () => del(l.id), title: "Remove line", style: { border: "1px solid #fecaca", background: "white", borderRadius: 6, cursor: "pointer", fontSize: 12, padding: "5px 9px", color: "#ef4444" } }, "\u2715")),
+        l.rental && React.createElement("div", { style: { display: "flex", gap: 8, alignItems: "center", marginTop: 10, fontSize: 12, color: "#0369a1" } }, "Hire price kr/hr ex. VAT", React.createElement("input", { type: "number", value: l.charge || "", placeholder: String(Math.round((l.base || baseRate) * multOf(l) * 1.33 * 1.33)), onChange: (e) => upLine(l.id, "charge", parseFloat(e.target.value) || 0), style: { ...num, width: 110 } }), "\u2192 client pays ", React.createElement("strong", null, fmt(chargeOf(l) * 1.24)), " incl. 24% VAT"))),
+      React.createElement("button", { onClick: add, style: { width: "100%", padding: 10, border: "1.5px dashed #e5e7eb", borderRadius: 8, background: "none", cursor: "pointer", fontSize: 12, color: "#6b7280" } }, "+ Add staff line"),
       Object.keys(byRole).length > 0 && React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 5, marginTop: 8 } }, Object.entries(byRole).map(([r, v]) => React.createElement("div", { key: r, style: { fontSize: 10.5, padding: "2px 8px", borderRadius: 20, background: "#f3f4f6", color: "#374151" } }, r, ": ", v.hrs, "h \xB7 ", fmt(v.cost)))));
   };
   var DrinksCard = ({ C, upd, updN, d }) => React.createElement(Card, { title: "\u{1F37A} Drinks package" },
