@@ -1125,7 +1125,8 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
     { id: "r_dish", role: "Dishwasher", base: 3e3, phase: "Service", rate: "auto", hours: 6, note: "", active: true },
     { id: "r_hm", role: "House manager", base: 3e3, phase: "Service", rate: "auto", hours: 6, note: "", active: true },
     { id: "r_setup", role: "Setup crew", base: 3e3, phase: "Setup (day before)", rate: "day", hours: 6, note: "", active: true },
-    { id: "r_driver", role: "Driver", base: 3e3, phase: "Travel", rate: "auto", hours: 1, note: "", active: true }
+    { id: "r_driver", role: "Driver", base: 3e3, phase: "Travel", rate: "auto", hours: 1, note: "", active: true },
+    { id: "r_clean", role: "Cleaning crew", base: 3e3, phase: "Cleanup", rate: "auto", hours: 4, note: "", active: true }
   ];
   var areaOf = (role) => /chef|cook|kitchen|dish|kokk|uppvask/i.test(role || "") ? "Kitchen" : /wait|runner|bar|house|host|front|þjón/i.test(role || "") ? "Front" : "Crew";
   var PHASE_COLOR = { "Prep (day before)": "#fef9c3", "Setup (day before)": "#fef3c7", "Prep (event day)": "#ffedd5", "Setup (event day)": "#fee2e2", "Service": "#e0f2fe", "Cleanup": "#ede9fe", "Travel": "#f1f5f9", "Other": "#f9fafb" };
