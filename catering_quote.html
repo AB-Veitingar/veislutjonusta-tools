@@ -1688,6 +1688,17 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
   ];
   var HelpContent = () => React.createElement("div", { style: { fontSize: 13, lineHeight: 1.55, color: "#374151" } }, HELP.map(([h, ps]) => React.createElement("div", { key: h, style: { marginBottom: 14 } }, React.createElement("div", { style: { fontWeight: 700, fontSize: 13.5, color: "#111827", marginBottom: 4 } }, h), ps.map((p, i) => React.createElement("p", { key: i, style: { margin: "0 0 6px" } }, p)))));
   var CHANGELOG = [
+    { v: "2026-10-21", title: "Save your own menus, edit and delete ideas, drinks and shopping line by line", items: [
+      "\u{1F4BE} Save as our menu (next to \u{1F4D6} Our menus on a dinner): keeps the whole dinner \u2014 pre-course, courses, extra dishes, alternatives, notes, pairing, plated or family-style \u2014 under \u201CSaved by us\u201D in Our menus for everyone. Load it again, change it and choose Update, or Save as a new menu. Stored in the Chef menus tab of the master Sheet.",
+      "Delete a menu from Our menus, or a dish from the idea bank, with an ARE YOU SURE? step. Built-in ones can be removed too; tick active again in the Sheet to bring one back.",
+      "Edit ideas in place: \u270E Edit on any card in \u{1F4A1} Menu ideas, or \u201C\u270E Update to my text\u201D on a suggestion while typing. The dish is changed, no second item is made.",
+      "Wine / drinks and Private shopping are now line by line: quantity \u00D7 item \u00D7 estimated cost each. The quote, the client PDF and the chef sheet list every line. New items are saved to the idea bank and their price to the price book, so next time they pop up with the cost.",
+      "Snacks to graze on and kids' meals: what you add yourself is saved to the idea bank too, and shows up as a choice next time."
+    ] },
+    { v: "2026-10-20", title: "Private chef: one-off dinners on major holidays", items: [
+      "The major-holiday extra on a one-off dinner is now worked out on 65,000 kr, not the full 95,000 kr one-off fee: 65,000 \xD7 0.9 = 58,500 kr extra. Service days are unchanged (110,000 \xD7 0.9 per day). Change the base under Prices & costs (Holiday base, one-off dinner).",
+      "A contractor chef gets 60% of a day for a one-off dinner: 39,000 kr, and \xD71.9 on a major holiday (74,100 kr). Quotes saved before this switch to 39,000 automatically when opened."
+    ] },
     { v: "2026-10-19", title: "Idea bank you can add to, pre-course, snacks to graze on", items: [
       "Add your own dishes to the \u{1F4A1} idea bank: type a dish anywhere in a course and click \u201C+ Save to the idea bank\u201D, or use \u201C+ Add a dish to the bank\u201D in the idea bank. They are kept in the Chef ideas tab of the master Sheet, so everyone sees them; untick active there to hide one.",
       "New in the bank: wild game soup with wild thyme cream, cranberry jam and toasted croutons (from the Christmas set menu).",
@@ -2030,7 +2041,8 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
   var chefMenuFill = (mm) => {
     const x = mm.x || {}, out = { name: mm.name, pair: mm.pair || "", starter: mm.c[0] || "", main: mm.c[1] || "", dessert: mm.c[2] || "" };
     if (x.canapes) out.canapes = x.canapes;
-    ["canapes", "starter", "main", "dessert"].forEach((sl) => { if (x[sl + "More"]) out[sl + "More"] = x[sl + "More"].map((it) => ({ n: 0, note: "", kind: "add", ...it, id: chefStaffId() })); });
+    ["canapes", "starter", "main", "dessert"].forEach((sl) => { if (x[sl + "More"]) out[sl + "More"] = x[sl + "More"].map((it) => ({ n: 0, note: "", kind: "add", ...it, id: chefStaffId() })); if (x[sl + "Note"]) out[sl + "Note"] = x[sl + "Note"]; });
+    if (mm.saved) out.savedId = mm.id;
     return out;
   };
   var CHEF_WAITER = (role) => ({ id: chefStaffId(), role: role || "Waiter-bartender", kind: "single", qty: 1, hours: 5, base: 3e3 });
@@ -2071,7 +2083,37 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
     { id: "glacier", used: "Eclaterra (quoted)", pair: "Pinot Noir with the carpaccio, Sauvignon Blanc with the char", name: "Glacier dinner", sub: "4 courses, set-up", c: ["Reindeer carpaccio and smoked salmon", "Pan-fried Arctic char, roasted vegetables, pickled fennel, garlic-caper butter", "Brownie with birch cream"], x: { starterMore: [{ kind: "add", text: "Creamy langoustine soup with sea-truffle cream" }] } },
     { id: "veg", used: "Stout retreat, Arla, Oren wedding", pair: "Sauvignon Blanc with the starter, Pinot Noir with the main", name: "Vegetarian", sub: "", c: ["Smoked beets with goat cheese, or wild mushroom velout\xE9 with truffle cream", "Vegan Wellington, or nut steak with thyme sauce", "Rhubarb & apple crumble, or lava cake"] }
   ];
-  var chefMenu = (id) => CHEF_MENUS.find((m) => m.id === id) || null;
+  var CHEF_MENUS_GONE = [];
+  var chefMenu = (id) => CHEF_MENUS.find((m) => m.id === id) || CHEF_MENUS_GONE.find((m) => m.id === id) || null;
+  /* menus saved from the page live in the "Chef menus" tab of the master Sheet; a hidden row removes a menu from Our menus */
+  var chefMenusLoaded = false;
+  var chefMenusMerge = (list) => {
+    let n = 0;
+    (list || []).forEach((m) => {
+      const id = String(m.id || ""); if (!id) return;
+      const i = CHEF_MENUS.findIndex((x) => x.id === id);
+      if (m.hidden) { if (i !== -1) { CHEF_MENUS_GONE.push(CHEF_MENUS[i]); CHEF_MENUS.splice(i, 1); n++; } return; }
+      const mm = { ...m, id, c: m.c || ["", "", ""], x: m.x || {}, saved: true };
+      if (i !== -1) CHEF_MENUS[i] = mm; else CHEF_MENUS.unshift(mm);
+      n++;
+    });
+    if (n && typeof chefSuggestIdx !== "undefined") chefSuggestIdx = null;
+    return n;
+  };
+  var chefMenusLoad = () => chefMenusLoaded ? Promise.resolve(0) : fetch(SHEET_API + "?action=listChefMenus").then((r) => r.ok ? r.json() : null).then((d) => { chefMenusLoaded = true; return d && d.ok ? chefMenusMerge(d.menus) : 0; }).catch(() => 0);
+  var chefMenuSave = (mm) => chefIdeaPost({ action: "saveChefMenu", menu: mm }).then((d) => { const id = d && d.ok && d.id ? d.id : mm.id || "local_" + Date.now(); chefMenusMerge([{ ...mm, id }]); return { ok: !!(d && d.ok), id }; });
+  var chefMenuHide = (mm) => { chefMenusMerge([{ id: mm.id, hidden: true }]); return chefIdeaPost({ action: "hideChefMenu", id: mm.id, name: mm.name }).then((d) => !!(d && d.ok)); };
+  /* the dinner on a day, as a menu for Our menus */
+  var chefMenuFromDay = (d, cm, name, sub, id, used) => {
+    const x = {};
+    if (cm.canapes) x.canapes = cm.canapes;
+    ["canapes", "starter", "main", "dessert"].forEach((sl) => {
+      const more = (cm[sl + "More"] || []).filter((it) => it && it.text);
+      if (more.length) x[sl + "More"] = more.map((it) => ({ kind: it.kind || "add", n: Number(it.n) || 0, text: it.text, note: it.note || "" }));
+      if (cm[sl + "Note"]) x[sl + "Note"] = cm[sl + "Note"];
+    });
+    return { id: id || "", name, sub: sub || "", used: used || "", pair: cm.pair || "", c: [cm.starter || "", cm.main || "", cm.dessert || ""], x, style: d.style === "shared" ? "shared" : "plated" };
+  };
   var chefMenuOf = (d) => {
     if (!d || !d.d) return null;
     if (d.menu === "custom") { const cm = d.cm || {}; return { id: "custom", name: cm.name || "Dinner menu", pair: cm.pair || "", c: [cm.starter || "", cm.main || "", cm.dessert || ""], canapes: cm.canapes || "" }; }
@@ -2167,7 +2209,8 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
     staffFull: 98e3,
     staffSingle: 58800,
     contractorDay: 65e3,
-    contractorDinner: 65e3,
+    contractorDinner: 39e3,
+    holDinnerBase: 65e3,
     chefHourly: 3500,
     salaryCosts: 1.33,
     weekendMult: 1.45,
@@ -2194,7 +2237,9 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
       const extras = (CH.extras || []).map((x) => ({ id: x.id || chefStaffId(), label: x.label, mode: "unit", tag: "other", qty: 1, unit: Number(x.price) || 0, unitCost: Number(x.cost) || 0 }));
       days[at] = { ...days[at], staff: days[at].staff.concat(staff), extras: days[at].extras.concat(extras) };
     }
-    return { ...CH, days, staff: [], extras: [] };
+    /* quotes saved before the one-off rules changed: contractor gets 60% of a day for a one-off dinner, holiday extra on a one-off is on 65,000 */
+    const pre = CH.holDinnerBase == null;
+    return { ...CH, holDinnerBase: pre ? 65e3 : CH.holDinnerBase, contractorDinner: pre && Number(CH.contractorDinner) === 65e3 ? Math.round((Number(CH.contractorDay) || 65e3) * 0.6) : CH.contractorDinner, days, staff: [], extras: [] };
   };
   var CHEF_TEMPLATES = [
     { id: "dinner", icon: "\u{1F37D}️", name: "Single dinner", desc: "One dinner, 95,000 kr + 7,000 kr per guest", days: [{ b: false, d: true }] },
@@ -2204,6 +2249,10 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
     { id: "blank", icon: "⬜", name: "Blank", desc: "One day, no meals ticked", days: [{ b: false, d: false }] }
   ];
   var chefExtraCalc = (x, CH, costFn) => {
+    if (x.mode === "markup" && Array.isArray(x.lines)) {
+      const ls = x.lines.filter((l) => l.text || Number(l.cost)), tot = ls.reduce((a, l) => a + (Number(l.qty) || 0) * (Number(l.cost) || 0), 0);
+      return { price: tot * (1 + (CH.markupPct || 0) / 100), cost: tot / CHEF_VAT, sub: `${ls.filter((l) => l.text).map((l) => `${Number(l.qty) || 0} \xD7 ${l.text}`).join(" \xB7 ")}${ls.length ? " \xB7 " : ""}est. ${fmt(tot)} incl. VAT + ${CH.markupPct}%` };
+    }
     if (x.mode === "markup") {
       const c = x.tag === "graze" && x.items ? chefGrazeCost(x.items, costFn) : Number(x.cost) || 0, q = x.qty == null ? 1 : Number(x.qty) || 0;
       return { price: q * c * (1 + (CH.markupPct || 0) / 100), cost: q * c / CHEF_VAT, sub: `${q > 1 ? `${q} \xD7 ` : ""}est. ${fmt(c)} incl. VAT + ${CH.markupPct}%` };
@@ -2257,8 +2306,8 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
     const lines = [];
     if (serviceDays > 0) lines.push({ key: "svc", label: `Private chef — ${serviceDays} service day${serviceDays > 1 ? "s" : ""} (breakfast + 3-course dinner)`, sub: `${serviceDays} \xD7 (${fmt(CH.dayFee)} + guests ${fmt(guestFee)})`, amt: serviceDays * (CH.dayFee + guestFee) });
     if (oneOff > 0) lines.push({ key: "din", label: `Private chef — ${oneOff} dinner${oneOff > 1 ? "s" : ""} (3 courses)`, sub: `${oneOff} \xD7 (${fmt(CH.dinnerFee)} + ${g} \xD7 ${fmt(CH.dinnerPP)})`, amt: oneOff * (CH.dinnerFee + g * CH.dinnerPP) });
-    const holAmt = holService * CH.dayFee * (CH.holMult - 1) + holDinners * CH.dinnerFee * (CH.holMult - 1);
-    if (holAmt > 0) lines.push({ key: "hol", label: `Major holiday rate (\xD7${CH.holMult}) \u2014 ${holMealDates.map((d) => d.hol).join(", ")}`, sub: `chef fee \xD7 ${(CH.holMult - 1).toFixed(1)} on ${String(holService + holDinners).replace(".5", "\xBD")} day${holService + holDinners > 1 ? "s" : ""}${holService && holService !== holMealDates.length ? ` (${holMeals} of ${B + D} meals fall on the holiday)` : ""}`, amt: holAmt });
+    const holAmt = holService * CH.dayFee * (CH.holMult - 1) + holDinners * CH.holDinnerBase * (CH.holMult - 1);
+    if (holAmt > 0) lines.push({ key: "hol", label: `Major holiday rate (\xD7${CH.holMult}) \u2014 ${holMealDates.map((d) => d.hol).join(", ")}`, sub: [holService ? `${fmt(CH.dayFee)} \xD7 ${(CH.holMult - 1).toFixed(1)} on ${holService === 0.5 ? "\xBD" : String(holService).replace(".5", "\xBD")} service day${holService > 1 ? "s" : ""}${holService !== holMealDates.length ? ` (${holMeals} of ${B + D} meals fall on the holiday)` : ""}` : "", holDinners ? `${fmt(CH.holDinnerBase)} \xD7 ${(CH.holMult - 1).toFixed(1)} on ${holDinners} dinner${holDinners > 1 ? "s" : ""}` : ""].filter(Boolean).join(" + "), amt: holAmt });
     let lunchFood = 0, boxCost = 0;
     const lunchOnsite = [], staff = [], extras = [];
     dates.forEach((d) => {
@@ -2401,7 +2450,7 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
     s.push(["Service days", `${k.B} breakfast${k.B === 1 ? "" : "s"} and ${k.D} dinner${k.D === 1 ? "" : "s"} → ${k.serviceDays ? `${k.serviceDays} service day${k.serviceDays === 1 ? "" : "s"}` : k.oneOff ? `${k.oneOff} one-off dinner${k.oneOff === 1 ? "" : "s"}` : "nothing yet"}. We count like Nordic Luxury: a service day is one breakfast and one dinner, and an arrival dinner plus a departure breakfast together make one day, so the larger of the two counts wins. There are no partial days. With no breakfast at all, each dinner is a one-off dinner.`]);
     s.push(["Price of a service day", `${fmt(CH.dayFee)} chef fee + ${Math.min(g, CH.ppBreak)} \xD7 ${fmt(CH.pp1)}${g > CH.ppBreak ? ` + ${g - CH.ppBreak} \xD7 ${fmt(CH.pp2)}` : ""} for the guests = ${fmt(CH.dayFee + k.guestFee)}. The per-guest part pays for the food; guests above ${CH.ppBreak} are cheaper because the chef's work barely grows.`]);
     s.push(["One-off dinner", `${fmt(CH.dinnerFee)} + ${g} \xD7 ${fmt(CH.dinnerPP)} = ${fmt(CH.dinnerFee + g * CH.dinnerPP)}. The drive is included in the fee.`]);
-    s.push(["Holidays", `Only the major holidays (st\xF3rh\xE1t\xED\xF0ardagar: New Year's Day, Good Friday, Easter Sunday, Whit Sunday, 17 June, Christmas Day, and Christmas Eve and New Year's Eve from 12:00) are \xD7${CH.holMult} on the chef fee (not the per-guest part), on extra staff and on the on-site lunch fee. On a stay the rate follows the meals: a service day is a breakfast plus a dinner, so arriving for dinner on 23 Dec and leaving after breakfast on 25 Dec is 2 service days with 2 of 4 meals on the holiday (Christmas Eve dinner, Christmas Day breakfast) = 1 day at the holiday rate. Our costs follow: on a major holiday the contractor chef, the employed chef and every staff member cost \xD7${CH.holMult} too, so the margin stays honest. Other public holidays such as Easter Monday or 26 December are normal price; the employed chef and staff still cost \xD7${CH.weekendMult} on them, as on weekends.`]);
+    s.push(["Holidays", `Only the major holidays (st\xF3rh\xE1t\xED\xF0ardagar: New Year's Day, Good Friday, Easter Sunday, Whit Sunday, 17 June, Christmas Day, and Christmas Eve and New Year's Eve from 12:00) are \xD7${CH.holMult} on the chef fee (not the per-guest part; on a one-off dinner the extra is worked out on ${fmt(CH.holDinnerBase)}, not the full one-off fee), on extra staff and on the on-site lunch fee. On a stay the rate follows the meals: a service day is a breakfast plus a dinner, so arriving for dinner on 23 Dec and leaving after breakfast on 25 Dec is 2 service days with 2 of 4 meals on the holiday (Christmas Eve dinner, Christmas Day breakfast) = 1 day at the holiday rate. Our costs follow: on a major holiday the contractor chef, the employed chef and every staff member cost \xD7${CH.holMult} too, so the margin stays honest. Other public holidays such as Easter Monday or 26 December are normal price; the employed chef and staff still cost \xD7${CH.weekendMult} on them, as on weekends.`]);
     s.push(["Lunch", `Not part of a service day. Lunch boxes ${fmt(CH.lunchBoxPrice)} per guest, made the day before: tick the mains they can choose from; every box adds juice, an energy bar or sweet treat, fruit and water. Lunch on site ${fmt(CH.lunchFee)} + ingredients at cost + ${CH.lunchMarkupPct}% (about ${fmt(CH.foodL * (1 + CH.lunchMarkupPct / 100) * CHEF_VAT)} per guest).`]);
     s.push(["Extra staff, per day", `${fmt(CH.staffSingle)} for a single meal, ${fmt(CH.staffFull)} for a full day. Our cost: hours \xD7 base wage \xD7 ${CH.salaryCosts} (\xD7${CH.weekendMult} on weekends and ordinary holidays, \xD7${CH.holMult} on major holidays).`]);
     s.push(["Purchases, per day", `Wine, drinks and private shopping: the estimated cost incl. VAT + ${CH.markupPct}%. The invoice uses the real receipts. Fixed-price extras (welcome cocktails, host dinners) are quantity \xD7 price.`]);
@@ -2417,7 +2466,20 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
     const costOf = chefCostFn(recipes);
     const k = chefCalc(CH, costOf);
     const [grazeDraft, setGrazeDraft] = React.useState({}), [, setIdeaTick] = React.useState(0);
-    React.useEffect(() => { chefIdeasLoad().then((n) => { if (n) setIdeaTick((t) => t + 1); }); }, []);
+    React.useEffect(() => { chefIdeasLoad().then((n) => { if (n) setIdeaTick((t) => t + 1); }); chefMenusLoad().then((n) => { if (n) setIdeaTick((t) => t + 1); }); }, []);
+    const [saveMenu, setSaveMenu] = React.useState(null);
+    const doSaveMenu = (d, asNew) => {
+      const cm = d.cm || {}, sm = saveMenu, name = (sm.name || "").trim();
+      if (!name) { setSaveMenu({ ...sm, msg: "Give the menu a name first." }); return; }
+      const old = !asNew && cm.savedId ? chefMenu(cm.savedId) : null;
+      setSaveMenu({ ...sm, busy: true, msg: "" });
+      chefMenuSave(chefMenuFromDay(d, cm, name, sm.sub, old ? old.id : "", old ? old.used : "")).then((r) => {
+        setDay(d.i, (dd) => ({ cm: { ...(dd.cm || {}), name, savedId: r.id } }));
+        setSaveMenu({ day: d.i, done: r.ok ? `\u2713 ${old ? "Updated" : "Saved"} \u201C${name}\u201D in Our menus` : `Saved here only \u2014 the master Sheet could not be reached` });
+        setIdeaTick((t) => t + 1);
+        setTimeout(() => setSaveMenu((s0) => s0 && s0.done ? null : s0), 3500);
+      });
+    };
     const recOf = (t) => (recipes || []).find((x) => x && x.id === chefDishKey(t));
     const onSetCost = (t, v) => { const ex = recOf(t); onSaveRecipe && onSaveRecipe({ id: chefDishKey(t), name: String(t).trim(), kind: "dish", costPerGuest: Math.round(v), components: ex && ex.components || [], overPct: ex && ex.overPct || 0 }); };
     const [mb, setMb] = React.useState(null);
@@ -2437,7 +2499,8 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
     const upStaff = (i, id, patch) => setDay(i, (d) => ({ staff: d.staff.map((s) => s.id === id ? { ...s, ...patch } : s) }));
     const addWaiter = (i, role) => setDay(i, (d) => ({ staff: d.staff.concat(CHEF_WAITER(role)) }));
     const upX = (i, id, patch) => setDay(i, (d) => ({ extras: d.extras.map((x) => x.id === id ? { ...x, ...patch } : x) }));
-    const addX = (i, pr) => setDay(i, (d) => ({ extras: d.extras.concat({ id: chefStaffId(), label: pr.label, mode: pr.mode, tag: pr.tag, qty: pr.perGuest ? CH.guests : pr.qty || 1, unit: pr.unit || 0, unitCost: pr.unitCost || 0, cost: pr.cost || 0, ...(pr.k === "graze" ? { items: ["charcuterie", "fruit"] } : {}) }) }));
+    const addX = (i, pr) => setDay(i, (d) => ({ extras: d.extras.concat({ id: chefStaffId(), label: pr.label, mode: pr.mode, tag: pr.tag, qty: pr.perGuest ? CH.guests : pr.qty || 1, unit: pr.unit || 0, unitCost: pr.unitCost || 0, cost: pr.cost || 0, ...(pr.k === "graze" ? { items: ["charcuterie", "fruit"] } : pr.k === "drinks" || pr.k === "shop" ? { lines: [{ id: chefStaffId(), qty: 1, text: "", cost: 0 }] } : {}) }) }));
+    const upLine = (i, x, lid, patch) => upX(i, x.id, { lines: (x.lines || []).map((l) => l.id === lid ? { ...l, ...patch } : l) });
     const togGraze = (i, x, it) => { const cur = x.items || [], has = cur.indexOf(it) !== -1; upX(i, x.id, { items: has ? cur.filter((y) => y !== it) : cur.concat(it) }); };
     const upT = (patch) => setCH((p) => ({ ...p, travel: { ...(p.travel || {}), ...patch } }));
     const applyTpl = (t) => setCH((p) => ({ ...p, staff: [], extras: [], tpl: t.id, days: t.days.map(({ waiter, ...d }) => chefDay({ ...d, staff: waiter ? [CHEF_WAITER()] : [] })) }));
@@ -2450,7 +2513,7 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
     const useMenu = (i, fld, mm) => setDay(i, (dd) => {
       const cur = dd[fld] || {}, keep = {};
       if (!(mm.x && mm.x.canapes)) ["canapes", "canapesNote", "canapesMore"].forEach((k2) => { if (cur[k2] != null) keep[k2] = cur[k2]; });
-      return { ...(fld === "lcm" ? { lunch: "onsite", lm: "custom" } : { d: true, menu: "custom" }), [fld]: { ...chefMenuFill(mm), ...(fld === "cm" ? keep : {}) } };
+      return { ...(fld === "lcm" ? { lunch: "onsite", lm: "custom" } : { d: true, menu: "custom", ...(mm.style ? { style: mm.style } : {}) }), [fld]: { ...chefMenuFill(mm), ...(fld === "cm" ? keep : {}) } };
     });
     const setLunch = (i, on) => setDay(i, (dd) => on ? { lunch: dd.lunchKind || "box" } : { lunch: "none", lunchKind: dd.lunch !== "none" ? dd.lunch : dd.lunchKind });
     const seg = (value, opts, onChange) => h("div", { className: "seg", style: { display: "inline-flex", background: "rgba(17,24,39,.06)", borderRadius: 10, padding: 2, gap: 2 } }, opts.map(([v, t]) => h("button", { key: v, onClick: () => onChange(v), style: { border: "none", borderRadius: 8, padding: "4px 10px", fontSize: 11.5, fontWeight: 600, cursor: "pointer", background: value === v ? "white" : "transparent", color: value === v ? "#111827" : "#6b7280", boxShadow: value === v ? "0 1px 2px rgba(0,0,0,.12)" : "none", whiteSpace: "nowrap" } }, t)));
@@ -2502,8 +2565,14 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
         setOpenNote((o) => ({ ...o, [i]: true }));
       } else if (c === "cocktail") {
         setDay(i, (dd) => ({ extras: dd.extras.concat({ id: chefStaffId(), label: "Welcome cocktail: " + n.split(" \u2014 ")[0], mode: "markup", tag: "drinks", qty: CH.guests, unit: 0, unitCost: 0, cost: 615 }) }));
-      } else if (c === "wine") {
-        setDay(i, (dd) => ({ extras: dd.extras.concat({ id: chefStaffId(), label: "Wine: " + n, mode: "markup", tag: "drinks", qty: 1, unit: 0, unitCost: 0, cost: 0 }) }));
+      } else if (c === "wine" || c === "shop") {
+        const tag = c === "shop" ? "shop" : "drinks", label = c === "shop" ? "Private shopping" : "Wine / drinks", c0 = costOf(n);
+        const line = { id: chefStaffId(), qty: 1, text: n, cost: c0 != null ? c0 : 0 };
+        setDay(i, (dd) => {
+          const ex = dd.extras.find((x) => x.tag === tag && Array.isArray(x.lines));
+          if (ex) return { extras: dd.extras.map((x) => x === ex ? { ...x, lines: x.lines.filter((l) => l.text || Number(l.cost)).concat(line) } : x) };
+          return { extras: dd.extras.concat({ id: chefStaffId(), label, mode: "markup", tag, qty: 1, unit: 0, unitCost: 0, cost: 0, lines: [line] }) };
+        });
       }
     };
     const mode = CH.chefMode, setMode = (v) => up("chefMode", v);
@@ -2545,12 +2614,28 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
             CHEF_GRAZE_ITEMS.map(([id, n, desc]) => { const on = (x.items || []).indexOf(id) !== -1; return h("span", { key: id, title: desc, style: { display: "inline-flex", alignItems: "center", gap: 4, border: `1px ${on ? "solid" : "dashed"} ${on ? "#ca8a04" : "#d6d3d1"}`, background: on ? "white" : "transparent", borderRadius: 20, padding: "3px 4px 3px 9px" } },
               h("span", { onClick: () => togGraze(d.i, x, id), style: { fontSize: 11.5, cursor: "pointer", color: on ? "#713f12" : "#a8a29e", fontWeight: on ? 600 : 400 } }, on ? "\u2713 " : "+ ", n),
               h(ChefCost, { text: n, costOf, onSet: onSetCost, compact: true })); }),
-            (x.items || []).filter((it) => !chefGrazeOf(it)).map((it) => h("span", { key: it, style: { display: "inline-flex", alignItems: "center", gap: 4, border: "1px solid #ca8a04", background: "white", borderRadius: 20, padding: "3px 4px 3px 9px" } },
-              h("span", { style: { fontSize: 11.5, color: "#713f12", fontWeight: 600 } }, "\u2713 ", it),
-              h(ChefCost, { text: it, costOf, onSet: onSetCost, compact: true }), xBtn(() => togGraze(d.i, x, it))))),
-          h(ChefSuggest, { value: grazeDraft[x.id] || "", slot: "graze", placeholder: "Add your own, e.g. smoked salmon on rye bread \u2014 press Enter", onChange: (v) => setGrazeDraft({ ...grazeDraft, [x.id]: v }), onEnter: (v) => { if (v.trim()) { togGraze(d.i, x, v.trim()); setGrazeDraft({ ...grazeDraft, [x.id]: "" }); } }, style: { ...small, marginTop: 6, fontSize: 11.5, background: "white" } }),
-          h("div", { style: { fontSize: 10.5, color: "#a8a29e", marginTop: 4 } }, "Left out for guests through the day. Cost per guest = the items ticked; items without their own cost use a default estimate until you set one with + cost.")),
+            Array.from(new Set((x.items || []).filter((it) => !chefGrazeOf(it)).concat(CHEF_IDEAS.filter((r) => r[0] === "graze").map((r) => r[1])))).map((it) => { const on = (x.items || []).indexOf(it) !== -1; return h("span", { key: it, style: { display: "inline-flex", alignItems: "center", gap: 4, border: `1px ${on ? "solid" : "dashed"} ${on ? "#ca8a04" : "#d6d3d1"}`, background: on ? "white" : "transparent", borderRadius: 20, padding: "3px 4px 3px 9px" } },
+              h("span", { onClick: () => togGraze(d.i, x, it), style: { fontSize: 11.5, cursor: "pointer", color: on ? "#713f12" : "#a8a29e", fontWeight: on ? 600 : 400 } }, on ? "\u2713 " : "+ ", it),
+              h(ChefCost, { text: it, costOf, onSet: onSetCost, compact: true })); })),
+          h(ChefSuggest, { value: grazeDraft[x.id] || "", slot: "graze", placeholder: "Add your own, e.g. smoked salmon on rye bread \u2014 press Enter", onChange: (v) => setGrazeDraft({ ...grazeDraft, [x.id]: v }), onEnter: (v) => { if (v.trim()) { togGraze(d.i, x, v.trim()); chefBankAdd("graze", v.trim()); setGrazeDraft({ ...grazeDraft, [x.id]: "" }); } }, style: { ...small, marginTop: 6, fontSize: 11.5, background: "white" } }),
+          h("div", { style: { fontSize: 10.5, color: "#a8a29e", marginTop: 4 } }, "Left out for guests through the day. Cost per guest = the items ticked; items without their own cost use a default estimate until you set one with + cost. What you add yourself is saved to the idea bank (\u{1F4A1} Menu ideas \u2192 Snacks to graze on), where you can edit or delete it.")),
+        Array.isArray(x.lines) && h("div", { style: { marginTop: 6 } },
+          x.lines.map((l) => h("div", { key: l.id, style: { display: "flex", gap: 5, alignItems: "center", marginTop: 4, flexWrap: "wrap" } },
+            num(l.qty, (ev) => upLine(d.i, x, l.id, { qty: Number(ev.target.value) || 0 }), { ...small, width: 52 }),
+            h("span", { style: { fontSize: 11, color: "#9ca3af" } }, "\xD7"),
+            h(ChefSuggest, { value: l.text || "", slot: x.tag === "shop" ? "shop" : "wine", placeholder: x.tag === "shop" ? "e.g. Bottled water, Icelandic chocolate" : "e.g. Rioja, Champagne, Gull beer", noSave: true,
+              onChange: (v) => upLine(d.i, x, l.id, { text: v }),
+              onPickItem: (v) => { const c0 = costOf(v); if (c0 != null && !Number(l.cost)) upLine(d.i, x, l.id, { text: v, cost: c0 }); },
+              onBlur: (v) => chefBankAdd(x.tag === "shop" ? "shop" : "wine", v),
+              style: { ...small, flex: "1 1 170px", width: "auto", background: "white" } }),
+            h("input", { type: "number", value: l.cost || "", placeholder: "kr each", onChange: (ev) => upLine(d.i, x, l.id, { cost: Number(ev.target.value) || 0 }), onBlur: () => { if (l.text && Number(l.cost) > 0 && costOf(l.text) !== Number(l.cost)) onSetCost(l.text, Number(l.cost)); }, style: { ...small, width: 84 } }),
+            h("span", { style: { fontSize: 11, color: "#374151", minWidth: 70, textAlign: "right" } }, fmt((Number(l.qty) || 0) * (Number(l.cost) || 0))),
+            xBtn(() => upX(d.i, x.id, { lines: x.lines.filter((y) => y.id !== l.id) })))),
+          h("div", { style: { display: "flex", gap: 8, alignItems: "center", marginTop: 5, flexWrap: "wrap" } },
+            h("button", { onClick: () => upX(d.i, x.id, { lines: x.lines.concat({ id: chefStaffId(), qty: 1, text: "", cost: 0 }) }), style: { ...BS("#fff", "#bbf7d0", "#047857"), fontSize: 10.5, padding: "2px 8px" } }, "+ Add a line"),
+            h("span", { style: { fontSize: 10.5, color: "#a8a29e" } }, "Estimated cost each incl. VAT; the client pays cost + ", CH.markupPct, "%. New items are saved to the idea bank and their cost to the price book, so next time they pop up with the price."))),
         h("div", { style: { display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap", marginTop: 5, fontSize: 11, color: "#6b7280" } },
+          x.mode === "markup" && Array.isArray(x.lines) ? h("span", null, `${x.lines.filter((l) => l.text).length} item${x.lines.filter((l) => l.text).length === 1 ? "" : "s"} \xB7 est. ${fmt(x.lines.reduce((a, l) => a + (Number(l.qty) || 0) * (Number(l.cost) || 0), 0))} incl. VAT`) :
           x.mode === "markup" && x.tag === "graze" ? h(React.Fragment, null,
             "Guests", num(x.qty == null ? 1 : x.qty, (ev) => upX(d.i, x.id, { qty: Number(ev.target.value) || 0 }), { ...small, width: 56 }),
             `\xD7 ${fmt(chefGrazeCost(x.items, costOf))} per guest incl. VAT`) :
@@ -2651,14 +2736,27 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
             h("span", { style: { fontSize: 11, color: "#6b7280" } }, `food ${fmt(kd.dCost || 0)}/guest${kd.dKnown ? ` (${kd.dKnown} costed)` : " (estimate)"}`),
             h("div", { style: { flex: 1 } }),
             h("button", { onClick: () => setMenuPick({ day: d.i, fld: "cm", label: `dinner on ${d.label}` }), style: { ...BS("#fff", "#e5e7eb", "#111827"), fontSize: 11 } }, "\u{1F4D6} Our menus"),
-            h("button", { onClick: () => setIdeas({ day: d.i, label: d.label }), style: { ...BS("#fff", "#e5e7eb", "#111827"), fontSize: 11 } }, "\u{1F4A1} Menu ideas")),
+            h("button", { onClick: () => setIdeas({ day: d.i, label: d.label }), style: { ...BS("#fff", "#e5e7eb", "#111827"), fontSize: 11 } }, "\u{1F4A1} Menu ideas"),
+            (cm.starter || cm.main || cm.dessert) && h("button", { onClick: () => setSaveMenu(saveMenu && saveMenu.day === d.i && !saveMenu.done ? null : { day: d.i, name: cm.savedId ? cm.name || "" : "", sub: cm.savedId ? (chefMenu(cm.savedId) || {}).sub || "" : "" }), title: "Save this dinner as one of our menus", style: { ...BS("#fff", "#e5e7eb", "#111827"), fontSize: 11 } }, "\u{1F4BE} Save as our menu")),
+          saveMenu && saveMenu.day === d.i && (saveMenu.done ? h("div", { style: { fontSize: 12, color: "#047857", fontWeight: 600, margin: "4px 0" } }, saveMenu.done)
+            : h("div", { style: { background: "white", border: "1px solid #e5e7eb", borderRadius: 10, padding: "8px 10px", margin: "4px 0 6px", display: "flex", flexDirection: "column", gap: 6 } },
+              h("div", { style: { fontSize: 12, fontWeight: 700, color: "#111827" } }, "\u{1F4BE} Save this dinner to Our menus"),
+              h("div", { style: { fontSize: 11, color: "#6b7280" } }, "Everything on this dinner is kept: pre-course, courses, extra dishes, alternatives, notes, pairing and plated or family-style. Everyone sees it under \u{1F4D6} Our menus."),
+              h("div", { className: "g2c", style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 } },
+                h("input", { value: saveMenu.name, autoFocus: true, placeholder: "Menu name, e.g. Festive Christmas dinner", onChange: (e) => setSaveMenu({ ...saveMenu, name: e.target.value, msg: "" }), style: { ...small, width: "100%" } }),
+                h("input", { value: saveMenu.sub, placeholder: "Short line, e.g. wild game, langoustine & lamb", onChange: (e) => setSaveMenu({ ...saveMenu, sub: e.target.value }), style: { ...small, width: "100%" } })),
+              saveMenu.msg && h("div", { style: { fontSize: 11.5, color: "#b91c1c" } }, saveMenu.msg),
+              h("div", { style: { display: "flex", gap: 6, flexWrap: "wrap" } },
+                cm.savedId && chefMenu(cm.savedId) && h("button", { disabled: saveMenu.busy, onClick: () => doSaveMenu(d, false), style: { ...BS("#111827", "#111827", "white"), fontSize: 11.5, fontWeight: 700 } }, saveMenu.busy ? "Saving\u2026" : `Update \u201C${chefMenu(cm.savedId).name}\u201D`),
+                h("button", { disabled: saveMenu.busy, onClick: () => doSaveMenu(d, true), style: { ...BS(cm.savedId ? "#fff" : "#111827", "#111827", cm.savedId ? "#111827" : "white"), fontSize: 11.5, fontWeight: 700 } }, saveMenu.busy ? "Saving\u2026" : cm.savedId ? "Save as a new menu" : "Save to Our menus"),
+                h("button", { onClick: () => setSaveMenu(null), style: { ...BS("#fff", "#e5e7eb", "#6b7280"), fontSize: 11.5 } }, "Cancel")))),
           !m.c.some(Boolean) && h("div", { style: { fontSize: 11.5, color: "#6b7280", margin: "2px 0 4px", lineHeight: 1.45 } }, "Our standard is a 3-course plated dinner, designed around each party. Start from one of \u{1F4D6} our menus or pick dishes from the \u{1F4A1} idea bank, then add alternatives for anyone who can't eat a dish."),
           course(d, "canapes", "Pre-course", cm.canapes, true),
           [["starter", "Starter"], ["main", "Main"], ["dessert", "Dessert"]].map(([sl, lb]) => course(d, sl, lb, cm[sl], true)),
           m.pair && h("div", { style: { color: "#c2410c", fontSize: 11.5, marginTop: 4 } }, "\u{1F377} Pairing idea: ", m.pair)),
         d.kids != null && d.kids !== "" && h("div", { style: { marginTop: 6, background: "#fdf4ff", border: "1px solid #f5d0fe", borderRadius: 9, padding: "6px 9px", display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" } },
           h("span", { style: { fontSize: 12, fontWeight: 700, color: "#86198f" } }, "\u{1F9D2} Kids"),
-          h("input", { value: d.kids, onChange: (e) => setDay(d.i, { kids: e.target.value }), style: { ...small, flex: "1 1 240px", width: "auto", background: "white" } }),
+          h(ChefSuggest, { value: d.kids, slot: "kids", noSave: true, onChange: (v) => setDay(d.i, { kids: v }), onBlur: (v) => chefBankAdd("kids", v), style: { ...small, flex: "1 1 240px", width: "auto", background: "white" } }),
           h("input", { value: d.kidsNote || "", placeholder: "Note (how many kids, ages)", onChange: (e) => setDay(d.i, { kidsNote: e.target.value }), style: { ...small, flex: "0 1 180px", width: "auto", background: "white", fontSize: 11 } }),
           xBtn(() => setDay(d.i, { kids: "", kidsNote: "" }))),
         d.staff.map((s) => staffRow(d, s)),
@@ -2720,7 +2818,7 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
         k.extrasCost > 0 && h(LR, { label: "Purchases & extras", val: "−" + fmt(k.extrasCost) }),
         k.travelCost > 0 && h(LR, { label: "Travel", val: "−" + fmt(k.travelCost) }),
         h(LR, { label: `Overhead ${CH.overheadPct}%`, val: "−" + fmt(k.overhead) }),
-        h("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, marginTop: 8 } }, [["contractor", "Contractor chef", `${fmt(CH.contractorDay)}/day`], ["employed", "Employed chef", `${k.empHours} h \xD7 ${fmt(CH.chefHourly)}`]].map(([id, t, sub]) => {
+        h("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, marginTop: 8 } }, [["contractor", "Contractor chef", k.oneOff && !k.serviceDays ? `${fmt(CH.contractorDinner)}/dinner` : k.oneOff ? `${fmt(CH.contractorDay)}/day, ${fmt(CH.contractorDinner)}/dinner` : `${fmt(CH.contractorDay)}/day`], ["employed", "Employed chef", `${k.empHours} h \xD7 ${fmt(CH.chefHourly)}`]].map(([id, t, sub]) => {
           const m = k.modes[id], on = mode === id, good = m.margin * 100 >= CH.targetPct - 0.05;
           return h("div", { key: id, onClick: () => setMode(id), style: { cursor: "pointer", borderRadius: 9, padding: "8px 9px", border: `1.5px solid ${on ? "#e11d48" : "#e5e7eb"}`, background: on ? "#fff1f2" : "white" } }, h("div", { style: { fontSize: 11.5, fontWeight: 700 } }, t), h("div", { style: { fontSize: 10, color: "#9ca3af" } }, sub, " \xB7 −", fmt(m.chef)), h("div", { style: { fontSize: 15, fontWeight: 800, color: good ? "#059669" : m.profit < 0 ? "#dc2626" : "#d97706", marginTop: 3 } }, pct(m.margin)), h("div", { style: { fontSize: 11, color: "#374151" } }, fmt(m.profit)));
         })),
@@ -2739,15 +2837,15 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
         h("button", { onClick: () => setShowRates(!showRates), style: { border: "none", background: "none", cursor: "pointer", fontWeight: 700, fontSize: 13, padding: 0, width: "100%", textAlign: "left" } }, showRates ? "▾" : "▸", " Prices & costs for this quote"),
         showRates && h("div", null,
           sec("Client prices (incl. VAT)"),
-          h("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 } }, rate("Service day fee", "dayFee"), rate(`Per guest 1–${CH.ppBreak}`, "pp1"), rate(`Per guest above ${CH.ppBreak}`, "pp2"), rate("One-off dinner fee", "dinnerFee"), rate("One-off dinner per guest", "dinnerPP"), rate("Holiday \xD7", "holMult", 0.1), rate("Lunch on site fee", "lunchFee"), rate("Lunch food markup %", "lunchMarkupPct"), rate("Lunch box per guest", "lunchBoxPrice"), rate("Purchases markup %", "markupPct"), rate("Staff single meal", "staffSingle"), rate("Staff full day", "staffFull")),
+          h("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 } }, rate("Service day fee", "dayFee"), rate(`Per guest 1–${CH.ppBreak}`, "pp1"), rate(`Per guest above ${CH.ppBreak}`, "pp2"), rate("One-off dinner fee", "dinnerFee"), rate("Holiday base, one-off dinner", "holDinnerBase"), rate("One-off dinner per guest", "dinnerPP"), rate("Holiday \xD7", "holMult", 0.1), rate("Lunch on site fee", "lunchFee"), rate("Lunch food markup %", "lunchMarkupPct"), rate("Lunch box per guest", "lunchBoxPrice"), rate("Purchases markup %", "markupPct"), rate("Staff single meal", "staffSingle"), rate("Staff full day", "staffFull")),
           sec("Food cost per guest (ex. VAT)"),
           h("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 } }, rate("Breakfast", "foodB"), rate("3-course dinner", "foodD"), rate("Lunch on site", "foodL"), rate("Lunch box", "lunchBoxCost")),
           h("div", { style: { fontSize: 10.5, color: "#92400e", marginTop: 4 } }, "Breakfast is not costed properly yet; 3,000 kr is a placeholder."),
           sec("Chef cost"),
-          h("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 } }, rate("Contractor per day", "contractorDay"), rate("Contractor one-off dinner", "contractorDinner"), rate("Employed kr/hr", "chefHourly"), rate("Salary costs \xD7", "salaryCosts", 0.01), rate("Weekend & holiday \xD7", "weekendMult", 0.05), rate("Hours breakfast", "hrsB"), rate("Hours dinner", "hrsD"), rate("Hours lunch on site", "hrsL")))));
+          h("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 } }, rate("Contractor per day", "contractorDay"), rate("Contractor one-off dinner (60% of a day)", "contractorDinner"), rate("Employed kr/hr", "chefHourly"), rate("Salary costs \xD7", "salaryCosts", 0.01), rate("Weekend & holiday \xD7", "weekendMult", 0.05), rate("Hours breakfast", "hrsB"), rate("Hours dinner", "hrsD"), rate("Hours lunch on site", "hrsL")))));
     const bar = { label: `${CH.eventName || "Private chef"} \xB7 ${k.g} guests`, total: fmt(k.total), pp: fmt(k.pp), margin: "margin " + pct(k.cur.margin), ok };
     return h(React.Fragment, null,
-      menuPick && h(ChefMenuPick, { target: menuPick, cur: (CH.days[menuPick.day] || {})[menuPick.fld] || {}, costOf, onPick: (mm) => { useMenu(menuPick.day, menuPick.fld, mm); setMenuPick(null); }, onClose: () => setMenuPick(null) }),
+      menuPick && h(ChefMenuPick, { target: menuPick, cur: (CH.days[menuPick.day] || {})[menuPick.fld] || {}, costOf, onRemove: (mm) => chefMenuHide(mm).then((ok) => { setIdeaTick((t) => t + 1); return ok; }), onPick: (mm) => { useMenu(menuPick.day, menuPick.fld, mm); setMenuPick(null); }, onClose: () => setMenuPick(null) }),
       ideas && h(ChefIdeas, { target: ideas, onPick: pickIdea, onClose: () => setIdeas(null), costOf, onSetCost, onBuild: openBuilder, bfOn: (id) => { const dd = CH.days[ideas.day]; return !!dd && dd.b !== false && chefBfOf(chefDay(dd)).indexOf(id) !== -1; }, boxOn: (id) => { const dd = CH.days[ideas.day]; return !!dd && dd.lunch === "box" && chefBoxOf(dd).indexOf(id) !== -1; } }),
       mb && h("div", { onClick: () => setMb(null), style: { position: "fixed", inset: 0, background: "rgba(17,24,39,.55)", zIndex: 210, display: "flex", alignItems: "flex-start", justifyContent: "center", padding: "24px 10px", overflowY: "auto" } },
         h("div", { onClick: (e) => e.stopPropagation(), style: { background: "white", borderRadius: 16, width: "100%", maxWidth: 1100, padding: 16, boxShadow: "0 24px 70px rgba(0,0,0,.35)" } },
@@ -2770,7 +2868,7 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
   /* src: o = served or sent by us (n = how many jobs), b = Nordic Luxury / Bjarki sample menu, s = pairing suggestion */
   var CHEF_IDEA_CATS = [
     ["canape", "\u{1F942} Pre-course: amuse-bouche & canap\xE9s"], ["starter", "\u{1F963} Starters"], ["main", "\u{1F37D}️ Mains"], ["dessert", "\u{1F370} Desserts"], ["graze", "\u{1F9C0} Snacks to graze on"],
-    ["breakfast", "\u2615 Breakfast"], ["lunch", "\u{1F96A} Lunch & set-ups"], ["cocktail", "\u{1F378} Cocktails & mocktails"], ["wine", "\u{1F377} Wine & pairings"], ["kids", "\u{1F9D2} Kids"]
+    ["breakfast", "\u2615 Breakfast"], ["lunch", "\u{1F96A} Lunch & set-ups"], ["cocktail", "\u{1F378} Cocktails & mocktails"], ["wine", "\u{1F377} Wine & drinks"], ["shop", "\u{1F6D2} Private shopping"], ["kids", "\u{1F9D2} Kids"]
   ];
   var CHEF_IDEAS = [
     ["kids", "Butter pasta with parmesan", "o", 1],
@@ -2888,6 +2986,7 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
     const [cat, setCat] = React.useState(target && target.cat || "all");
     const [q, setQ] = React.useState("");
     const [flash, setFlash] = React.useState("");
+    const [edit, setEdit] = React.useState(null), [conf, setConf] = React.useState(null);
     const [addCat, setAddCat] = React.useState(target && target.cat && target.cat !== "all" ? target.cat : "starter");
     const [addOpen, setAddOpen] = React.useState(false), [addBusy, setAddBusy] = React.useState(false), [, setTick] = React.useState(0);
     const saveIdea = () => {
@@ -2899,10 +2998,10 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
     const rows = CHEF_IDEAS.filter(([c, n]) => (cat === "all" || c === cat) && (!q || n.toLowerCase().indexOf(ql) !== -1));
     const bfRows = CHEF_BF_ITEMS.filter(([id, n]) => (cat === "all" || cat === "breakfast") && (!q || n.toLowerCase().indexOf(ql) !== -1));
     const lunchMode = target && target.mode === "lunch";
-    const act0 = { graze: "Add to snacks", canape: "Use as pre-course", starter: "Use as starter", main: "Use as main", dessert: "Use as dessert", lunch: "Use as lunch on site", cocktail: "Add welcome cocktails", wine: "Add wine (cost + 30%)", kids: "Add as kids' meal" };
+    const act0 = { shop: "Add to private shopping", graze: "Add to snacks", canape: "Use as pre-course", starter: "Use as starter", main: "Use as main", dessert: "Use as dessert", lunch: "Use as lunch on site", cocktail: "Add welcome cocktails", wine: "Add wine (cost + 30%)", kids: "Add as kids' meal" };
     const act = lunchMode ? { ...act0, starter: "Use as lunch starter", main: "Use as lunch main", dessert: "Use as lunch dessert" } : act0;
     const pick = (c, n, lbl, mode) => { onPick(c, n, mode); setFlash(`${lbl} — ${n.length > 60 ? n.slice(0, 60) + "…" : n}`); setTimeout(() => setFlash(""), 2500); };
-    const card = (key, c, n, src, cnt, actionEl) => {
+    const card = (key, c, n, src, cnt, actionEl, row) => {
       const [tag, bg, fg] = CHEF_SRC[src] || CHEF_SRC.o, w = chefWarnOf(n);
       return h("div", { key, style: { border: `1px solid ${w ? "#fcd34d" : "#e5e7eb"}`, borderRadius: 12, padding: "10px 11px", background: w ? "#fffbeb" : "white", display: "flex", flexDirection: "column", gap: 6, minHeight: 92 } },
         h("div", { style: { fontSize: 13, fontWeight: 600, color: "#111827", lineHeight: 1.35 } }, n),
@@ -2911,16 +3010,31 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
           src !== "s" && c !== "cocktail" && c !== "wine" && h(ChefCost, { text: n, costOf, onSet: onSetCost, onBuild, compact: true })),
         w && h("div", { style: { fontSize: 11, color: "#92400e", fontWeight: 600 } }, "⚠️ ", w),
         h("div", { style: { flex: 1 } }),
-        actionEl);
+        row && edit && edit.row === row ? h("div", { style: { display: "flex", flexDirection: "column", gap: 4 } },
+          h("textarea", { value: edit.text, rows: 2, autoFocus: true, onChange: (e) => setEdit({ ...edit, text: e.target.value }), style: { ...I, fontSize: 12, padding: "5px 8px", resize: "vertical" } }),
+          h("div", { style: { display: "flex", gap: 4 } },
+            h("select", { value: edit.cat, onChange: (e) => setEdit({ ...edit, cat: e.target.value }), style: { ...I, width: "auto", flex: 1, fontSize: 11.5, padding: "4px 6px" } }, CHEF_IDEA_CATS.filter(([cc]) => cc !== "breakfast").map(([cc, t]) => h("option", { key: cc, value: cc }, t))),
+            h("button", { onClick: () => { const t = edit.text.trim(); if (!t) return; chefIdeaEdit(row, t, edit.cat).then((ok) => { setFlash(ok ? `Updated \u2014 ${t}` : `Updated here only, the Sheet could not be reached \u2014 ${t}`); setTimeout(() => setFlash(""), 2500); }); setEdit(null); }, style: { border: "none", background: "#111827", color: "white", borderRadius: 7, padding: "4px 10px", fontSize: 11.5, fontWeight: 700, cursor: "pointer" } }, "Save"),
+            h("button", { onClick: () => setEdit(null), style: { border: "1px solid #e5e7eb", background: "white", borderRadius: 7, padding: "4px 8px", fontSize: 11.5, cursor: "pointer" } }, "Cancel")))
+        : row && conf === row ? h("div", { style: { background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 8, padding: "6px 8px", fontSize: 11.5, color: "#991b1b" } },
+          h("div", { style: { fontWeight: 800, marginBottom: 2 } }, "ARE YOU SURE?"),
+          h("div", { style: { marginBottom: 6 } }, "This dish is removed from the idea bank for everyone."),
+          h("div", { style: { display: "flex", gap: 4 } },
+            h("button", { onClick: () => { chefIdeaRemove(row).then((ok) => { setFlash(ok ? `Removed \u2014 ${n}` : `Removed here only, the Sheet could not be reached \u2014 ${n}`); setTimeout(() => setFlash(""), 2500); }); setConf(null); }, style: { border: "none", background: "#dc2626", color: "white", borderRadius: 7, padding: "4px 10px", fontSize: 11.5, fontWeight: 700, cursor: "pointer" } }, "Yes, delete"),
+            h("button", { onClick: () => setConf(null), style: { border: "1px solid #e5e7eb", background: "white", borderRadius: 7, padding: "4px 10px", fontSize: 11.5, cursor: "pointer" } }, "No")))
+        : actionEl,
+        row && !(edit && edit.row === row) && conf !== row && h("div", { style: { display: "flex", gap: 10, justifyContent: "flex-end", marginTop: -2 } },
+          h("button", { onClick: () => { setConf(null); setEdit({ row, text: n, cat: c }); }, style: { border: "none", background: "none", color: "#6b7280", fontSize: 11, cursor: "pointer", padding: 0 } }, "\u270E Edit"),
+          h("button", { onClick: () => { setEdit(null); setConf(row); }, style: { border: "none", background: "none", color: "#b91c1c", fontSize: 11, cursor: "pointer", padding: 0 } }, "\u{1F5D1} Delete")));
     };
     const btn = (label, onClick, on) => h("button", { onClick, style: { ...BS(on ? "#ecfdf5" : "#fff1f2", on ? "#a7f3d0" : "#fecdd3", on ? "#047857" : "#be123c"), justifyContent: "center", fontSize: 11.5, fontWeight: 700, width: "100%" } }, label);
     const groups = (cat === "all" ? CHEF_IDEA_CATS : CHEF_IDEA_CATS.filter((x) => x[0] === cat)).map(([c, title]) => {
       const boxCards = c === "lunch" ? CHEF_BOX_ITEMS.filter(([id, gp, n]) => !q || n.toLowerCase().indexOf(ql) !== -1).map(([id, gp, n]) => card("bx" + id, "lunchbox", `${n}`, "o", 0, target && btn(boxOn(id) ? "\u2713 In the lunch boxes" : "+ Add to lunch boxes", () => pick("lunchbox", id, boxOn(id) ? "Removed from lunch boxes" : "Added to lunch boxes"), boxOn(id)))) : [];
       const items0 = c === "breakfast" ? bfRows.map(([id, n]) => card("bf" + id, "breakfast", n, "o", 0, target && btn(bfOn(id) ? "✓ On this breakfast" : "+ Add to breakfast", () => pick("breakfast", id, bfOn(id) ? "Removed from breakfast" : "Added to breakfast"), bfOn(id))))
-        : rows.filter((r) => r[0] === c).map(([cc, n, src, cnt], i) => card(c + i, cc, n, src, cnt, target && src !== "s" && (["canape", "starter", "main", "dessert"].indexOf(cc) !== -1 && !(lunchMode && cc === "canape") ? h("div", { style: { display: "flex", flexDirection: "column", gap: 4 } }, btn(act[cc], () => pick(cc, n, act[cc])),
+        : rows.filter((r) => r[0] === c).map((row, i) => { const [cc, n, src, cnt] = row; return card(c + i, cc, n, src, cnt, target && src !== "s" && (["canape", "starter", "main", "dessert"].indexOf(cc) !== -1 && !(lunchMode && cc === "canape") ? h("div", { style: { display: "flex", flexDirection: "column", gap: 4 } }, btn(act[cc], () => pick(cc, n, act[cc])),
           h("div", { style: { display: "flex", gap: 4 } },
             h("button", { onClick: () => pick(cc, n, "Added alongside", "add"), title: "Serve this as well (e.g. a second canap\xE9)", style: { ...BS("#fff", "#bbf7d0", "#047857"), flex: 1, justifyContent: "center", fontSize: 10.5, padding: "3px 4px" } }, "+ Add alongside"),
-            cc !== "canape" && h("button", { onClick: () => pick(cc, n, "Added as an alternative", "alt"), title: "For guests who can't eat the main choice", style: { ...BS("#fff", "#ddd6fe", "#6d28d9"), flex: 1, justifyContent: "center", fontSize: 10.5, padding: "3px 4px" } }, "\u21C4 As alternative"))) : btn(act[cc], () => pick(cc, n, act[cc])))));
+            cc !== "canape" && h("button", { onClick: () => pick(cc, n, "Added as an alternative", "alt"), title: "For guests who can't eat the main choice", style: { ...BS("#fff", "#ddd6fe", "#6d28d9"), flex: 1, justifyContent: "center", fontSize: 10.5, padding: "3px 4px" } }, "\u21C4 As alternative"))) : btn(act[cc], () => pick(cc, n, act[cc]))), row); });
       const items = boxCards.concat(items0);
       if (!items.length) return null;
       return h("div", { key: c, style: { marginBottom: 14 } },
@@ -2946,10 +3060,12 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
         h("div", { style: { padding: "14px 18px", maxHeight: "68vh", overflowY: "auto" } }, groups.filter(Boolean).length ? groups : h("div", { style: { color: "#9ca3af", fontSize: 13 } }, "Nothing matches."))));
   };
   /* our menus as templates: copied into the day's menu, then edited for the party */
-  var ChefMenuPick = ({ target, cur, costOf, onPick, onClose }) => {
+  var ChefMenuPick = ({ target, cur, costOf, onPick, onClose, onRemove }) => {
     const h = React.createElement;
     const lunch = target.fld === "lcm";
-    const groups = lunch ? [["Lunches", CHEF_LUNCH_SETS], ["Our dinner menus", CHEF_MENUS]] : [["Our 3-course menus", CHEF_MENUS]];
+    const [conf, setConf] = React.useState(null), [msg, setMsg] = React.useState(""), [, setTk] = React.useState(0);
+    const savedList = CHEF_MENUS.filter((m) => m.saved), ours = CHEF_MENUS.filter((m) => !m.saved);
+    const groups = (lunch ? [["Lunches", CHEF_LUNCH_SETS]] : []).concat(savedList.length ? [["Saved by us", savedList]] : [], [[lunch ? "Our dinner menus" : "Our 3-course menus", ours]]);
     const has = !!(cur.starter || cur.main || cur.dessert);
     const line = (lb, t, more) => t ? h("div", { style: { display: "flex", gap: 8, fontSize: 12, lineHeight: 1.4, padding: "3px 0", borderTop: "1px dashed #f3f4f6" } },
       h("span", { style: { width: 58, flexShrink: 0, fontSize: 10, fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", paddingTop: 2 } }, lb),
@@ -2962,10 +3078,17 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
           h("span", { style: { fontWeight: 800, fontSize: 14.5, color: "#111827" } }, mm.name),
           mm.sub && h("span", { style: { fontSize: 11.5, color: "#6b7280" } }, mm.sub)),
         mm.used && h("div", { style: { fontSize: 10.5, color: "#047857", fontWeight: 600 } }, "Served for: ", mm.used),
-        line("Starter", mm.c[0], x.starterMore), line("Main", mm.c[1], x.mainMore), line("Dessert", mm.c[2], x.dessertMore),
+        line("Pre-course", x.canapes, x.canapesMore), line("Starter", mm.c[0], x.starterMore), line("Main", mm.c[1], x.mainMore), line("Dessert", mm.c[2], x.dessertMore),
         mm.pair && h("div", { style: { fontSize: 11, color: "#c2410c", marginTop: 2 } }, "\u{1F377} ", mm.pair),
         h("div", { style: { flex: 1 } }),
-        h("button", { onClick: () => onPick(mm), style: { ...BS(on ? "#f3f4f6" : "#111827", on ? "#d1d5db" : "#111827", on ? "#111827" : "white"), justifyContent: "center", fontWeight: 700, marginTop: 6 } }, on ? "↺ Reload this menu" : has ? "Replace with this menu" : "Use this menu"));
+        h("button", { onClick: () => onPick(mm), style: { ...BS(on ? "#f3f4f6" : "#111827", on ? "#d1d5db" : "#111827", on ? "#111827" : "white"), justifyContent: "center", fontWeight: 700, marginTop: 6 } }, on ? "↺ Reload this menu" : has ? "Replace with this menu" : "Use this menu"),
+        onRemove && CHEF_MENUS.indexOf(mm) !== -1 && (conf === mm.id ? h("div", { style: { background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 8, padding: "6px 8px", fontSize: 11.5, color: "#991b1b", marginTop: 4 } },
+          h("div", { style: { fontWeight: 800 } }, "ARE YOU SURE?"),
+          h("div", { style: { margin: "2px 0 6px" } }, `\u201C${mm.name}\u201D is removed from Our menus for everyone.`),
+          h("div", { style: { display: "flex", gap: 4 } },
+            h("button", { onClick: () => { onRemove(mm).then((ok) => { setMsg(ok ? `Removed \u2014 ${mm.name}` : `Removed here only, the Sheet could not be reached \u2014 ${mm.name}`); setTimeout(() => setMsg(""), 3000); }); setConf(null); setTk((t) => t + 1); }, style: { border: "none", background: "#dc2626", color: "white", borderRadius: 7, padding: "4px 10px", fontSize: 11.5, fontWeight: 700, cursor: "pointer" } }, "Yes, delete"),
+            h("button", { onClick: () => setConf(null), style: { border: "1px solid #e5e7eb", background: "white", borderRadius: 7, padding: "4px 10px", fontSize: 11.5, cursor: "pointer" } }, "No")))
+          : h("button", { onClick: () => setConf(mm.id), style: { border: "none", background: "none", color: "#b91c1c", fontSize: 11, cursor: "pointer", alignSelf: "flex-end", padding: "2px 0 0" } }, "\u{1F5D1} Delete menu")));
     };
     return h("div", { onClick: onClose, style: { position: "fixed", inset: 0, background: "rgba(17,24,39,.55)", zIndex: 200, display: "flex", alignItems: "flex-start", justifyContent: "center", padding: "28px 10px", overflowY: "auto" } },
       h("div", { onClick: (e) => e.stopPropagation(), style: { background: "#f9fafb", borderRadius: 18, width: "100%", maxWidth: 980, boxShadow: "0 24px 70px rgba(0,0,0,.35)", overflow: "hidden" } },
@@ -2973,24 +3096,25 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
           h("div", null, h("div", { style: { fontWeight: 800, fontSize: 18 } }, lunch ? "\u{1F4D6} Our lunches" : "\u{1F4D6} Our menus"),
             h("div", { style: { fontSize: 12, color: "#d1d5db", marginTop: 2 } }, `For ${target.label}. `, "Menus we have served, built only from dishes we have cooked. The menu is copied into the day so you can change any course, add a second canap\xE9 or an alternative for guests who can't eat a dish.")),
           h("button", { onClick: onClose, style: { border: "none", background: "rgba(255,255,255,.12)", color: "white", borderRadius: 10, width: 32, height: 32, fontSize: 16, cursor: "pointer", flexShrink: 0 } }, "✕")),
+        msg && h("div", { style: { background: "#ecfdf5", color: "#047857", fontSize: 12.5, fontWeight: 600, padding: "7px 18px" } }, "\u2713 ", msg),
         h("div", { style: { padding: "14px 18px", maxHeight: "72vh", overflowY: "auto" } }, groups.map(([title, list]) => h("div", { key: title, style: { marginBottom: 14 } },
           h("div", { style: { fontSize: 12, fontWeight: 800, color: "#374151", margin: "4px 0 8px", textTransform: "uppercase", letterSpacing: "0.04em" } }, title),
           h("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(260px,1fr))", gap: 10 } }, list.map(card)))))));
   };
   /* ---------- Type-ahead: suggests dishes from the idea bank and our menus while typing ---------- */
   var chefFold = (t) => String(t || "").normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[ðÐ]/g, "d").replace(/[þÞ]/g, "th").replace(/[æÆ]/g, "ae").toLowerCase();
-  var CHEF_SLOT_CAT = { canapes: "canape", starter: "starter", main: "main", dessert: "dessert", graze: "graze" };
+  var CHEF_SLOT_CAT = { canapes: "canape", starter: "starter", main: "main", dessert: "dessert", graze: "graze", wine: "wine", shop: "shop", kids: "kids" };
   var chefSuggestIdx = null;
   var chefSuggestIndex = () => {
     if (chefSuggestIdx) return chefSuggestIdx;
     const out = [], seen = {};
-    const add = (cat, text, tag, rank) => { const k = chefFold(text).trim(); if (!text || seen[k]) return; seen[k] = 1; out.push({ cat, text, tag, rank, f: k }); };
+    const add = (cat, text, tag, rank, row) => { const k = chefFold(text).trim(); if (!text || seen[k]) return; seen[k] = 1; out.push({ cat, text, tag, rank, f: k, row }); };
     (typeof CHEF_MENUS !== "undefined" ? CHEF_MENUS : []).forEach((m) => {
       const c = m.c || [], n = c.length;
       c.forEach((t, i) => add(i === n - 1 ? "dessert" : i === n - 2 ? "main" : "starter", t, `Our menu \xB7 ${m.name}`, 50));
       [].concat(m.canapes || []).forEach((t) => add("canape", t, `Our menu \xB7 ${m.name}`, 50));
     });
-    (typeof CHEF_IDEAS !== "undefined" ? CHEF_IDEAS : []).forEach(([cat, text, src, n]) => add(cat, text, src === "o" ? `Served${n > 1 ? ` \xD7${n}` : ""}` : src === "u" ? "Added by us" : src === "b" ? "Sample menu" : src === "s" ? "Pairing" : "Idea", src === "o" ? 20 + (n || 1) : src === "u" ? 25 : 5));
+    (typeof CHEF_IDEAS !== "undefined" ? CHEF_IDEAS : []).forEach((row) => { const [cat, text, src, n] = row; add(cat, text, src === "o" ? `Served${n > 1 ? ` \xD7${n}` : ""}` : src === "u" ? "Added by us" : src === "b" ? "Sample menu" : src === "s" ? "Pairing" : "Idea", src === "o" ? 20 + (n || 1) : src === "u" ? 25 : 5, row); });
     chefSuggestIdx = out;
     return out;
   };
@@ -3002,12 +3126,13 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
       .map((x) => ({ ...x, score: (x.cat === cat ? 1000 : ["wine", "cocktail", "breakfast"].indexOf(x.cat) !== -1 ? -500 : 0) + x.rank + (x.f.indexOf(qs[0]) === 0 ? 30 : 0) }))
       .sort((a, b) => b.score - a.score).slice(0, max || 6);
   };
-  var ChefSuggest = ({ value, onChange, slot, placeholder, style, autoFocus, noSave, onEnter }) => {
+  var ChefSuggest = ({ value, onChange, slot, placeholder, style, autoFocus, noSave, onEnter, onBlur, onPickItem }) => {
     const h = React.createElement;
     const [open, setOpen] = React.useState(false), [hi, setHi] = React.useState(0);
     const list = open ? chefSuggestFind(value, slot) : [];
-    const pick = (x) => { if (onEnter) onEnter(x.text); else onChange(x.text); setOpen(false); };
-    const [saved, setSaved] = React.useState("");
+    const pick = (x) => { if (onEnter) onEnter(x.text); else onChange(x.text); if (onPickItem) onPickItem(x.text); setOpen(false); };
+    const [saved, setSaved] = React.useState(""), [conf, setConf] = React.useState(null), [, setTk] = React.useState(0);
+    const flash = (t) => { setSaved(t); setTimeout(() => setSaved(""), 2500); };
     const vt = String(value || "").trim(), cat0 = CHEF_SLOT_CAT[slot] || slot;
     const canSave = open && !noSave && vt.length >= 4 && !chefSuggestIndex().some((x) => x.f === chefFold(vt));
     const saveIt = () => { chefIdeaSave(cat0, vt).then((ok) => { setSaved(ok ? "\u2713 Saved to the idea bank" : "Saved here only \u2014 the Sheet could not be reached"); setTimeout(() => setSaved(""), 2500); }); setOpen(false); };
@@ -3015,7 +3140,7 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
     return h("span", { className: "chef-sug", style: { position: "relative", display: "flex", flex: st.flex || "1 1 200px", minWidth: 0 } },
       h("input", { value: value || "", placeholder, autoFocus, autoComplete: "off",
         onChange: (e) => { onChange(e.target.value); setOpen(true); setHi(0); },
-        onFocus: () => setOpen(true), onBlur: () => setTimeout(() => setOpen(false), 120),
+        onFocus: () => setOpen(true), onBlur: (e) => { const v = e.target.value; setTimeout(() => setOpen(false), 120); if (onBlur) onBlur(v); },
         onKeyDown: (e) => {
           if (e.key === "Escape") { setOpen(false); return; }
           if (onEnter && e.key === "Enter" && (!list.length || !open)) { e.preventDefault(); onEnter(String(value || "")); return; }
@@ -3028,24 +3153,70 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
         style: { ...st, flex: "1 1 auto", width: "100%", minWidth: 0 } }),
       saved && h("span", { style: { position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)", fontSize: 10.5, fontWeight: 700, color: "#047857", background: "white", pointerEvents: "none" } }, saved),
       (list.length > 0 || canSave) && h("div", { style: { position: "absolute", top: "calc(100% + 3px)", left: 0, right: 0, zIndex: 60, background: "white", border: "1px solid #e5e7eb", borderRadius: 10, boxShadow: "0 8px 24px rgba(17,24,39,.14)", padding: 4, maxHeight: 260, overflowY: "auto" } },
-        list.map((x, i) => h("div", { key: x.f, onMouseDown: (e) => { e.preventDefault(); pick(x); }, onMouseEnter: () => setHi(i), style: { display: "flex", gap: 8, alignItems: "baseline", padding: "6px 8px", borderRadius: 7, cursor: "pointer", background: i === hi ? "#fff1f2" : "transparent" } },
+        list.map((x, i) => conf === x.f ? h("div", { key: x.f, onMouseDown: (e) => e.preventDefault(), style: { display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap", padding: "6px 8px", borderRadius: 7, background: "#fef2f2", fontSize: 12 } },
+            h("span", { style: { flex: 1, color: "#991b1b", fontWeight: 700 } }, "ARE YOU SURE? ", h("span", { style: { fontWeight: 400 } }, "\u201C", x.text.length > 50 ? x.text.slice(0, 50) + "\u2026" : x.text, "\u201D is removed from the idea bank for everyone.")),
+            h("button", { onMouseDown: (e) => { e.preventDefault(); chefIdeaRemove(x.row).then((ok) => flash(ok ? "\u2713 Removed from the idea bank" : "Removed here only \u2014 the Sheet could not be reached")); setConf(null); setTk((t) => t + 1); }, style: { border: "none", background: "#dc2626", color: "white", borderRadius: 7, padding: "4px 10px", fontSize: 11.5, fontWeight: 700, cursor: "pointer" } }, "Yes, delete"),
+            h("button", { onMouseDown: (e) => { e.preventDefault(); setConf(null); }, style: { border: "1px solid #e5e7eb", background: "white", borderRadius: 7, padding: "4px 10px", fontSize: 11.5, cursor: "pointer" } }, "No"))
+          : h("div", { key: x.f, onMouseDown: (e) => { e.preventDefault(); pick(x); }, onMouseEnter: () => setHi(i), style: { display: "flex", gap: 8, alignItems: "baseline", padding: "6px 8px", borderRadius: 7, cursor: "pointer", background: i === hi ? "#fff1f2" : "transparent" } },
           h("span", { style: { flex: 1, fontSize: 12.5, color: "#111827", lineHeight: 1.35 } }, x.text),
-          h("span", { style: { flexShrink: 0, fontSize: 10, fontWeight: 600, color: x.tag.indexOf("Our menu") === 0 ? "#be123c" : x.tag.indexOf("Served") === 0 ? "#047857" : "#9ca3af" } }, x.cat !== (CHEF_SLOT_CAT[slot] || slot) ? `${x.cat} \xB7 ` : "", x.tag))),
+          h("span", { style: { flexShrink: 0, fontSize: 10, fontWeight: 600, color: x.tag.indexOf("Our menu") === 0 ? "#be123c" : x.tag.indexOf("Served") === 0 ? "#047857" : "#9ca3af" } }, x.cat !== (CHEF_SLOT_CAT[slot] || slot) ? `${x.cat} \xB7 ` : "", x.tag),
+          x.row && i === hi && !noSave && vt.length >= 4 && chefFold(vt) !== x.f && h("button", { title: "Change this idea to what you typed (no new item)", onMouseDown: (e) => { e.preventDefault(); e.stopPropagation(); chefIdeaEdit(x.row, vt).then((ok) => flash(ok ? "\u2713 Idea updated" : "Updated here only \u2014 the Sheet could not be reached")); setOpen(false); }, style: { flexShrink: 0, border: "1px solid #fde68a", background: "#fffbeb", color: "#92400e", borderRadius: 6, padding: "1px 7px", fontSize: 10.5, fontWeight: 700, cursor: "pointer" } }, "\u270E Update to my text"),
+          x.row && i === hi && h("button", { title: "Delete from the idea bank", onMouseDown: (e) => { e.preventDefault(); e.stopPropagation(); setConf(x.f); }, style: { flexShrink: 0, border: "none", background: "none", color: "#9ca3af", fontSize: 12, cursor: "pointer", padding: "0 2px" } }, "\u{1F5D1}"))),
         canSave && h("div", { onMouseDown: (e) => { e.preventDefault(); saveIt(); }, style: { display: "flex", gap: 4, alignItems: "baseline", flexWrap: "wrap", padding: "6px 8px", marginTop: list.length ? 3 : 0, borderTop: list.length ? "1px dashed #e5e7eb" : "none", cursor: "pointer", fontSize: 12, color: "#92400e", fontWeight: 600, borderRadius: 7 } }, "+ Save \u201C" + (vt.length > 48 ? vt.slice(0, 48) + "\u2026" : vt) + "\u201D to the idea bank", h("span", { style: { fontWeight: 400, color: "#9ca3af" } }, ` as ${(CHEF_IDEA_CATS.find((c) => c[0] === cat0) || [0, cat0])[1].replace(/^\S+\s/, "").toLowerCase()}`)),
         list.length > 0 && h("div", { style: { fontSize: 10, color: "#9ca3af", padding: "4px 8px 2px" } }, "↑↓ to choose \xB7 Enter or Tab to use \xB7 Esc to close")));
   };
   /* dishes added from the page live in the "Chef ideas" tab of the master Sheet */
   var chefIdeasUserLoaded = false;
+  /* CHEF_IDEAS rows: [category, text, source, jobs, sheet id, original built-in text] */
   var chefIdeaMerge = (items) => {
     let n = 0;
-    (items || []).forEach((r) => { const f = chefFold(r.text).trim(); if (!f || CHEF_IDEAS.some((x) => chefFold(x[1]).trim() === f)) return; CHEF_IDEAS.push([r.category || "main", String(r.text).trim(), "u", 0]); n++; });
+    (items || []).forEach((r) => {
+      if (r.replaces) {
+        const fr = chefFold(r.replaces).trim(), i = CHEF_IDEAS.findIndex((x) => x[2] !== "u" && chefFold(x[5] || x[1]).trim() === fr);
+        if (i === -1) return;
+        if (r.hidden) CHEF_IDEAS.splice(i, 1);
+        else { const x = CHEF_IDEAS[i]; CHEF_IDEAS[i] = [r.category || x[0], String(r.text).trim(), x[2], x[3], r.id, x[5] || x[1]]; }
+        n++;
+        return;
+      }
+      if (r.hidden) return;
+      const at = r.id ? CHEF_IDEAS.findIndex((x) => x[4] === r.id) : -1;
+      if (at !== -1) { CHEF_IDEAS[at] = [r.category || "main", String(r.text).trim(), "u", 0, r.id]; n++; return; }
+      const f = chefFold(r.text).trim();
+      if (!f || CHEF_IDEAS.some((x) => chefFold(x[1]).trim() === f)) return;
+      CHEF_IDEAS.push([r.category || "main", String(r.text).trim(), "u", 0, r.id]);
+      n++;
+    });
     if (n) chefSuggestIdx = null;
     return n;
   };
+  var chefIdeaPost = (body) => fetch(SHEET_API, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(body) }).then((r) => r.ok ? r.json() : null).catch(() => null);
+  /* change an idea in place: our own dish is updated, a built-in dish gets an override row (so no second item appears) */
+  var chefIdeaEdit = (row, text, cat) => {
+    const i = CHEF_IDEAS.indexOf(row), builtIn = row[2] !== "u", orig = row[5] || row[1];
+    const next = [cat || row[0], String(text).trim(), row[2], row[3], row[4]].concat(builtIn ? [orig] : []);
+    if (i !== -1) CHEF_IDEAS[i] = next;
+    chefSuggestIdx = null;
+    return chefIdeaPost({ action: "saveIdea", idea: { id: row[4] || "", category: next[0], text: next[1], replaces: builtIn ? orig : "" } }).then((d) => { if (d && d.ok && d.id) next[4] = d.id; return !!(d && d.ok); });
+  };
+  var chefIdeaRemove = (row) => {
+    const i = CHEF_IDEAS.indexOf(row), builtIn = row[2] !== "u";
+    if (i !== -1) CHEF_IDEAS.splice(i, 1);
+    chefSuggestIdx = null;
+    const body = row[4] ? { action: "hideIdea", id: row[4] } : { action: "saveIdea", idea: { category: row[0], text: row[1], replaces: builtIn ? row[5] || row[1] : "", hidden: true } };
+    return chefIdeaPost(body).then((d) => !!(d && d.ok));
+  };
   var chefIdeasLoad = () => chefIdeasUserLoaded ? Promise.resolve(0) : fetch(SHEET_API + "?action=listIdeas").then((r) => r.ok ? r.json() : null).then((d) => { chefIdeasUserLoaded = true; return d && d.ok ? chefIdeaMerge(d.items) : 0; }).catch(() => 0);
+  /* save a typed item to the bank once (used when adding your own snack, drink, shopping item or kids' meal) */
+  var chefBankAdd = (category, text) => {
+    const t = String(text || "").trim();
+    if (t.length < 3 || CHEF_IDEAS.some((x) => chefFold(x[1]).trim() === chefFold(t).trim())) return Promise.resolve(false);
+    return chefIdeaSave(category, t);
+  };
   var chefIdeaSave = (category, text) => {
     chefIdeaMerge([{ category, text }]);
-    return fetch(SHEET_API, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action: "saveIdea", idea: { category, text } }) }).then((r) => r.ok ? r.json() : null).then((d) => !!(d && d.ok)).catch(() => false);
+    const row = CHEF_IDEAS.find((x) => x[2] === "u" && x[1] === String(text).trim());
+    return chefIdeaPost({ action: "saveIdea", idea: { category, text } }).then((d) => { if (d && d.ok && d.id && row) row[4] = d.id; return !!(d && d.ok); });
   };
   /* ---------- Staff suggestion box (all tabs) ---------- */
   var SUG_TYPES = [["Bug", "\u{1F41E} Something's wrong"], ["Missing menu", "\u{1F37D}️ Missing menu / dish"], ["Idea", "\u{1F4A1} Idea or change"], ["Other", "\u{1F4AC} Other"]];
@@ -3242,7 +3413,7 @@ ${o.sheet || o.review ? "" : `<div class="sign">We look forward to cooking for y
       const st = (d.staff || []).filter((s) => (Number(s.qty) || 0) > 0);
       if (st.length) meals.push(["Staff", st.map((s) => `<div class="txt">${Number(s.qty)} \xD7 ${pdfEsc(s.role || "Staff")} \xB7 ${s.kind === "full" ? "full day" : "single meal"}${s.hours ? ` \xB7 ${s.hours} h` : ""}${s.note ? ` <span class="note">${pdfEsc(s.note)}</span>` : ""}</div>`).join("")]);
       const ex = (d.extras || []).filter((x) => x.label || x.note);
-      if (ex.length) meals.push(["Extras", ex.map((x) => `<div class="txt">${x.qty && x.qty > 1 ? `${x.qty} \xD7 ` : ""}${pdfEsc(x.label || "Extra")}${x.note ? ` <span class="note">${pdfEsc(x.note)}</span>` : ""}</div>`).join("")]);
+      if (ex.length) meals.push(["Extras", ex.map((x) => `<div class="txt">${Array.isArray(x.lines) ? `${pdfEsc(x.label || "Extra")}: ${x.lines.filter((l) => l.text).map((l) => `${Number(l.qty) || 0} \xD7 ${pdfEsc(l.text)}`).join(", ") || "to be decided"}` : `${x.qty && x.qty > 1 ? `${x.qty} \xD7 ` : ""}${pdfEsc(x.label || "Extra")}`}${x.note ? ` <span class="note">${pdfEsc(x.note)}</span>` : ""}</div>`).join("")]);
     }
     const tag = d.hol ? pdfEsc(d.hol) : d.wkd && sheet ? "Weekend" : "";
     const long = d.date ? (() => { const t = new Date(d.date + "T12:00:00"); return t.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" }); })() : d.label;
