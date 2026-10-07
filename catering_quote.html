@@ -1179,6 +1179,18 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
       }, 500);
       return () => clearTimeout(t);
     });
+    /* the price panel opened from the floating bar closes on any click outside it (the click still does what it was for) */
+    (0, import_react.useEffect)(() => {
+      const fn = (e) => {
+        const root = document.documentElement;
+        if (!root.classList.contains("sumopen")) return;
+        const t = e.target;
+        if (t && t.closest && t.closest("#cq-summary, .mbar")) return;
+        root.classList.remove("sumopen");
+      };
+      document.addEventListener("pointerdown", fn, true);
+      return () => document.removeEventListener("pointerdown", fn, true);
+    }, []);
     function loadTemplate(tpl) {
       if (isChefTpl(tpl)) {
         setCH((p) => ({ ...defaultChef(), ...tpl.config, kind: "chef", id: genId(), client: p.client, start: p.start, eventName: p.eventName, notes: p.notes, tpl: "" }));
@@ -1725,6 +1737,8 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
   var HelpContent = () => React.createElement("div", { style: { fontSize: 13, lineHeight: 1.55, color: "#374151" } }, HELP.map(([h, ps]) => React.createElement("div", { key: h, style: { marginBottom: 14 } }, React.createElement("div", { style: { fontWeight: 700, fontSize: 13.5, color: "#111827", marginBottom: 4 } }, h), ps.map((p, i) => React.createElement("p", { key: i, style: { margin: "0 0 6px" } }, p)))));
   var CHANGELOG = [
     { v: "2026-10-08", title: "Children, pack lists and on-site rules on every chef sheet; a one-off dinner is 6 hours", items: [
+      "The price panel that opens from the floating bar now closes when you click anywhere outside it (the click still does what you meant).",
+      "Private chef payment terms: 30% non-refundable deposit to confirm, 50% due 14 days before the first day (80% up front if booked at short notice), final 20% due 14 days after the stay.",
       "Private chef cancellation policy: more than 14 days before, the 30% deposit is kept; within 14 days, 50% of the quote. Fewer guests can be agreed close to the stay at no charge, unless special preparation for the menu has started. (Catering keeps its stricter 48-hour / 70% rule.)",
       "Private chef: Children (on top of the guests) with three choices \u2014 Kids\u2019 meal (simple food like pizza or burgers at dinner, 1,500 kr per child per dinner, food cost 500; breakfast is the standard buffet, not charged), Same as adults (counted and charged as guests), or Free (infants and very young, no charge). The chef sheet shows adults + children.",
       "Every chef sheet (Standard, Custom Event, Private chef) ends with the every-gig pack list as tick boxes \u2014 cling film, salt, pepper and flaky salt, oil, butter, tasting spoons, towels and rags, garbage bags, cleaning spray, blowtorch, core temperature probe, napkins \u2014 and the on-site rules: garbage out, kitchen left cleaner than we found it (floors too), and never say no.",
@@ -2464,7 +2478,7 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
     { id: "cp_diet", icon: "\u{1F95C}", text: "Please send allergies and dietary needs at least 7 days before the first day." },
     { id: "cp_kitchen", icon: "\u{1F525}", text: "We assume the standard kitchen equipment is on location: oven and stove, pots and pans, basic utensils, plates and cutlery. Please let us know if anything is missing and we will sort it out." },
     { id: "cp_froken", icon: "\u{1F377}", text: "Fr\xF6ken Selfoss, our restaurant in Selfoss, welcomes the group for dinner with a 15% group discount on the set menu." },
-    { id: "cp_payment", icon: "\u{1F4B3}", text: "30% non-refundable deposit on booking. 80% of the total is due 14 days before the first day. The balance is invoiced within 7 days after the stay, due in 7 days." },
+    { id: "cp_payment", icon: "\u{1F4B3}", text: "Payment: 30% non-refundable deposit to confirm. 50% due 14 days before the first day (80% up front if booked at short notice). Final 20% due 14 days after the stay." },
     { id: "cp_cancel", icon: "\u{1F4C5}", text: "Cancellation: more than 14 days before the first day, the 30% deposit is kept. Within 14 days: 50% of the quote. Fewer guests is no problem, even close to the stay \u2014 the guest count can be lowered at no charge unless we have already started special preparation for your menu." },
     { id: "cp_force", icon: "⛈️", text: "If the chef falls ill we arrange a replacement. Weather, road closures or supply problems are handled together, with rescheduling at no charge where possible. No chef fee is charged for a day without service." }
   ];
