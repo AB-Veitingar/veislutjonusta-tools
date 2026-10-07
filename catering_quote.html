@@ -1693,6 +1693,7 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
       "New in the bank: wild game soup with wild thyme cream, cranberry jam and toasted croutons (from the Christmas set menu).",
       "Canap\xE9s is now Pre-course: amuse-bouche, canap\xE9s or an ap\xE9ritif bite. The client menu prints it as \u201CTo begin\u201D.",
       "New day extra: \u{1F9C0} Snacks to graze on. Tick boards and bowls left out through the day (charcuterie and cheese board, Icelandic cheese board, fruit bowl, nuts and dried fruit, crudit\xE9s, something sweet, crisps) or add your own. Priced per guest at cost + markup; set a real cost on any item with + cost. Prints on the client menu as \u201CThrough the day\u201D and on the chef sheet.",
+      "Dianping PDF: no signature lines. It ends with \u201CBy confirming your reservation, you agree to these terms and to holding up your end of the deal.\u201D",
       "Dianping prices and rules (thermos, outside-food fee, reviews, stars) now come from the master Sheet too: Travel menus (category dianping) and Travel settings (dp_ keys)."
     ] },
     { v: "2026-10-18", title: "Chef sheet on every tab, and dish ideas while you type", items: [
@@ -3203,7 +3204,7 @@ ${o.rows != null ? `${pdfH2(o.priceTitle || "Your quote")}<table class="lines">$
 ${o.notes ? `<div class="notes">${o.notes}</div>` : ""}
 ${o.extra ? `<div class="internal">${o.extra}</div>` : ""}
 ${(o.policyBlocks || [{ title: "Good to know", items: o.policies || [] }]).filter((b) => (b.items || []).length).map((b) => `${b.lead ? `<div class="pb">` : ""}${pdfH2(b.title)}${b.lead ? `<div class="notes" style="margin:0 0 8px">${b.lead}</div>` : ""}<ul class="terms">${b.items.map((p) => `<li><b>–</b>${pdfEsc(p.text)}</li>`).join("")}</ul>${b.lead ? `</div>` : ""}`).join("")}
-${o.accept ? `<div class="box" style="margin-top:18px;border:1px solid #d6d3d1;border-radius:6px;padding:12px 14px;font-size:10.5px;color:#44403c"><div style="font-weight:600;margin-bottom:12px">${o.accept}</div><div style="display:flex;gap:18px"><div style="flex:2;border-top:1px solid #a8a29e;padding-top:3px">Name and agency</div><div style="flex:1;border-top:1px solid #a8a29e;padding-top:3px">Date</div></div></div>` : ""}
+${o.accept ? `<div class="box" style="margin-top:18px;border:1.5px solid #1c1917;border-radius:6px;padding:12px 16px;font-size:12px;font-weight:600;color:#1c1917;text-align:center;letter-spacing:.01em">${o.accept}</div>` : ""}
 ${o.sheet || o.review ? "" : `<div class="sign">We look forward to cooking for you.</div>`}
 <footer><span>Br\xFAartorg, 800 Selfoss</span><span>+354 451-3320</span><span>frokenselfoss.is</span></footer>
 </div></div></body></html>`;
@@ -3353,7 +3354,7 @@ ${CH.notes ? `<div class="meal"><div class="ml">Notes</div><div class="mc txt">$
     { id: "dp_food", title: "Outside food and drink", text: `Only food and drink bought from Fröken Selfoss may be consumed in the restaurant. If this is broken, a service fee of ${TR_DP.outsideFee} kr per person is charged.` },
     { id: "dp_conduct", title: "Other guests", text: "Please respect our other guests: be polite and leave the table tidy." },
     { id: "dp_watch", title: "Monitoring", text: "We check every group's reviews. If reviews do not appear or these terms are not respected, the deal is withdrawn for all agencies." },
-    { id: "dp_ok", title: "Confirmation", text: "The booking is confirmed once the agency has accepted these terms." }
+    { id: "dp_ok", title: "Confirmation", text: "Confirming the reservation means accepting these terms." }
   ];
   var trPractical = () => [
     { id: "t_allergy", title: "Allergies", text: "Please let us know about allergies and dietary needs 24 hours in advance." },
@@ -3510,7 +3511,7 @@ ${CH.notes ? `<div class="meal"><div class="ml">Notes</div><div class="mc txt">$
           { title: "Deal terms — not negotiable", lead: `<div class="lbl">Minimum ${TR_DP.reviews} reviews of ${TR_DP.stars}★ or higher on Dianping per group</div>These prices are only available on the terms below.`, items: trDpPolicies().map((p) => ({ text: `${p.title}: ${p.text}` })) },
           { title: "Good to know", items: trPractical().map((p) => ({ text: `${p.title}: ${p.text}` })) }
         ],
-        accept: reviewMode ? "" : "We accept the Dianping deal terms above."
+        accept: reviewMode ? "" : "By confirming your reservation, you agree to these terms and to holding up your end of the deal."
       });
     }
     const courseBlock = (title, list, n) => { const rows = list.filter((x) => c[x.id] > 0); return rows.length ? `<div class="course"><div class="cl">${title} \xB7 ${n} guests</div>${rows.map((x) => `<div class="dish">${c[x.id]} \xD7 ${e(x.label)}${x.vegan ? ` <span class="note">vegan</span>` : ""}</div>`).join("")}</div>` : `<div class="course"><div class="cl">${title}</div><div class="note">To be confirmed 24 hours before</div></div>`; };
