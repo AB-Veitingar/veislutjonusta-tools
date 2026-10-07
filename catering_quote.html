@@ -1148,6 +1148,37 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
       if (Array.isArray(q.policyIds)) setPolicySel(q.policyIds);
       setModal(null);
     }
+    /* Work in progress survives a reload: every tab's current quote is kept in this browser and put back when the page opens */
+    const draftReady = (0, import_react.useRef)(false);
+    (0, import_react.useEffect)(() => {
+      try {
+        const d = JSON.parse(localStorage.getItem("cq-work") || "null");
+        if (d) {
+          if (d.std) loadQuote(d.std);
+          if (d.custom) loadQuote(d.custom);
+          if (d.chef) setCH({ ...defaultChef(), ...d.chef, kind: "chef" });
+          if (d.travel) setTR({ ...defaultTravel(), ...d.travel, kind: "travel" });
+          if (Array.isArray(d.policyIds)) setPolicySel(d.policyIds);
+          if (d.tab) setTab(d.tab);
+        }
+      } catch {
+      }
+      const t = setTimeout(() => { draftReady.current = true; }, 400);
+      return () => clearTimeout(t);
+    }, []);
+    (0, import_react.useEffect)(() => {
+      if (!draftReady.current) return;
+      const t = setTimeout(() => {
+        try {
+          localStorage.setItem("cq-work", JSON.stringify({ tab, ts: Date.now(), policyIds: policySel,
+            std: { id: qid, type: "standard", client, evDate, evType, notes, guests, menuId, svcId, stdDrinks: stdDr, stdZone, stdKm },
+            custom: { id: cQid, type: "custom", client: cc, evDate: cDate, notes: cNotes, custom: C, equipment, customItems },
+            chef: CH, travel: TR }));
+        } catch {
+        }
+      }, 500);
+      return () => clearTimeout(t);
+    });
     function loadTemplate(tpl) {
       if (isChefTpl(tpl)) {
         setCH((p) => ({ ...defaultChef(), ...tpl.config, kind: "chef", id: genId(), client: p.client, start: p.start, eventName: p.eventName, notes: p.notes, tpl: "" }));
@@ -1693,6 +1724,12 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
   ];
   var HelpContent = () => React.createElement("div", { style: { fontSize: 13, lineHeight: 1.55, color: "#374151" } }, HELP.map(([h, ps]) => React.createElement("div", { key: h, style: { marginBottom: 14 } }, React.createElement("div", { style: { fontWeight: 700, fontSize: 13.5, color: "#111827", marginBottom: 4 } }, h), ps.map((p, i) => React.createElement("p", { key: i, style: { margin: "0 0 6px" } }, p)))));
   var CHANGELOG = [
+    { v: "2026-10-07", title: "Work in progress survives a reload; one list system for breakfast and lunch", items: [
+      "Reloading the page (or uploading a new version) keeps what you were working on in every tab: dates, meals ticked on or off, menus, clients. Starting a new quote still clears it.",
+      "Breakfast and lunch boxes work like the rest of the menu: tick items on or off, add your own (saved to the idea bank for everyone), ✎ Edit list to rename or delete (ARE YOU SURE?), and a note line. Lunch boxes you add show under \u201CAdded by us\u201D.",
+      "Lunch on site: \u{1F4BE} Save as our lunch, next to \u{1F4D6} Our lunches, works like Save as our menu on dinners. Saved lunches come first in Our lunches and stay out of Our menus. It gets a note line too.",
+      "Breakfast, lunch-box and lunch notes print on the chef sheet and the client PDF; renamed items print with their new names."
+    ] },
     { v: "2026-10-21", title: "Save your own menus, edit and delete ideas, drinks and shopping line by line", items: [
       "Location field on Standard (delivery address), Custom Event and Private chef: type an address or place, or paste a Google Maps link. \u{1F4CD} Map opens it in Google Maps, and it prints under the title of the client PDF and the chef sheet as a link.",
       "History: deleting a quote now asks ARE YOU SURE? and removes only that quote; the list no longer empties while the Sheet is still loading (it says Loading saved quotes\u2026). Travel agency quotes are labelled as such.",
@@ -2156,6 +2193,15 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
     ["gravlax", "Sandwich", "Gravlax sandwich \u2014 house-cured anise salmon, gravlax sauce, boiled egg and pickled fennel on sourdough"]
   ];
   var chefBoxOf = (d) => Array.isArray(d.box) ? d.box : [];
+  /* breakfast and lunch-box items: a built-in id ("eggs") or our own text; the name follows edits made in the idea bank */
+  var chefListName = (pfx, key) => {
+    const r = typeof CHEF_IDEAS !== "undefined" ? CHEF_IDEAS.find((x) => x[6] === pfx + key) : null;
+    if (r) return r[1];
+    const b = pfx === "bf:" ? CHEF_BF_ITEMS.find((x) => x[0] === key) : CHEF_BOX_ITEMS.find((x) => x[0] === key);
+    return b ? (pfx === "bf:" ? b[1] : b[2]) : String(key);
+  };
+  var chefBfName = (key) => chefListName("bf:", key);
+  var chefBoxName = (key) => chefListName("bx:", key);
   /* lunch on site: our lunch sets plus the normal dinner menus */
   var CHEF_LUNCH_SETS = [
     { id: "l_soup", name: "Soup lunch", sub: "hearty soup and bread", c: ["", "Icelandic lamb soup (kj\xF6ts\xFApa) or creamy seafood soup, with sourdough and butter", ""] },
@@ -2290,7 +2336,7 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
     const guestFee = Math.min(g, CH.ppBreak) * CH.pp1 + Math.max(0, g - CH.ppBreak) * CH.pp2;
     dates.forEach((d) => {
       d.bfCost = 0; d.bfKnown = 0; d.dCost = 0; d.dKnown = 0;
-      if (d.b) { const per = CH.foodB / (CHEF_BF_STD.length || 1); chefBfOf(d).forEach((id) => { const it = CHEF_BF_ITEMS.find((x) => x[0] === id), c = it ? costFn(it[1]) : null; if (c != null) { d.bfCost += c; d.bfKnown++; } else d.bfCost += per; }); }
+      if (d.b) { const per = CH.foodB / (CHEF_BF_STD.length || 1); chefBfOf(d).forEach((id) => { const c = costFn(chefBfName(id)); if (c != null) { d.bfCost += c; d.bfKnown++; } else d.bfCost += per; }); }
       if (d.d) {
         const m = chefMenuOf(d);
         /* default split of the dinner food cost: starter 1/4, main 2/4, dessert 1/4 (canap\xE9s only once costed) */
@@ -2306,7 +2352,7 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
         else cs.forEach((t) => { const c = costFn(t); if (c != null) { d.lCost += c; d.lKnown++; } else d.lCost += CH.foodL / cs.length; });
         if (lm && lm.id === "custom") ["starter", "main", "dessert"].forEach((sl, j) => { const x = chefMoreCost(d.lcm, sl, lm.c[j], costFn, g, CH.foodL / Math.max(1, cs.length)); d.lCost += x.c; d.lKnown += x.known; });
       } else if (d.lunch === "box") {
-        const ks = chefBoxOf(d).map((id) => { const it = CHEF_BOX_ITEMS.find((x) => x[0] === id); return it ? costFn(it[2]) : null; }).filter((c) => c != null);
+        const ks = chefBoxOf(d).map((id) => costFn(chefBoxName(id))).filter((c) => c != null);
         const inc = costFn(CHEF_BOX_INCL);
         d.boxKnown = ks.length;
         d.boxCost = ks.length ? ks.reduce((a, b) => a + b, 0) / ks.length + (inc || 0) : CH.lunchBoxCost;
@@ -2424,10 +2470,10 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
       const m = chefMenuOf(d);
       const parts = [d.b && "breakfast", d.lunch === "onsite" && "lunch on site", d.lunch === "box" && "lunch boxes", d.d && `${d.style === "shared" ? "family-style" : "plated"} dinner${(d.cm || {}).name ? `: ${esc(d.cm.name)}` : ""}`].filter(Boolean).join(", ");
       const cmv = d.cm || {}, mo = (o, k3) => chefMore(o, k3).map((x) => `${x.kind === "add" ? " + " : " / or "}${esc(chefMoreTxt(x))}${x.note ? ` <em>(${esc(x.note)})</em>` : ""}`).join(""), cn = (k3, t) => t ? `${esc(t)}${cmv[k3 + "Note"] ? ` <em>(${esc(cmv[k3 + "Note"])})</em>` : ""}${m && m.id === "custom" ? mo(cmv, k3) : ""}` : "";
-      const bfl = d.b ? chefBfOf(d).map((id) => (CHEF_BF_ITEMS.find((x) => x[0] === id) || [id, id])[1]) : [];
-      const lmn = chefLunchOf(d), lcv = d.lcm || {}, boxl = d.lunch === "box" ? chefBoxOf(d).map((id) => (CHEF_BOX_ITEMS.find((x) => x[0] === id) || [id, "", id])[2]) : [];
-      const lunchHtml = d.lunch === "box" ? `<div style="color:#555;font-size:11.5px;margin-left:10px">Lunch boxes${boxl.length ? `, choice of: ${boxl.map(esc).join("; ")}` : ""}. Each box includes ${esc(CHEF_BOX_INCL.toLowerCase())}.${d.boxNote ? ` <em>(${esc(d.boxNote)})</em>` : ""}</div>` : lmn ? `<div style="color:#555;font-size:11.5px;margin-left:10px">Lunch: ${[["starter", lmn.c[0]], ["main", lmn.c[1]], ["dessert", lmn.c[2]]].filter((x) => x[1]).map((x) => `${esc(x[1])}${lcv[x[0] + "Note"] ? ` <em>(${esc(lcv[x[0] + "Note"])})</em>` : ""}${lmn.id === "custom" ? mo(lcv, x[0]) : ""}`).join(" \xB7 ")}</div>` : "";
-      return `<div style="margin-bottom:6px"><strong>${d.label}</strong>${d.hol ? ` <span style="color:#92400e">(${d.hol})</span>` : ""} \u2014 ${parts || "no meals"}${bfl.length ? `<div style="color:#555;font-size:11.5px;margin-left:10px">Breakfast: ${bfl.map(esc).join(", ")}</div>` : ""}${lunchHtml}${d.kids ? `<div style="color:#555;font-size:11.5px;margin-left:10px">Kids: ${esc(d.kids)}${d.kidsNote ? ` <em>(${esc(d.kidsNote)})</em>` : ""}</div>` : ""}${m ? `<div style="color:#555;font-size:11.5px;margin-left:10px">${m.canapes ? `Canap\xE9s: ${cn("canapes", m.canapes)}<br>` : ""}${[["starter", m.c[0]], ["main", m.c[1]], ["dessert", m.c[2]]].filter((x) => x[1]).map((x) => cn(x[0], x[1])).join(" \xB7 ")}</div>` : ""}${d.note ? `<div style="color:#555;font-size:11.5px;margin-left:10px;font-style:italic">${esc(d.note)}</div>` : ""}</div>`;
+      const bfl = d.b ? chefBfOf(d).map(chefBfName) : [];
+      const lmn = chefLunchOf(d), lcv = d.lcm || {}, boxl = d.lunch === "box" ? chefBoxOf(d).map(chefBoxName) : [];
+      const lunchHtml = d.lunch === "box" ? `<div style="color:#555;font-size:11.5px;margin-left:10px">Lunch boxes${boxl.length ? `, choice of: ${boxl.map(esc).join("; ")}` : ""}. Each box includes ${esc(CHEF_BOX_INCL.toLowerCase())}.${d.boxNote ? ` <em>(${esc(d.boxNote)})</em>` : ""}</div>` : lmn ? `<div style="color:#555;font-size:11.5px;margin-left:10px">Lunch: ${[["starter", lmn.c[0]], ["main", lmn.c[1]], ["dessert", lmn.c[2]]].filter((x) => x[1]).map((x) => `${esc(x[1])}${lcv[x[0] + "Note"] ? ` <em>(${esc(lcv[x[0] + "Note"])})</em>` : ""}${lmn.id === "custom" ? mo(lcv, x[0]) : ""}`).join(" \xB7 ")}${d.lunchNote ? ` <em>(${esc(d.lunchNote)})</em>` : ""}</div>` : "";
+      return `<div style="margin-bottom:6px"><strong>${d.label}</strong>${d.hol ? ` <span style="color:#92400e">(${d.hol})</span>` : ""} \u2014 ${parts || "no meals"}${bfl.length ? `<div style="color:#555;font-size:11.5px;margin-left:10px">Breakfast: ${bfl.map(esc).join(", ")}${d.bfNote ? ` <em>(${esc(d.bfNote)})</em>` : ""}</div>` : ""}${lunchHtml}${d.kids ? `<div style="color:#555;font-size:11.5px;margin-left:10px">Kids: ${esc(d.kids)}${d.kidsNote ? ` <em>(${esc(d.kidsNote)})</em>` : ""}</div>` : ""}${m ? `<div style="color:#555;font-size:11.5px;margin-left:10px">${m.canapes ? `Pre-course: ${cn("canapes", m.canapes)}<br>` : ""}${[["starter", m.c[0]], ["main", m.c[1]], ["dessert", m.c[2]]].filter((x) => x[1]).map((x) => cn(x[0], x[1])).join(" \xB7 ")}</div>` : ""}${d.note ? `<div style="color:#555;font-size:11.5px;margin-left:10px;font-style:italic">${esc(d.note)}</div>` : ""}</div>`;
     }).join("");
     const bfTxt = "";
     const rows = CH.pdfMode === "single" ? `<tr><td>Private chef — ${k.serviceDays ? `${k.serviceDays} service day${k.serviceDays > 1 ? "s" : ""}` : `${k.oneOff} dinner${k.oneOff > 1 ? "s" : ""}`}, ${k.g} guests, food and service included</td><td style="text-align:right">${fmt(k.total)}</td></tr>` : k.lines.map((l) => `<tr><td>${esc(l.label)}${l.note ? `<span class="ls">${esc(l.note)}</span>` : ""}</td><td style="text-align:right">${fmt(l.amt)}</td></tr>`).join("");
@@ -2484,14 +2530,28 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
     const [grazeDraft, setGrazeDraft] = React.useState({}), [, setIdeaTick] = React.useState(0);
     React.useEffect(() => { chefIdeasLoad().then((n) => { if (n) setIdeaTick((t) => t + 1); }); chefMenusLoad().then((n) => { if (n) setIdeaTick((t) => t + 1); }); }, []);
     const [saveMenu, setSaveMenu] = React.useState(null);
+    /* one save system for dinner (cm) and lunch on site (lcm): Save as our menu / our lunch */
+    const saveBtn = (d, fld) => { const cm = d[fld] || {}, lu = fld === "lcm"; return (cm.starter || cm.main || cm.dessert) && (cm.starter || cm.main || cm.dessert) && h("button", { onClick: () => setSaveMenu(saveMenu && saveMenu.day === d.i && saveMenu.fld === fld && !saveMenu.done ? null : { day: d.i, fld, name: cm.savedId ? cm.name || "" : "", sub: cm.savedId ? (chefMenu(cm.savedId) || {}).sub || "" : "" }), title: lu ? "Save this lunch as one of our lunches" : "Save this dinner as one of our menus", style: { ...BS("#fff", "#e5e7eb", "#111827"), fontSize: 11 } }, lu ? "\u{1F4BE} Save as our lunch" : "\u{1F4BE} Save as our menu"); };
+    const savePanel = (d, fld) => { const cm = d[fld] || {}, lu = fld === "lcm"; return saveMenu && saveMenu.day === d.i && saveMenu.fld === fld && (saveMenu.done ? h("div", { style: { fontSize: 12, color: "#047857", fontWeight: 600, margin: "4px 0" } }, saveMenu.done)
+            : h("div", { style: { background: "white", border: "1px solid #e5e7eb", borderRadius: 10, padding: "8px 10px", margin: "4px 0 6px", display: "flex", flexDirection: "column", gap: 6 } },
+              h("div", { style: { fontSize: 12, fontWeight: 700, color: "#111827" } }, lu ? "\u{1F4BE} Save this lunch to Our lunches" : "\u{1F4BE} Save this dinner to Our menus"),
+              h("div", { style: { fontSize: 11, color: "#6b7280" } }, lu ? "Everything on this lunch is kept: courses, extra dishes, alternatives and notes. Everyone sees it under \u{1F4D6} Our lunches." : "Everything on this dinner is kept: pre-course, courses, extra dishes, alternatives, notes, pairing and plated or family-style. Everyone sees it under \u{1F4D6} Our menus."),
+              h("div", { className: "g2c", style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 } },
+                h("input", { value: saveMenu.name, autoFocus: true, placeholder: lu ? "Lunch name, e.g. Soup and fish lunch" : "Menu name, e.g. Festive Christmas dinner", onChange: (e) => setSaveMenu({ ...saveMenu, name: e.target.value, msg: "" }), style: { ...small, width: "100%" } }),
+                h("input", { value: saveMenu.sub, placeholder: lu ? "Short line, e.g. light, after the glacier hike" : "Short line, e.g. wild game, langoustine & lamb", onChange: (e) => setSaveMenu({ ...saveMenu, sub: e.target.value }), style: { ...small, width: "100%" } })),
+              saveMenu.msg && h("div", { style: { fontSize: 11.5, color: "#b91c1c" } }, saveMenu.msg),
+              h("div", { style: { display: "flex", gap: 6, flexWrap: "wrap" } },
+                cm.savedId && chefMenu(cm.savedId) && h("button", { disabled: saveMenu.busy, onClick: () => doSaveMenu(d, false), style: { ...BS("#111827", "#111827", "white"), fontSize: 11.5, fontWeight: 700 } }, saveMenu.busy ? "Saving\u2026" : `Update \u201C${chefMenu(cm.savedId).name}\u201D`),
+                h("button", { disabled: saveMenu.busy, onClick: () => doSaveMenu(d, true), style: { ...BS(cm.savedId ? "#fff" : "#111827", "#111827", cm.savedId ? "#111827" : "white"), fontSize: 11.5, fontWeight: 700 } }, saveMenu.busy ? "Saving\u2026" : cm.savedId ? (lu ? "Save as a new lunch" : "Save as a new menu") : lu ? "Save to Our lunches" : "Save to Our menus"),
+                h("button", { onClick: () => setSaveMenu(null), style: { ...BS("#fff", "#e5e7eb", "#6b7280"), fontSize: 11.5 } }, "Cancel")))); };
     const doSaveMenu = (d, asNew) => {
-      const cm = d.cm || {}, sm = saveMenu, name = (sm.name || "").trim();
-      if (!name) { setSaveMenu({ ...sm, msg: "Give the menu a name first." }); return; }
+      const sm = saveMenu, fld = sm.fld || "cm", lu = fld === "lcm", cm = d[fld] || {}, name = (sm.name || "").trim();
+      if (!name) { setSaveMenu({ ...sm, msg: lu ? "Give the lunch a name first." : "Give the menu a name first." }); return; }
       const old = !asNew && cm.savedId ? chefMenu(cm.savedId) : null;
       setSaveMenu({ ...sm, busy: true, msg: "" });
-      chefMenuSave(chefMenuFromDay(d, cm, name, sm.sub, old ? old.id : "", old ? old.used : "")).then((r) => {
-        setDay(d.i, (dd) => ({ cm: { ...(dd.cm || {}), name, savedId: r.id } }));
-        setSaveMenu({ day: d.i, done: r.ok ? `\u2713 ${old ? "Updated" : "Saved"} \u201C${name}\u201D in Our menus` : `Saved here only \u2014 the master Sheet could not be reached` });
+      chefMenuSave({ ...chefMenuFromDay(d, cm, name, sm.sub, old ? old.id : "", old ? old.used : ""), ...(lu ? { meal: "lunch", style: "" } : {}) }).then((r) => {
+        setDay(d.i, (dd) => ({ [fld]: { ...(dd[fld] || {}), ...(lu ? cm : {}), name, savedId: r.id }, ...(lu ? { lm: "custom" } : {}) }));
+        setSaveMenu({ day: d.i, fld, done: r.ok ? `\u2713 ${old ? "Updated" : "Saved"} \u201C${name}\u201D in ${lu ? "Our lunches" : "Our menus"}` : `Saved here only \u2014 the master Sheet could not be reached` });
         setIdeaTick((t) => t + 1);
         setTimeout(() => setSaveMenu((s0) => s0 && s0.done ? null : s0), 3500);
       });
@@ -2503,6 +2563,43 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
     const [openBf, setOpenBf] = React.useState({});
     const toggleBox = (i, id) => setDay(i, (dd) => { const cur = chefBoxOf(dd); return { box: cur.indexOf(id) === -1 ? cur.concat(id) : cur.filter((x) => x !== id) }; });
     const toggleBf = (i, id) => setDay(i, (dd) => { const cur = chefBfOf(dd); return { bf: cur.indexOf(id) === -1 ? cur.concat(id) : cur.filter((x) => x !== id) }; });
+    /* one list system for breakfast and lunch boxes: tick to use, add your own (saved to the idea bank), and \u270E Edit list to rename or delete (ARE YOU SURE?) */
+    const [listEdit, setListEdit] = React.useState(null), [listConf, setListConf] = React.useState(null), [listTxt, setListTxt] = React.useState({}), [listAdd, setListAdd] = React.useState({}), [, setListTick] = React.useState(0);
+    const rowKey = (r) => r[6] ? r[6].slice(3) : r[1];
+    const chipRow = (o) => {
+      const { sec, cat, sel, onToggle, onRename, tone, filter, extras } = o;
+      const editing = listEdit === sec;
+      const rows = CHEF_IDEAS.filter((r) => r[0] === cat && (!filter || filter(r)));
+      const keys = rows.map(rowKey);
+      const extra = extras ? sel.filter((k2) => keys.indexOf(k2) === -1 && !CHEF_IDEAS.some((r) => r[0] === cat && rowKey(r) === k2)) : [];
+      const chip = (key, label, row) => {
+        const on = sel.indexOf(key) !== -1, ck = sec + "|" + key;
+        const base = { display: "inline-flex", alignItems: "center", gap: 4, border: `1px ${on ? "solid" : "dashed"} ${on ? tone[0] : "#d6d3d1"}`, background: on ? "white" : "transparent", borderRadius: 20, padding: "3px 5px 3px 9px", maxWidth: "100%" };
+        if (editing && row && listConf === ck) return h("span", { key, style: { ...base, border: "1px solid #fecaca", background: "#fef2f2", gap: 6 } },
+          h("span", { style: { fontSize: 11.5, color: "#991b1b", fontWeight: 800 } }, "ARE YOU SURE?"),
+          h("span", { style: { fontSize: 11, color: "#991b1b" } }, "\u201C", label.length > 34 ? label.slice(0, 34) + "\u2026" : label, "\u201D goes for everyone"),
+          h("button", { onClick: () => { chefIdeaRemove(row).then(() => setListTick((t) => t + 1)); if (on) onToggle(key); setListConf(null); }, style: { border: "none", background: "#dc2626", color: "white", borderRadius: 7, padding: "2px 8px", fontSize: 11, fontWeight: 700, cursor: "pointer" } }, "Yes, delete"),
+          h("button", { onClick: () => setListConf(null), style: { border: "1px solid #e5e7eb", background: "white", borderRadius: 7, padding: "2px 8px", fontSize: 11, cursor: "pointer" } }, "No"));
+        if (editing && row && listTxt[ck] != null) {
+          const save = () => { const t = String(listTxt[ck]).trim(); if (t && t !== label) { chefIdeaEdit(row, t).then(() => setListTick((x) => x + 1)); if (!row[6] && on && onRename) onRename(key, t); } setListTxt({ ...listTxt, [ck]: undefined }); };
+          return h("span", { key, style: { ...base, padding: "2px 4px 2px 6px" } },
+            h("input", { value: listTxt[ck], autoFocus: true, onChange: (e) => setListTxt({ ...listTxt, [ck]: e.target.value }), onKeyDown: (e) => { if (e.key === "Enter") save(); if (e.key === "Escape") setListTxt({ ...listTxt, [ck]: undefined }); }, style: { ...small, fontSize: 11.5, padding: "2px 6px", width: Math.max(160, label.length * 6.5) } }),
+            h("button", { onClick: save, style: { border: "none", background: "#111827", color: "white", borderRadius: 7, padding: "2px 8px", fontSize: 11, fontWeight: 700, cursor: "pointer" } }, "Save"));
+        }
+        return h("span", { key, style: base },
+          h("span", { onClick: editing ? undefined : () => onToggle(key), style: { fontSize: 11.5, color: on ? tone[1] : "#a8a29e", cursor: editing ? "default" : "pointer", fontWeight: on ? 600 : 400 } }, editing ? "" : on ? "\u2713 " : "+ ", label),
+          !editing && h(ChefCost, { text: label, costOf, onSet: onSetCost, onBuild: openBuilder, compact: true }),
+          editing && row && h("button", { title: "Rename", onClick: () => { setListConf(null); setListTxt({ ...listTxt, [ck]: label }); }, style: { border: "none", background: "none", cursor: "pointer", fontSize: 11.5, color: "#6b7280", padding: "0 2px" } }, "\u270E"),
+          editing && row && h("button", { title: "Delete from the list", onClick: () => setListConf(ck), style: { border: "none", background: "none", cursor: "pointer", fontSize: 11.5, color: "#b91c1c", padding: "0 2px" } }, "\u{1F5D1}"),
+          !row && on && h("button", { title: "Remove", onClick: () => onToggle(key), style: { border: "none", background: "none", cursor: "pointer", fontSize: 11, color: "#9ca3af", padding: "0 2px" } }, "\u2715"));
+      };
+      return rows.map((r) => chip(rowKey(r), r[1], r)).concat(extra.map((k2) => chip(k2, chefListName(cat === "breakfast" ? "bf:" : "bx:", k2), null)));
+    };
+    const listTools = (sec, cat, sel, onToggle, placeholder) => h("div", { style: { display: "flex", gap: 6, alignItems: "center", marginTop: 6, flexWrap: "wrap" } },
+      h(ChefSuggest, { value: listAdd[sec] || "", slot: cat, noSave: true, placeholder, onChange: (v) => setListAdd({ ...listAdd, [sec]: v }),
+        onEnter: (v) => { const t = String(v || "").trim(); if (!t) return; if (sel.indexOf(t) === -1) onToggle(t); chefBankAdd(cat, t).then(() => setListTick((x) => x + 1)); setListAdd({ ...listAdd, [sec]: "" }); },
+        style: { ...small, flex: "1 1 220px", width: "auto", fontSize: 11.5, background: "white" } }),
+      h("button", { onClick: () => { setListEdit(listEdit === sec ? null : sec); setListConf(null); setListTxt({}); }, style: { ...BS(listEdit === sec ? "#111827" : "#fff", listEdit === sec ? "#111827" : "#e5e7eb", listEdit === sec ? "white" : "#374151"), fontSize: 11 } }, listEdit === sec ? "Done" : "\u270E Edit list"));
     const up = (key, v) => setCH((p) => ({ ...p, [key]: v }));
     const upN = (key) => (e) => up(key, e.target.value === "" ? 0 : Number(e.target.value));
     const setDay = (i, patch) => setCH((p) => ({ ...p, days: p.days.map((d, j) => j === i ? { ...chefDay(d), ...(typeof patch === "function" ? patch(chefDay(d)) : patch) } : d) }));
@@ -2572,7 +2669,7 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
         toggleBf(i, n);
       } else if (c === "kids") {
         setDay(i, (dd) => ({ kids: dd.kids ? (dd.kids.indexOf(n) === -1 ? dd.kids + "; " + n : dd.kids) : n }));
-      } else if (c === "lunchbox") {
+      } else if (c === "lunchbox" || c === "lunchbox-key") {
         setDay(i, (dd) => { const cur = chefBoxOf(dd); return { lunch: "box", box: cur.indexOf(n) === -1 ? cur.concat(n) : cur.filter((x) => x !== n) }; });
       } else if (c === "lunch") {
         setDay(i, (dd) => ({ lunch: "onsite", lm: "custom", lcm: { ...(dd.lm === "custom" ? dd.lcm || {} : {}), main: n } }));
@@ -2710,30 +2807,24 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
             h("span", { style: { fontSize: 11, color: "#a16207" } }, `${bfSel.length} items \xB7 food ${fmt(kd.bfCost || 0)}/guest${kd.bfKnown ? ` (${kd.bfKnown} costed)` : " (estimate)"}`),
             h("div", { style: { flex: 1 } }),
             h("button", { onClick: () => setOpenBf({ ...openBf, [d.i]: !bfOpen }), style: { ...BS("#fff", "#fde68a", "#854d0e"), fontSize: 11 } }, bfOpen ? "Done" : "Choose items")),
-          !bfOpen && h("div", { style: { fontSize: 11.5, color: "#713f12", marginTop: 4, lineHeight: 1.45 } }, bfSel.map((id) => (CHEF_BF_ITEMS.find((x) => x[0] === id) || [id, id])[1]).join(" \xB7 ")),
-          bfOpen && h("div", { style: { display: "flex", flexWrap: "wrap", gap: 5, marginTop: 6 } }, CHEF_BF_ITEMS.map(([id, n, std]) => {
-            const on = bfSel.indexOf(id) !== -1;
-            return h("span", { key: id, style: { display: "inline-flex", alignItems: "center", gap: 4, border: `1px ${on ? "solid" : "dashed"} ${on ? "#ca8a04" : "#d6d3d1"}`, background: on ? "white" : "transparent", borderRadius: 20, padding: "3px 4px 3px 9px" } },
-              h("span", { onClick: () => toggleBf(d.i, id), style: { fontSize: 11.5, color: on ? "#713f12" : "#a8a29e", cursor: "pointer", fontWeight: on ? 600 : 400 } }, on ? "✓ " : "+ ", n),
-              h(ChefCost, { text: n, costOf, onSet: onSetCost, compact: true }));
-          })),
-          bfOpen && h("div", { style: { fontSize: 10.5, color: "#a16207", marginTop: 5 } }, "Untick what this group doesn't need; dashed items are extras. Items without a cost use the default breakfast cost spread over the standard items.")),
+          !bfOpen && h("div", { style: { fontSize: 11.5, color: "#713f12", marginTop: 4, lineHeight: 1.45 } }, bfSel.map(chefBfName).join(" \xB7 ")),
+          !bfOpen && d.bfNote && h("div", { style: { fontSize: 11, color: "#a16207", marginTop: 2 } }, "\u{1F4DD} ", d.bfNote),
+          bfOpen && h("div", { style: { display: "flex", flexWrap: "wrap", gap: 5, marginTop: 6 } }, chipRow({ sec: "bf" + d.i, cat: "breakfast", sel: bfSel, onToggle: (k2) => toggleBf(d.i, k2), onRename: (a, b) => setDay(d.i, (dd) => ({ bf: chefBfOf(dd).map((x) => x === a ? b : x) })), tone: ["#ca8a04", "#713f12"], extras: true })),
+          bfOpen && listTools("bf" + d.i, "breakfast", bfSel, (k2) => toggleBf(d.i, k2), "Add your own, e.g. smoked salmon or waffles \u2014 press Enter"),
+          bfOpen && h("input", { value: d.bfNote || "", placeholder: "Note (e.g. 2 gluten-free, breakfast at 08:00)", onChange: (e) => setDay(d.i, { bfNote: e.target.value }), style: { ...small, marginTop: 6, width: "100%", fontSize: 11, background: "white" } }),
+          bfOpen && h("div", { style: { fontSize: 10.5, color: "#a16207", marginTop: 5 } }, "Untick what this group doesn't need; dashed items are extras. What you add yourself is saved to the idea bank. Items without a cost use the default breakfast cost spread over the standard items.")),
         d.lunch === "box" && h("div", { style: { marginTop: 6, background: "#f0f9ff", border: "1px solid #bae6fd", borderRadius: 9, padding: "7px 9px" } },
           h("div", { style: { display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" } },
             h("span", { style: { fontSize: 12, fontWeight: 700, color: "#075985" } }, "Lunch"), seg(d.lunch, [["box", `\u{1F96A} Boxes \xB7 ${fmt(CH.lunchBoxPrice)}/guest`], ["onsite", `\u{1F372} On site \xB7 ${fmt(CH.lunchFee)} + food`]], (v) => setDay(d.i, { lunch: v, lunchKind: v })),
             h("span", { style: { fontSize: 11, color: "#0369a1" } }, `${chefBoxOf(d).length ? `${chefBoxOf(d).length} main${chefBoxOf(d).length === 1 ? "" : "s"} to choose from` : "tick the mains they can choose from"} \xB7 food ${fmt(kd.boxCost || 0)}/box${kd.boxKnown ? "" : " (estimate)"}`)),
           h("div", { style: { fontSize: 11, color: "#0369a1", margin: "3px 0 2px", display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" } }, "Every box: a main + ", CHEF_BOX_INCL.toLowerCase(), h(ChefCost, { text: CHEF_BOX_INCL, costOf, onSet: onSetCost, compact: true })),
-          ["Cold dish", "Sandwich"].map((gp) => h("div", { key: gp, style: { marginTop: 5 } },
-            h("div", { style: { fontSize: 10.5, fontWeight: 700, color: "#0c4a6e", textTransform: "uppercase", letterSpacing: "0.04em" } }, gp === "Cold dish" ? "Cold dishes" : "Sandwiches"),
-            h("div", { style: { display: "flex", flexWrap: "wrap", gap: 5, marginTop: 3 } }, CHEF_BOX_ITEMS.filter((x) => x[1] === gp).map(([id, , n]) => {
-              const on = chefBoxOf(d).indexOf(id) !== -1;
-              return h("span", { key: id, style: { display: "inline-flex", alignItems: "center", gap: 4, border: `1px ${on ? "solid" : "dashed"} ${on ? "#0284c7" : "#cbd5e1"}`, background: on ? "white" : "transparent", borderRadius: 14, padding: "3px 5px 3px 9px", maxWidth: "100%" } },
-                h("span", { onClick: () => toggleBox(d.i, id), style: { fontSize: 11.5, color: on ? "#0c4a6e" : "#94a3b8", cursor: "pointer", fontWeight: on ? 600 : 400 } }, on ? "\u2713 " : "+ ", n),
-                h(ChefCost, { text: n, costOf, onSet: onSetCost, onBuild: openBuilder, compact: true }));
-            })))),
+          [["Cold dish", "Cold dishes"], ["Sandwich", "Sandwiches"], ["", "Added by us"]].map(([gp, title]) => { const boxSel = chefBoxOf(d), chips = chipRow({ sec: "bx" + d.i, cat: "lunchbox", sel: boxSel, onToggle: (k2) => toggleBox(d.i, k2), onRename: (a, b) => setDay(d.i, (dd) => ({ box: chefBoxOf(dd).map((x) => x === a ? b : x) })), tone: ["#0284c7", "#0c4a6e"], filter: (r) => (r[7] || "") === gp, extras: gp === "" }); return chips.length ? h("div", { key: title, style: { marginTop: 5 } },
+            h("div", { style: { fontSize: 10.5, fontWeight: 700, color: "#0c4a6e", textTransform: "uppercase", letterSpacing: "0.04em" } }, title),
+            h("div", { style: { display: "flex", flexWrap: "wrap", gap: 5, marginTop: 3 } }, chips)) : null; }),
+          listTools("bx" + d.i, "lunchbox", chefBoxOf(d), (k2) => toggleBox(d.i, k2), "Add your own box main, e.g. chicken Caesar wrap \u2014 press Enter"),
           h("input", { value: d.boxNote || "", placeholder: "Note (e.g. 2 vegetarian, one nut allergy, leaving 08:30)", onChange: (e) => setDay(d.i, { boxNote: e.target.value }), style: { ...small, marginTop: 6, width: "100%", fontSize: 11, background: "white" } })),
         d.lunch === "onsite" && (() => {
-          const lmn = chefLunchOf(d);
+          const lmn = chefLunchOf(d), lcmNow = d.lm === "custom" || !d.lm ? d.lcm || {} : lmn ? { name: lmn.name, starter: lmn.c[0], main: lmn.c[1], dessert: lmn.c[2] } : {};
           return h("div", { style: { marginTop: 6, background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 9, padding: "7px 9px" } },
             h("div", { style: { display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" } },
               h("span", { style: { fontSize: 12, fontWeight: 700, color: "#166534" } }, "Lunch"), seg(d.lunch, [["box", `\u{1F96A} Boxes \xB7 ${fmt(CH.lunchBoxPrice)}/guest`], ["onsite", `\u{1F372} On site \xB7 ${fmt(CH.lunchFee)} + food`]], (v) => setDay(d.i, { lunch: v, lunchKind: v })),
@@ -2741,8 +2832,11 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
               h("span", { style: { fontSize: 11, color: "#15803d" } }, `food ${fmt(kd.lCost || 0)}/guest${kd.lKnown ? ` (${kd.lKnown} costed)` : " (estimate)"}, charged at cost + ${CH.lunchMarkupPct}%`),
               h("div", { style: { flex: 1 } }),
               h("button", { onClick: () => setMenuPick({ day: d.i, fld: "lcm", label: `lunch on ${d.label}` }), style: { ...BS("#fff", "#bbf7d0", "#166534"), fontSize: 11 } }, "\u{1F4D6} Our lunches"),
-              h("button", { onClick: () => setIdeas({ day: d.i, label: `lunch on ${d.label}`, mode: "lunch" }), style: { ...BS("#fff", "#bbf7d0", "#166534"), fontSize: 11 } }, "\u{1F4A1} Lunch ideas")),
-            [["starter", "Starter"], ["main", "Main"], ["dessert", "Dessert"]].map(([sl, lb]) => course(d, sl, lb, (d.lcm || {})[sl], true, "lcm")));
+              h("button", { onClick: () => setIdeas({ day: d.i, label: `lunch on ${d.label}`, mode: "lunch" }), style: { ...BS("#fff", "#bbf7d0", "#166534"), fontSize: 11 } }, "\u{1F4A1} Lunch ideas"),
+              saveBtn({ ...d, lcm: lcmNow }, "lcm")),
+            savePanel({ ...d, lcm: lcmNow }, "lcm"),
+            [["starter", "Starter"], ["main", "Main"], ["dessert", "Dessert"]].map(([sl, lb]) => course(d, sl, lb, (d.lcm || {})[sl], true, "lcm")),
+            h("input", { value: d.lunchNote || "", placeholder: "Note (e.g. 2 vegetarian, lunch at 12:30)", onChange: (e) => setDay(d.i, { lunchNote: e.target.value }), style: { ...small, marginTop: 6, width: "100%", fontSize: 11, background: "white" } }));
         })(),
         m && h("div", { style: { marginTop: 7, background: "#f9fafb", border: "1px solid #f1f2f4", borderRadius: 11, padding: "7px 10px 8px" } },
           h("div", { style: { display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", paddingBottom: 3 } },
@@ -2753,19 +2847,8 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
             h("div", { style: { flex: 1 } }),
             h("button", { onClick: () => setMenuPick({ day: d.i, fld: "cm", label: `dinner on ${d.label}` }), style: { ...BS("#fff", "#e5e7eb", "#111827"), fontSize: 11 } }, "\u{1F4D6} Our menus"),
             h("button", { onClick: () => setIdeas({ day: d.i, label: d.label }), style: { ...BS("#fff", "#e5e7eb", "#111827"), fontSize: 11 } }, "\u{1F4A1} Menu ideas"),
-            (cm.starter || cm.main || cm.dessert) && h("button", { onClick: () => setSaveMenu(saveMenu && saveMenu.day === d.i && !saveMenu.done ? null : { day: d.i, name: cm.savedId ? cm.name || "" : "", sub: cm.savedId ? (chefMenu(cm.savedId) || {}).sub || "" : "" }), title: "Save this dinner as one of our menus", style: { ...BS("#fff", "#e5e7eb", "#111827"), fontSize: 11 } }, "\u{1F4BE} Save as our menu")),
-          saveMenu && saveMenu.day === d.i && (saveMenu.done ? h("div", { style: { fontSize: 12, color: "#047857", fontWeight: 600, margin: "4px 0" } }, saveMenu.done)
-            : h("div", { style: { background: "white", border: "1px solid #e5e7eb", borderRadius: 10, padding: "8px 10px", margin: "4px 0 6px", display: "flex", flexDirection: "column", gap: 6 } },
-              h("div", { style: { fontSize: 12, fontWeight: 700, color: "#111827" } }, "\u{1F4BE} Save this dinner to Our menus"),
-              h("div", { style: { fontSize: 11, color: "#6b7280" } }, "Everything on this dinner is kept: pre-course, courses, extra dishes, alternatives, notes, pairing and plated or family-style. Everyone sees it under \u{1F4D6} Our menus."),
-              h("div", { className: "g2c", style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 } },
-                h("input", { value: saveMenu.name, autoFocus: true, placeholder: "Menu name, e.g. Festive Christmas dinner", onChange: (e) => setSaveMenu({ ...saveMenu, name: e.target.value, msg: "" }), style: { ...small, width: "100%" } }),
-                h("input", { value: saveMenu.sub, placeholder: "Short line, e.g. wild game, langoustine & lamb", onChange: (e) => setSaveMenu({ ...saveMenu, sub: e.target.value }), style: { ...small, width: "100%" } })),
-              saveMenu.msg && h("div", { style: { fontSize: 11.5, color: "#b91c1c" } }, saveMenu.msg),
-              h("div", { style: { display: "flex", gap: 6, flexWrap: "wrap" } },
-                cm.savedId && chefMenu(cm.savedId) && h("button", { disabled: saveMenu.busy, onClick: () => doSaveMenu(d, false), style: { ...BS("#111827", "#111827", "white"), fontSize: 11.5, fontWeight: 700 } }, saveMenu.busy ? "Saving\u2026" : `Update \u201C${chefMenu(cm.savedId).name}\u201D`),
-                h("button", { disabled: saveMenu.busy, onClick: () => doSaveMenu(d, true), style: { ...BS(cm.savedId ? "#fff" : "#111827", "#111827", cm.savedId ? "#111827" : "white"), fontSize: 11.5, fontWeight: 700 } }, saveMenu.busy ? "Saving\u2026" : cm.savedId ? "Save as a new menu" : "Save to Our menus"),
-                h("button", { onClick: () => setSaveMenu(null), style: { ...BS("#fff", "#e5e7eb", "#6b7280"), fontSize: 11.5 } }, "Cancel")))),
+            saveBtn(d, "cm")),
+          savePanel(d, "cm"),
           !m.c.some(Boolean) && h("div", { style: { fontSize: 11.5, color: "#6b7280", margin: "2px 0 4px", lineHeight: 1.45 } }, "Our standard is a 3-course plated dinner, designed around each party. Start from one of \u{1F4D6} our menus or pick dishes from the \u{1F4A1} idea bank, then add alternatives for anyone who can't eat a dish."),
           course(d, "canapes", "Pre-course", cm.canapes, true),
           [["starter", "Starter"], ["main", "Main"], ["dessert", "Dessert"]].map(([sl, lb]) => course(d, sl, lb, cm[sl], true)),
@@ -2984,6 +3067,8 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
     ["wine", "Lava cake or brownie → tawny port or an Icelandic craft liqueur", "s"],
     ["wine", "Rhubarb crumble or skyr posset → late-harvest Riesling or Moscato d'Asti", "s"]
   ];
+  CHEF_BF_ITEMS.forEach(([id, n]) => CHEF_IDEAS.push(["breakfast", n, "o", 0, undefined, undefined, "bf:" + id]));
+  CHEF_BOX_ITEMS.forEach(([id, gp, n]) => CHEF_IDEAS.push(["lunchbox", n, "o", 0, undefined, undefined, "bx:" + id, gp]));
   var CHEF_SRC = { o: ["Ours", "#ecfdf5", "#047857"], b: ["Nordic Luxury sample", "#eff6ff", "#1d4ed8"], s: ["Pairing idea", "#fff7ed", "#c2410c"], k: ["Kids classic", "#fdf4ff", "#a21caf"], u: ["Added by us", "#fef3c7", "#92400e"], g: ["Snack idea", "#f5f5f4", "#57534e"] };
   /* small inline "kr per guest" cost editor, saved to the price book (Recipes tab) */
   var ChefCost = ({ text, costOf, onSet, onBuild, compact }) => {
@@ -3013,7 +3098,8 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
     };
     const ql = q.toLowerCase();
     const rows = CHEF_IDEAS.filter(([c, n]) => (cat === "all" || c === cat) && (!q || n.toLowerCase().indexOf(ql) !== -1));
-    const bfRows = CHEF_BF_ITEMS.filter(([id, n]) => (cat === "all" || cat === "breakfast") && (!q || n.toLowerCase().indexOf(ql) !== -1));
+    const keyOf = (r) => r[6] ? r[6].slice(3) : r[1];
+    const bfRows = CHEF_IDEAS.filter((r) => r[0] === "breakfast" && (cat === "all" || cat === "breakfast") && (!q || r[1].toLowerCase().indexOf(ql) !== -1));
     const lunchMode = target && target.mode === "lunch";
     const act0 = { shop: "Add to private shopping", graze: "Add to snacks", canape: "Use as pre-course", starter: "Use as starter", main: "Use as main", dessert: "Use as dessert", lunch: "Use as lunch on site", cocktail: "Add welcome cocktails", wine: "Add wine (cost + 30%)", kids: "Add as kids' meal" };
     const act = lunchMode ? { ...act0, starter: "Use as lunch starter", main: "Use as lunch main", dessert: "Use as lunch dessert" } : act0;
@@ -3046,8 +3132,8 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
     };
     const btn = (label, onClick, on) => h("button", { onClick, style: { ...BS(on ? "#ecfdf5" : "#fff1f2", on ? "#a7f3d0" : "#fecdd3", on ? "#047857" : "#be123c"), justifyContent: "center", fontSize: 11.5, fontWeight: 700, width: "100%" } }, label);
     const groups = (cat === "all" ? CHEF_IDEA_CATS : CHEF_IDEA_CATS.filter((x) => x[0] === cat)).map(([c, title]) => {
-      const boxCards = c === "lunch" ? CHEF_BOX_ITEMS.filter(([id, gp, n]) => !q || n.toLowerCase().indexOf(ql) !== -1).map(([id, gp, n]) => card("bx" + id, "lunchbox", `${n}`, "o", 0, target && btn(boxOn(id) ? "\u2713 In the lunch boxes" : "+ Add to lunch boxes", () => pick("lunchbox", id, boxOn(id) ? "Removed from lunch boxes" : "Added to lunch boxes"), boxOn(id)))) : [];
-      const items0 = c === "breakfast" ? bfRows.map(([id, n]) => card("bf" + id, "breakfast", n, "o", 0, target && btn(bfOn(id) ? "✓ On this breakfast" : "+ Add to breakfast", () => pick("breakfast", id, bfOn(id) ? "Removed from breakfast" : "Added to breakfast"), bfOn(id))))
+      const boxCards = c === "lunch" ? CHEF_IDEAS.filter((r) => r[0] === "lunchbox" && (!q || r[1].toLowerCase().indexOf(ql) !== -1)).map((r) => { const id = keyOf(r), n = r[1]; return card("bx" + id, "lunchbox", `${n}`, r[2], 0, target && btn(boxOn(id) ? "\u2713 In the lunch boxes" : "+ Add to lunch boxes", () => pick("lunchbox", id, boxOn(id) ? "Removed from lunch boxes" : "Added to lunch boxes"), boxOn(id)), r); }) : [];
+      const items0 = c === "breakfast" ? bfRows.map((r) => { const id = keyOf(r), n = r[1]; return card("bf" + id, "breakfast", n, r[2], 0, target && btn(bfOn(id) ? "✓ On this breakfast" : "+ Add to breakfast", () => pick("breakfast", id, bfOn(id) ? "Removed from breakfast" : "Added to breakfast"), bfOn(id)), r); })
         : rows.filter((r) => r[0] === c).map((row, i) => { const [cc, n, src, cnt] = row; return card(c + i, cc, n, src, cnt, target && src !== "s" && (["canape", "starter", "main", "dessert"].indexOf(cc) !== -1 && !(lunchMode && cc === "canape") ? h("div", { style: { display: "flex", flexDirection: "column", gap: 4 } }, btn(act[cc], () => pick(cc, n, act[cc])),
           h("div", { style: { display: "flex", gap: 4 } },
             h("button", { onClick: () => pick(cc, n, "Added alongside", "add"), title: "Serve this as well (e.g. a second canap\xE9)", style: { ...BS("#fff", "#bbf7d0", "#047857"), flex: 1, justifyContent: "center", fontSize: 10.5, padding: "3px 4px" } }, "+ Add alongside"),
@@ -3081,8 +3167,9 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
     const h = React.createElement;
     const lunch = target.fld === "lcm";
     const [conf, setConf] = React.useState(null), [msg, setMsg] = React.useState(""), [, setTk] = React.useState(0);
-    const savedList = CHEF_MENUS.filter((m) => m.saved), ours = CHEF_MENUS.filter((m) => !m.saved);
-    const groups = (lunch ? [["Lunches", CHEF_LUNCH_SETS]] : []).concat(savedList.length ? [["Saved by us", savedList]] : [], [[lunch ? "Our dinner menus" : "Our 3-course menus", ours]]);
+    const savedL = CHEF_MENUS.filter((m) => m.saved && m.meal === "lunch"), savedList = CHEF_MENUS.filter((m) => m.saved && m.meal !== "lunch"), ours = CHEF_MENUS.filter((m) => !m.saved);
+    const groups = lunch ? (savedL.length ? [["Saved lunches", savedL]] : []).concat([["Lunches", CHEF_LUNCH_SETS]], savedList.length ? [["Saved dinners", savedList]] : [], [["Our dinner menus", ours]])
+      : (savedList.length ? [["Saved by us", savedList]] : []).concat([["Our 3-course menus", ours]]);
     const has = !!(cur.starter || cur.main || cur.dessert);
     const line = (lb, t, more) => t ? h("div", { style: { display: "flex", gap: 8, fontSize: 12, lineHeight: 1.4, padding: "3px 0", borderTop: "1px dashed #f3f4f6" } },
       h("span", { style: { width: 58, flexShrink: 0, fontSize: 10, fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", paddingTop: 2 } }, lb),
@@ -3120,7 +3207,7 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
   };
   /* ---------- Type-ahead: suggests dishes from the idea bank and our menus while typing ---------- */
   var chefFold = (t) => String(t || "").normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[ðÐ]/g, "d").replace(/[þÞ]/g, "th").replace(/[æÆ]/g, "ae").toLowerCase();
-  var CHEF_SLOT_CAT = { canapes: "canape", starter: "starter", main: "main", dessert: "dessert", graze: "graze", wine: "wine", shop: "shop", kids: "kids" };
+  var CHEF_SLOT_CAT = { breakfast: "breakfast", lunchbox: "lunchbox", canapes: "canape", starter: "starter", main: "main", dessert: "dessert", graze: "graze", wine: "wine", shop: "shop", kids: "kids" };
   var chefSuggestIdx = null;
   var chefSuggestIndex = () => {
     if (chefSuggestIdx) return chefSuggestIdx;
@@ -3192,7 +3279,7 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
         const fr = chefFold(r.replaces).trim(), i = CHEF_IDEAS.findIndex((x) => x[2] !== "u" && chefFold(x[5] || x[1]).trim() === fr);
         if (i === -1) return;
         if (r.hidden) CHEF_IDEAS.splice(i, 1);
-        else { const x = CHEF_IDEAS[i]; CHEF_IDEAS[i] = [r.category || x[0], String(r.text).trim(), x[2], x[3], r.id, x[5] || x[1]]; }
+        else { const x = CHEF_IDEAS[i]; CHEF_IDEAS[i] = [r.category || x[0], String(r.text).trim(), x[2], x[3], r.id, x[5] || x[1], x[6], x[7]]; }
         n++;
         return;
       }
@@ -3211,7 +3298,7 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
   /* change an idea in place: our own dish is updated, a built-in dish gets an override row (so no second item appears) */
   var chefIdeaEdit = (row, text, cat) => {
     const i = CHEF_IDEAS.indexOf(row), builtIn = row[2] !== "u", orig = row[5] || row[1];
-    const next = [cat || row[0], String(text).trim(), row[2], row[3], row[4]].concat(builtIn ? [orig] : []);
+    const next = [cat || row[0], String(text).trim(), row[2], row[3], row[4], builtIn ? orig : undefined, row[6], row[7]];
     if (i !== -1) CHEF_IDEAS[i] = next;
     chefSuggestIdx = null;
     return chefIdeaPost({ action: "saveIdea", idea: { id: row[4] || "", category: next[0], text: next[1], replaces: builtIn ? orig : "" } }).then((d) => { if (d && d.ok && d.id) next[4] = d.id; return !!(d && d.ok); });
@@ -3423,15 +3510,15 @@ ${o.sheet || o.review ? "" : `<div class="sign">We look forward to cooking for y
   var pdfChefDays = (CH, k, sheet) => k.dates.filter((d) => d.active || d.note).map((d) => {
     const meals = [];
     if (d.b) {
-      const bfl = chefBfOf(d).map((id) => (CHEF_BF_ITEMS.find((x) => x[0] === id) || [id, id])[1]);
-      meals.push(["Breakfast", sheet ? `<div class="chips">${bfl.map((t) => `<span>${pdfEsc(t)}</span>`).join("")}</div>` : `<div class="txt">${bfl.map(pdfEsc).join(" \xB7 ")}</div>`]);
+      const bfl = chefBfOf(d).map(chefBfName);
+      meals.push(["Breakfast", (sheet ? `<div class="chips">${bfl.map((t) => `<span>${pdfEsc(t)}</span>`).join("")}</div>` : `<div class="txt">${bfl.map(pdfEsc).join(" \xB7 ")}</div>`) + (d.bfNote ? `<div class="note">${pdfEsc(d.bfNote)}</div>` : "")]);
     }
     if (d.lunch === "box") {
-      const boxl = chefBoxOf(d).map((id) => (CHEF_BOX_ITEMS.find((x) => x[0] === id) || [id, "", id])[2]);
+      const boxl = chefBoxOf(d).map(chefBoxName);
       meals.push(["Lunch boxes", `${boxl.length ? `<div class="cl">A choice of</div>${boxl.map((t) => `<div class="dish" style="font-size:14.5px">${pdfEsc(t)}</div>`).join("")}` : ""}<div class="txt" style="margin-top:3px">Every box includes ${pdfEsc(CHEF_BOX_INCL.toLowerCase())}.</div>${d.boxNote ? `<div class="note">${pdfEsc(d.boxNote)}</div>` : ""}`]);
     } else if (d.lunch === "onsite") {
-      const l = d.lcm || {};
-      meals.push(["Lunch", (l.name ? `<div class="cl" style="color:#57534e">${pdfEsc(l.name)}</div>` : "") + [["starter", "Starter"], ["main", "Main"], ["dessert", "Dessert"]].map(([sl, lb]) => pdfCourse(lb, l[sl], l[sl + "Note"], chefMore(l, sl), sheet)).join("")]);
+      const lo = chefLunchOf(d) || { c: [] }, l = !d.lm || d.lm === "custom" ? d.lcm || {} : { name: lo.name, starter: lo.c[0], main: lo.c[1], dessert: lo.c[2] };
+      meals.push(["Lunch", (l.name ? `<div class="cl" style="color:#57534e">${pdfEsc(l.name)}</div>` : "") + [["starter", "Starter"], ["main", "Main"], ["dessert", "Dessert"]].map(([sl, lb]) => pdfCourse(lb, l[sl], l[sl + "Note"], chefMore(l, sl), sheet)).join("") + (d.lunchNote ? `<div class="note">${pdfEsc(d.lunchNote)}</div>` : "")]);
     }
     if (d.d) {
       const c = d.cm || {};
