@@ -1649,6 +1649,12 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
   ];
   var HelpContent = () => React.createElement("div", { style: { fontSize: 13, lineHeight: 1.55, color: "#374151" } }, HELP.map(([h, ps]) => React.createElement("div", { key: h, style: { marginBottom: 14 } }, React.createElement("div", { style: { fontWeight: 700, fontSize: 13.5, color: "#111827", marginBottom: 4 } }, h), ps.map((p, i) => React.createElement("p", { key: i, style: { margin: "0 0 6px" } }, p)))));
   var CHANGELOG = [
+    { v: "2026-10-17", title: "Travel agency: the Dianping deal", items: [
+      "New switch in the Menu card: Standard group terms or Dianping deal. Dianping prices: single course 2,850, two courses 4,190, three courses 4,990 kr, with fries or salad for the table.",
+      "No group discount and no free meals on the deal. Driver and guide meals go into the guest price (rounded up to 10 kr) or on their own line; free only as an agreed exception.",
+      "Hot water thermos refills at 200 kr. Optional agreed price and variant (e.g. seafood pasta) for agencies with their own arrangement.",
+      "The PDF prints the deal terms as not negotiable (5 reviews of 4.5\u2605+, real reviews, no free driver/guide meals, 500 kr per person for outside food, deal withdrawn for everyone if broken) and a line for the agency to accept them."
+    ] },
     { v: "2026-10-16", title: "New tab: Travel agency group bookings", items: [
       "The travel agency calculator is now a tab here, with the same rules: one menu for the group, 13% Sun\u2013Thu / 10% Fri\u2013Sat group discount from 10 guests, children's prices on the Luxury Brunch only, free driver/guide meals, course choices, dessert upgrade, pre-ordered drinks, drink vouchers in tens and the birthday cake.",
       "Prices and discounts still come from the Calculator Config Sheet (menus, extras, settings), so the public calculator and this tab always agree.",
@@ -3002,7 +3008,7 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
     return `${pdfDate(a)} – ${pdfDate(b)}`;
   };
   var pdfH2 = (t) => `<h2><span>${t}</span><i></i></h2>`;
-  /* o: { kind, id, eyebrow, title, sub, facts:[[k,v]], client, intro, sections, rows, total, pp, after, notes, extra, policies, review, sheet } */
+  /* o: { kind, id, eyebrow, title, sub, facts:[[k,v]], client, intro, sections, rows, total, pp, after, notes, extra, policies, policyBlocks:[{title, lead, items}], accept, review, sheet } */
   var pdfDoc = (o) => {
     const cl = o.client || {};
     const det = [cl.company, cl.email, cl.phone].filter(Boolean).map(pdfEsc).join(" \xB7 ");
@@ -3020,7 +3026,8 @@ ${o.rows != null ? `${pdfH2(o.priceTitle || "Your quote")}<table class="lines">$
 <div class="total"><div><div class="tl">Total incl. VAT</div>${o.pp ? `<div class="tpp">${o.pp}</div>` : ""}</div><div class="tv">${o.total}</div></div>${o.after || ""}` : ""}
 ${o.notes ? `<div class="notes">${o.notes}</div>` : ""}
 ${o.extra ? `<div class="internal">${o.extra}</div>` : ""}
-${(o.policies || []).length ? `${pdfH2("Good to know")}<ul class="terms">${o.policies.map((p) => `<li><b>–</b>${pdfEsc(p.text)}</li>`).join("")}</ul>` : ""}
+${(o.policyBlocks || [{ title: "Good to know", items: o.policies || [] }]).filter((b) => (b.items || []).length).map((b) => `${b.lead ? `<div class="pb">` : ""}${pdfH2(b.title)}${b.lead ? `<div class="notes" style="margin:0 0 8px">${b.lead}</div>` : ""}<ul class="terms">${b.items.map((p) => `<li><b>–</b>${pdfEsc(p.text)}</li>`).join("")}</ul>${b.lead ? `</div>` : ""}`).join("")}
+${o.accept ? `<div class="box" style="margin-top:18px;border:1px solid #d6d3d1;border-radius:6px;padding:12px 14px;font-size:10.5px;color:#44403c"><div style="font-weight:600;margin-bottom:12px">${o.accept}</div><div style="display:flex;gap:18px"><div style="flex:2;border-top:1px solid #a8a29e;padding-top:3px">Name and agency</div><div style="flex:1;border-top:1px solid #a8a29e;padding-top:3px">Date</div></div></div>` : ""}
 ${o.sheet || o.review ? "" : `<div class="sign">We look forward to cooking for you.</div>`}
 <footer><span>Br\xFAartorg, 800 Selfoss</span><span>+354 451-3320</span><span>frokenselfoss.is</span></footer>
 </div></div></body></html>`;
@@ -3149,6 +3156,34 @@ ${CH.notes ? `<div class="meal"><div class="ml">Notes</div><div class="mc txt">$
     { id: "veganDessert", label: "Warm rhubarb & apple crumble, caramelized oats, cream ice cream & berries", vegan: true }
   ];
   var TR_UPGRADE = 1100;
+  /* Dianping deal (Chinese agencies): fixed prices in exchange for reviews. Terms are not negotiable;
+     an agency that won't accept them gets the standard group terms instead. */
+  var TR_DP = {
+    menus: [
+      { id: "dp1", label: "Dianping – Single course", short: "Single course", price: 2850, courses: ["Fish of the day"], side: false },
+      { id: "dp2", label: "Dianping – Two courses", short: "Two courses", price: 4190, courses: ["Soup of the day", "Fish of the day"], side: true },
+      { id: "dp3", label: "Dianping – Three courses", short: "Three courses", price: 4990, courses: ["Soup of the day", "Fish of the day", "Ice cream"], side: true }
+    ],
+    thermos: 200, outsideFee: 500, reviews: 5, stars: 4.5
+  };
+  var trDpSide = (m, side) => !m.side || side !== "salad" ? "Fries to share at the table" : "Salad to share at the table";
+  var trDpPolicies = () => [
+    { id: "dp_rev", title: "Reviews", text: `At least ${TR_DP.reviews} reviews per group on Dianping, each rated ${TR_DP.stars} stars or higher.` },
+    { id: "dp_auth", title: "Real reviews", text: "Reviews must be written by people who actually ate with us: guests, the guide or the driver." },
+    { id: "dp_staff", title: "Driver and guide", text: "No extra discounts and no free meals for drivers or guides. Their meals can be included in the guest price." },
+    { id: "dp_fixed", title: "Fixed prices", text: "Deal prices are final and are not combined with the group discount or any other offer." },
+    { id: "dp_water", title: "Hot water", text: `Thermos refills with hot water are ${TR_DP.thermos} kr each.` },
+    { id: "dp_food", title: "Outside food and drink", text: `Only food and drink bought from Fröken Selfoss may be consumed in the restaurant. If this is broken, a service fee of ${TR_DP.outsideFee} kr per person is charged.` },
+    { id: "dp_conduct", title: "Other guests", text: "Please respect our other guests: be polite and leave the table tidy." },
+    { id: "dp_watch", title: "Monitoring", text: "We check every group's reviews. If reviews do not appear or these terms are not respected, the deal is withdrawn for all agencies." },
+    { id: "dp_ok", title: "Confirmation", text: "The booking is confirmed once the agency has accepted these terms." }
+  ];
+  var trPractical = () => [
+    { id: "t_allergy", title: "Allergies", text: "Please let us know about allergies and dietary needs 24 hours in advance." },
+    { id: "t_pay", title: "Payment", text: "Payment at the restaurant or by a secure payment link. Icelandic-registered companies can be invoiced." },
+    { id: "t_cancel", title: "Cancellation", text: "Cancellations need at least 6 hours' notice. Each case is handled individually." },
+    { id: "t_vat", title: "Prices", text: "All prices include VAT." }
+  ];
   var TR_MENUS0 = [
     { id: "d1", category: "dinner", label: "Menu #1 – Two Course Dinner", price: 9990, desc: "Whole group chooses: Appetiser + Main OR Main + Dessert" },
     { id: "d2", category: "dinner", label: "Menu #2 – Three Course Dinner", price: 11990, desc: "Appetiser + Main + Dessert for all" },
@@ -3200,10 +3235,37 @@ ${CH.notes ? `<div class="meal"><div class="ml">Notes</div><div class="mc txt">$
     return live;
   });
   var trCourse0 = () => ({ d1CourseType: "appetiser", salmon: 0, reindeer: 0, soup: 0, veganApp: 0, steak: 0, char: 0, veganMain: 0, cake: 0, veganDessert: 0 });
-  var defaultTravel = () => ({ kind: "travel", id: genId(), agency: "", contact: "", email: "", phone: "", tourRef: "", date: "", time: "", mealType: "dinner", menuId: "d2", adults: 12, ch511: 0, ch04: 0, addDessert: false, dessertPax: "", drinks: {}, vouchers: {}, cake: false, allergy: "", notes: "", course: trCourse0(), upg: false });
+  var defaultTravel = () => ({ kind: "travel", id: genId(), agency: "", contact: "", email: "", phone: "", tourRef: "", date: "", time: "", mealType: "dinner", menuId: "d2", adults: 12, ch511: 0, ch04: 0, addDessert: false, dessertPax: "", drinks: {}, vouchers: {}, cake: false, allergy: "", notes: "", course: trCourse0(), upg: false, deal: "standard", dpMenu: "dp3", dpSide: "fries", dpStaff: 2, dpStaffMode: "fold", dpPrice: "", dpVariant: "", thermos: 0 });
   var trDisc = (date, s) => { if (!date) return null; const d = new Date(date + "T12:00:00").getDay(); return d === 5 || d === 6 ? { rate: s.discount_weekend, label: "Friday/Saturday", tone: "#d97706" } : { rate: s.discount_weekday, label: "Sun–Thursday", tone: "#16a34a" }; };
   var trFree = (n, s) => n < s.free_meal_min_guests ? 0 : n < s.free_meal_next_threshold ? s.free_meal_base : s.free_meal_next_base + Math.floor((n - s.free_meal_next_threshold) / s.free_meal_increment);
+  var trDpCalc = (TR) => {
+    const cfg = TR_CFG, s = cfg.settings;
+    const m = TR_DP.menus.find((x) => x.id === TR.dpMenu) || TR_DP.menus[2];
+    const agreed = Number(TR.dpPrice) > 0 ? Number(TR.dpPrice) : 0, price = agreed || m.price;
+    const sel = { id: m.id, label: m.label, price, desc: m.courses.join(" + ") + " · " + trDpSide(m, TR.dpSide).toLowerCase(), listPrice: m.price };
+    const drinkItems = cfg.extras.filter((e) => e.type === "drink"), voucherItems = cfg.extras.filter((e) => e.type === "voucher"), cakeItem = cfg.extras.find((e) => e.id === "cake");
+    const adults = Number(TR.adults) || 0, ch511 = Number(TR.ch511) || 0, ch04 = Number(TR.ch04) || 0, total = adults + ch511 + ch04;
+    const staff = Math.max(0, Number(TR.dpStaff) || 0), staffMode = TR.dpStaffMode || "fold";
+    const staffCost = staffMode === "free" ? 0 : staff * price;
+    const unit = staffMode === "fold" && staff && total ? Math.ceil((total + staff) * price / total / 10) * 10 : price;
+    const mealTotal = unit * total, chargeStaff = staffMode === "charge" ? staffCost : 0;
+    const thermos = Math.max(0, Number(TR.thermos) || 0), thermosTotal = thermos * TR_DP.thermos;
+    const dq = TR.drinks || {}, vq = TR.vouchers || {};
+    const drinksTotal = drinkItems.reduce((a, d) => a + (dq[d.id] || 0) * d.price, 0), vouchTotal = voucherItems.reduce((a, v) => a + (vq[v.id] || 0) * v.price, 0);
+    const cakeTotal = TR.cake && cakeItem ? cakeItem.price : 0;
+    const addOns = thermosTotal + drinksTotal + vouchTotal + cakeTotal, grand = mealTotal + chargeStaff + addOns;
+    const lines = [];
+    if (total) lines.push({ key: "dp", label: `${m.label}${staffMode === "fold" && staff ? ` (incl. ${staff} driver/guide meal${staff > 1 ? "s" : ""})` : ""}`, qty: total, unit, amt: mealTotal });
+    if (staff && staffMode === "charge") lines.push({ key: "dps", label: "Driver and guide meals", qty: staff, unit: price, amt: chargeStaff });
+    if (staff && staffMode === "free") lines.push({ key: "dpf", label: "Driver and guide meals (agreed exception)", qty: staff, unit: 0, amt: 0, green: true });
+    if (thermos) lines.push({ key: "dpt", label: "Hot water thermos refills", qty: thermos, unit: TR_DP.thermos, amt: thermosTotal });
+    drinkItems.filter((d) => (dq[d.id] || 0) > 0).forEach((d) => lines.push({ key: "d" + d.id, label: d.label, qty: dq[d.id], unit: d.price, amt: dq[d.id] * d.price }));
+    voucherItems.filter((v) => (vq[v.id] || 0) > 0).forEach((v) => lines.push({ key: "v" + v.id, label: `${v.label} vouchers`, qty: vq[v.id], unit: v.price, amt: vq[v.id] * v.price }));
+    if (cakeTotal) lines.push({ key: "cake", label: cakeItem.label, qty: 1, unit: cakeItem.price, amt: cakeTotal });
+    return { dp: true, dpm: m, agreed, staff, staffMode, staffCost, unit, mealTotal, thermos, thermosTotal, cfg, s, sel, cur: [], drinkItems, voucherItems, cakeItem, showCourses: false, showUpgrade: false, isD1: false, variable: false, kids: false, adults, ch511, ch04, total, qualifies: total > 0, disc: null, rate: 0, discLabel: "", freePax: total, free: 0, base: mealTotal, discAmt: 0, afterDisc: mealTotal, freeVal: 0, dinnerG: total, upgPax: 0, upgTotal: 0, showGenDessert: false, dpax: 0, dessertTotal: 0, drinksTotal, vouchTotal, cakeTotal, addOns, grand, c: TR.course || trCourse0(), appSum: 0, mainSum: 0, dessertSum: 0, hasApp: false, hasDes: false, courseFilled: true, payingPax: total, lines, pp: total ? grand / total : 0 };
+  };
   var travelCalc = (TR) => {
+    if (TR.deal === "dianping") return trDpCalc(TR);
     const cfg = TR_CFG, s = cfg.settings;
     const cur = cfg.menus.filter((m) => m.category === TR.mealType);
     const sel = cur.find((m) => m.id === TR.menuId) || cur[0] || { id: "", label: "", price: 0, desc: "" };
@@ -3256,6 +3318,27 @@ ${CH.notes ? `<div class="meal"><div class="ml">Notes</div><div class="mc txt">$
   var trDateLong = (d) => d ? new Date(d + "T12:00:00").toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" }) : "";
   var travelHTML = (TR, k, reviewMode) => {
     const e = pdfEsc, c = k.c;
+    if (k.dp) {
+      const m = k.dpm;
+      const dpMenu = `<div class="day"><div class="dayhd"><div class="dayname">${e(m.short)} menu</div><div class="dtag">${TR.mealType === "lunch" ? "Lunch" : "Dinner"}</div></div>${m.courses.map((x, i) => `<div class="meal"${i ? "" : ' style="margin-top:2px"'}><div class="ml">${["First", "Second", "Third"][i]}</div><div class="mc"><div class="dish">${e(x)}</div></div></div>`).join("")}<div class="meal"><div class="ml">For the table</div><div class="mc"><div class="dish">${e(trDpSide(m, TR.dpSide))}</div></div></div>${TR.dpVariant ? `<div class="meal"><div class="ml">Agreed</div><div class="mc"><div class="txt">${e(TR.dpVariant)}</div></div></div>` : ""}</div>`;
+      const dpRows = k.lines.map((l) => `<tr${l.green ? ' style="color:#166534"' : ""}><td>${e(l.label)}${l.qty ? `<span class="ls">${l.qty} \xD7 ${fmt(l.unit)}</span>` : ""}</td><td>${fmt(l.amt)}</td></tr>`).join("");
+      return pdfDoc({
+        brand: "Fröken Selfoss", tag: "Restaurant \xB7 Selfoss \xB7 #1 on Tripadvisor in South Iceland 2024 &amp; 2025",
+        kind: reviewMode ? "Internal review" : "Dianping group booking", id: TR.id, review: !!reviewMode,
+        client: { name: TR.contact || TR.agency, company: [TR.contact && TR.agency, TR.tourRef && `Ref. ${TR.tourRef}`].filter(Boolean).join(" \xB7 "), email: TR.email, phone: TR.phone },
+        eyebrow: "Dianping deal \xB7 group booking", title: e(TR.agency) || "Your group",
+        facts: [["Date", TR.date ? trDateLong(TR.date) + (TR.time ? ` \xB7 ${TR.time}` : "") : "To be confirmed"], ["Guests", `${k.total}${k.staff ? ` + ${k.staff} driver/guide` : ""}`], ["Menu", `${e(m.short)} \xB7 ${fmt(k.sel.price)}`]],
+        sections: pdfH2("Your menu") + dpMenu,
+        priceTitle: "Your quote", rows: dpRows || `<tr><td>${e(m.label)}</td><td>${fmt(0)}</td></tr>`,
+        total: fmt(k.grand), pp: k.total ? `${fmt(Math.round(k.pp))} per guest` : "",
+        notes: [TR.allergy && `<div class="lbl">Allergies and dietary needs</div>${e(TR.allergy)}`, TR.notes && `<div class="lbl" style="margin-top:6px">Notes</div>${e(TR.notes)}`].filter(Boolean).join(""),
+        policyBlocks: reviewMode ? [] : [
+          { title: "Deal terms — not negotiable", lead: `<div class="lbl">Minimum ${TR_DP.reviews} reviews of ${TR_DP.stars}★ or higher on Dianping per group</div>These prices are only available on the terms below.`, items: trDpPolicies().map((p) => ({ text: `${p.title}: ${p.text}` })) },
+          { title: "Good to know", items: trPractical().map((p) => ({ text: `${p.title}: ${p.text}` })) }
+        ],
+        accept: reviewMode ? "" : "We accept the Dianping deal terms above."
+      });
+    }
     const courseBlock = (title, list, n) => { const rows = list.filter((x) => c[x.id] > 0); return rows.length ? `<div class="course"><div class="cl">${title} \xB7 ${n} guests</div>${rows.map((x) => `<div class="dish">${c[x.id]} \xD7 ${e(x.label)}${x.vegan ? ` <span class="note">vegan</span>` : ""}</div>`).join("")}</div>` : `<div class="course"><div class="cl">${title}</div><div class="note">To be confirmed 24 hours before</div></div>`; };
     let menuHtml = `<div class="day"><div class="dayhd"><div class="dayname">${e(k.sel.label)}</div><div class="dtag">${TR.mealType === "lunch" ? "Lunch" : "Dinner"}</div></div><div class="meal" style="margin-top:2px"><div class="ml">Menu</div><div class="mc"><div class="txt">${e(k.sel.desc || "")}</div>${k.variable ? `<div class="note">Each guest chooses a main from the à la carte menu with 48 hours' notice; lava cake for everyone. The total is a minimum.</div>` : ""}${TR.mealType === "lunch" ? `<div class="note">Self-service filter coffee included.</div>` : ""}</div></div>`;
     if (k.showCourses) {
@@ -3269,7 +3352,7 @@ ${CH.notes ? `<div class="meal"><div class="ml">Notes</div><div class="mc txt">$
     return pdfDoc({
       brand: "Fröken Selfoss", tag: "Restaurant \xB7 Selfoss \xB7 #1 on Tripadvisor in South Iceland 2024 &amp; 2025",
       kind: reviewMode ? "Internal review" : "Group booking quote", id: TR.id, review: !!reviewMode,
-      client: { name: TR.contact || TR.agency, company: [TR.agency, TR.tourRef && `Ref. ${TR.tourRef}`].filter(Boolean).join(" \xB7 "), email: TR.email, phone: TR.phone },
+      client: { name: TR.contact || TR.agency, company: [TR.contact && TR.agency, TR.tourRef && `Ref. ${TR.tourRef}`].filter(Boolean).join(" \xB7 "), email: TR.email, phone: TR.phone },
       eyebrow: "Group booking", title: e(TR.agency) || "Your group",
       facts: [["Date", TR.date ? trDateLong(TR.date) + (TR.time ? ` \xB7 ${TR.time}` : "") : "To be confirmed"], ["Guests", `${k.total}${k.ch511 + k.ch04 ? ` (${k.adults} adults)` : ""}`], ["Meal", TR.mealType === "lunch" ? "Lunch" : "Dinner"]],
       sections: pdfH2("Your menu") + menuHtml,
@@ -3310,6 +3393,20 @@ ${CH.notes ? `<div class="meal"><div class="ml">Notes</div><div class="mc txt">$
             h("div", { style: { fontSize: 11, marginTop: 3, color: timeWarn ? "#d97706" : TR.time ? "#16a34a" : "#9ca3af" } }, timeWarn ? "⚠ Outside the preferred window" : TR.time ? "✓ Within the preferred window" : "Preferred: before 18:30 or after 20:00")),
           h(F, { label: "Meal" }, seg(TR.mealType, [["dinner", "Dinner"], ["lunch", "Lunch"]], (v) => setTR((p) => ({ ...p, mealType: v, menuId: v === "dinner" ? "d2" : "l1", course: trCourse0(), upg: false })))))),
       h(Card, { title: "\u{1F37D}️ Menu — one choice for the whole group" },
+        h("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, flexWrap: "wrap", marginBottom: 10 } }, h("span", { style: { fontSize: 12, fontWeight: 700, color: "#374151" } }, "Terms"), seg(TR.deal || "standard", [["standard", "Standard group terms"], ["dianping", "Dianping deal"]], (v) => setTR((p) => ({ ...p, deal: v, dpMenu: p.dpMenu || "dp3" })))),
+        k.dp && h("div", { style: { background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 8, padding: "8px 10px", fontSize: 12, color: "#991b1b", marginBottom: 8, lineHeight: 1.45 } }, h("strong", null, "Not negotiable. "), `At least ${TR_DP.reviews} Dianping reviews of ${TR_DP.stars}\u2605+ per group, no free or discounted driver/guide meals, no outside food (${TR_DP.outsideFee} kr per person fee). If the agency won't accept every term, switch to Standard group terms.`),
+        k.dp && TR_DP.menus.map((m) => {
+          const sel = m.id === k.dpm.id;
+          return h("div", { key: m.id, onClick: () => up("dpMenu", m.id), style: { display: "flex", gap: 8, padding: "8px 10px", borderRadius: 9, border: `1.5px solid ${sel ? "#e11d48" : "#e5e7eb"}`, background: sel ? "#fff1f2" : "white", cursor: "pointer", marginBottom: 5 } },
+            h(Rad, { sel }),
+            h("div", { style: { flex: 1 } }, h("div", { style: { fontWeight: 600, fontSize: 13 } }, m.short), h("div", { style: { fontSize: 11, color: "#6b7280" } }, m.courses.join(" + ") + (m.side ? " + fries or salad to share" : " + fries to share"))),
+            h("div", { style: { textAlign: "right", flexShrink: 0 } }, h("div", { style: { fontWeight: 700, color: "#be123c", fontSize: 13 } }, fmt(m.price)), h("div", { style: { fontSize: 10, color: "#9ca3af" } }, "/guest incl. VAT")));
+        }),
+        k.dp && k.dpm.side && h("div", { style: { display: "flex", alignItems: "center", gap: 8, marginTop: 6, fontSize: 12.5 } }, "For the table:", seg(TR.dpSide || "fries", [["fries", "Fries"], ["salad", "Salad"]], (v) => up("dpSide", v))),
+        k.dp && h("div", { className: "g2c", style: { display: "grid", gridTemplateColumns: "150px 1fr", gap: 10, marginTop: 10 } },
+          h(F, { label: "Agreed price (optional)" }, h("input", { type: "number", min: 0, value: TR.dpPrice || "", placeholder: String(k.dpm.price), onChange: (e) => up("dpPrice", e.target.value), style: I })),
+          h(F, { label: "Agreed variant (prints on the quote)" }, h("input", { value: TR.dpVariant || "", onChange: (e) => up("dpVariant", e.target.value), placeholder: "e.g. seafood pasta instead of fish", style: I }))),
+        k.dp && k.agreed > 0 && k.agreed < k.dpm.price && h("div", { style: { marginTop: 6, fontSize: 11.5, color: "#b45309" } }, `\u26A0 Below the deal price of ${fmt(k.dpm.price)}.`),
         k.cur.map((m) => {
           const sel = m.id === k.sel.id, gp = m.price * (1 - (k.qualifies ? k.rate : 0));
           return h("div", { key: m.id, onClick: () => pickMenu(m.id), style: { display: "flex", gap: 8, padding: "8px 10px", borderRadius: 9, border: `1.5px solid ${sel ? "#e11d48" : "#e5e7eb"}`, background: sel ? "#fff1f2" : "white", cursor: "pointer", marginBottom: 5 } },
@@ -3322,16 +3419,21 @@ ${CH.notes ? `<div class="meal"><div class="ml">Notes</div><div class="mc txt">$
             h("div", { style: { textAlign: "right", flexShrink: 0 } }, h("div", { style: { fontWeight: 700, color: "#be123c", fontSize: 13 } }, (m.id === "l2" ? "from " : "") + fmt(gp)), gp < m.price && h("div", { style: { fontSize: 10, color: "#9ca3af", textDecoration: "line-through" } }, fmt(m.price)), h("div", { style: { fontSize: 10, color: "#9ca3af" } }, "/guest incl. VAT")));
         }),
         k.variable && h("div", { style: { marginTop: 6, background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: 8, padding: "8px 10px", fontSize: 12, color: "#1e40af" } }, "Each guest chooses their own main with 48 hours' notice; everyone gets lava cake. The total is a minimum."),
-        TR.mealType === "lunch" && h("div", { style: { marginTop: 6, fontSize: 12, color: "#166534" } }, "☕ Self-service filter coffee is included with every lunch menu."),
+        !k.dp && TR.mealType === "lunch" && h("div", { style: { marginTop: 6, fontSize: 12, color: "#166534" } }, "☕ Self-service filter coffee is included with every lunch menu."),
         k.showUpgrade && k.sel.id !== "l5" && h("label", { style: { display: "flex", gap: 8, alignItems: "center", marginTop: 8, fontSize: 12.5, cursor: "pointer" } }, h("input", { type: "checkbox", checked: !!TR.upg, onChange: (e) => up("upg", e.target.checked) }), h("strong", null, `Add dessert for all ${k.dinnerG} guests`), h("span", { style: { color: "#6b7280" } }, `+${fmt(TR_UPGRADE)}/guest \xB7 brownie, brown sugar caramel, skyr ganache & berries`))),
       h(Card, { title: "\u{1F465} Guests" },
         h("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(150px,1fr))", gap: 10 } },
-          [["adults", "Adults", `${fmt(k.sel.price * (1 - k.rate))}/guest`], ["ch511", "Children 5–11", k.kids ? `${fmt(k.sel.price * 0.5 * (1 - k.rate))} (50% off)` : "Full price (brunch only)"], ["ch04", "Children 0–4", k.kids ? "Free" : "Full price (brunch only)"]].map(([f, lb, note]) => h("div", { key: f },
+          [["adults", "Adults", `${fmt(k.dp ? k.unit : k.sel.price * (1 - k.rate))}/guest`], ["ch511", "Children 5–11", k.kids ? `${fmt(k.sel.price * 0.5 * (1 - k.rate))} (50% off)` : k.dp ? "Deal price" : "Full price (brunch only)"], ["ch04", "Children 0–4", k.kids ? "Free" : k.dp ? "Deal price" : "Full price (brunch only)"]].map(([f, lb, note]) => h("div", { key: f },
             h("div", { style: { fontSize: 10, fontWeight: 700, color: "#6b7280", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.04em" } }, lb),
             h("div", { style: { display: "flex", alignItems: "center", gap: 4 } }, h(SB, { onClick: () => up(f, Math.max(0, (TR[f] || 0) - 1)) }, "−"), h("input", { type: "number", min: 0, value: TR[f], onChange: (e) => up(f, Math.max(0, parseInt(e.target.value) || 0)), style: { ...I, width: 64, textAlign: "center", fontWeight: 700, fontSize: 15 } }), h(SB, { onClick: () => up(f, (TR[f] || 0) + 1) }, "+")),
             h("div", { style: { fontSize: 11, color: "#9ca3af", marginTop: 3 } }, note)))),
         !k.qualifies && k.total > 0 && h("div", { style: { marginTop: 8, background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 8, padding: "7px 10px", fontSize: 12, color: "#991b1b" } }, `⚠ Group menus start at ${s.min_group_size} guests.`),
         k.free > 0 && h("div", { style: { marginTop: 8, background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 8, padding: "7px 10px", fontSize: 12, color: "#166534" } }, `\u{1F381} ${k.free} complimentary driver/guide meal${k.free > 1 ? "s" : ""} for ${k.freePax} paying guests \xB7 value ${fmt(k.freeVal)}`)),
+      k.dp && h(Card, { title: "\u{1F690} Driver and guide" },
+        h("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap" } }, h("span", { style: { fontSize: 12.5 } }, "Drivers and guides eating"), stepper(Number(TR.dpStaff) || 0, (v) => up("dpStaff", v))),
+        h("div", { style: { marginTop: 8 } }, seg(TR.dpStaffMode || "fold", [["fold", "In guest price"], ["charge", "Own line"], ["free", "Free (exception)"]], (v) => up("dpStaffMode", v))),
+        k.staffMode === "free" ? h("div", { style: { marginTop: 8, background: "#fffbeb", border: "1px solid #fde68a", borderRadius: 8, padding: "7px 10px", fontSize: 12, color: "#92400e" } }, "\u26A0 Exception only where \u00C1rni has already agreed it (e.g. Tom / Jianfeng Du). The deal terms say no free meals; this prints as \u201Cagreed exception\u201D on the quote.")
+          : h("div", { style: { fontSize: 11.5, color: "#6b7280", marginTop: 6 } }, !k.staff ? "No driver or guide meals." : k.staffMode === "fold" ? `${k.staff} meal${k.staff > 1 ? "s" : ""} spread over ${k.total} guests: ${fmt(k.unit)} per guest instead of ${fmt(k.sel.price)} (rounded up to 10 kr).` : `${k.staff} \xD7 ${fmt(k.sel.price)} on its own line.`)),
       k.showCourses && k.qualifies && h(Card, { title: `\u{1F374} Courses — ${k.dinnerG} guests` },
         h("div", { style: { fontSize: 11.5, color: k.courseFilled ? "#047857" : "#92400e", marginBottom: 4 } }, k.courseFilled ? "✓ Every guest has a choice" : "Fill in how many guests take each dish (it prints on the quote)."),
         k.isD1 && seg(c.d1CourseType, [["appetiser", "Appetiser + main"], ["dessert", "Main + dessert"]], (v) => setTR((p) => ({ ...p, course: { ...trCourse0(), d1CourseType: v } }))),
@@ -3343,6 +3445,7 @@ ${CH.notes ? `<div class="meal"><div class="ml">Notes</div><div class="mc txt">$
         k.showGenDessert && h("div", { style: { marginBottom: 10, paddingBottom: 10, borderBottom: "1px solid #f3f4f6" } },
           h("label", { style: { display: "flex", gap: 8, alignItems: "center", fontSize: 12.5, cursor: "pointer" } }, h("input", { type: "checkbox", checked: !!TR.addDessert, onChange: (e) => up("addDessert", e.target.checked) }), h("strong", null, "Add dessert"), h("span", { style: { color: "#6b7280" } }, `${fmt(1100)}/guest`)),
           TR.addDessert && h("div", { style: { display: "flex", gap: 6, alignItems: "center", marginTop: 6, fontSize: 12, color: "#6b7280" } }, "Guests:", h("input", { type: "number", min: 0, value: TR.dessertPax, placeholder: String(k.adults + (k.kids ? k.ch511 : 0)), onChange: (e) => up("dessertPax", e.target.value), style: { ...small, width: 80 } }))),
+        k.dp && h("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: 10, marginBottom: 10, borderBottom: "1px solid #f3f4f6", fontSize: 12.5 } }, h("span", null, h("strong", null, "Hot water thermos refills"), h("span", { style: { color: "#9ca3af", fontSize: 11 } }, ` \xB7 ${fmt(TR_DP.thermos)} each`)), stepper(Number(TR.thermos) || 0, (v) => up("thermos", v))),
         h("div", { style: { fontSize: 12, fontWeight: 700, color: "#374151", marginBottom: 4 } }, "First round, pre-ordered"),
         k.drinkItems.map((d) => h("div", { key: d.id, style: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "4px 0", fontSize: 12.5 } }, h("span", null, d.label, h("span", { style: { color: "#9ca3af", fontSize: 11 } }, ` \xB7 ${fmt(d.price)}`)), stepper((TR.drinks || {})[d.id] || 0, (v) => up("drinks", { ...(TR.drinks || {}), [d.id]: v })))),
         h("div", { style: { fontSize: 12, fontWeight: 700, color: "#374151", margin: "10px 0 4px" } }, "Drink vouchers ", h("span", { style: { fontWeight: 400, color: "#9ca3af" } }, "\xB7 in tens, minimum 10")),
@@ -3352,8 +3455,9 @@ ${CH.notes ? `<div class="meal"><div class="ml">Notes</div><div class="mc txt">$
         h("div", { className: "g2c", style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 } },
           h(F, { label: "Allergies (24 hours' notice)" }, h("textarea", { value: TR.allergy, onChange: (e) => up("allergy", e.target.value), rows: 3, placeholder: "e.g. 2 gluten-free, 1 nut allergy", style: { ...I, resize: "vertical" } })),
           h(F, { label: "Notes on the quote" }, h("textarea", { value: TR.notes, onChange: (e) => up("notes", e.target.value), rows: 3, placeholder: "e.g. coach from Reykjavík", style: { ...I, resize: "vertical" } })))),
-      h(Card, { title: "\u{1F4CB} Group policy (prints on the quote)" },
-        trPolicies(s).map((p) => h("div", { key: p.id, style: { display: "flex", gap: 8, padding: "5px 0", borderTop: "1px solid #f3f4f6", fontSize: 12.5 } }, h("strong", { style: { width: 120, flexShrink: 0, color: "#374151" } }, p.title), h("span", { style: { color: "#4b5563" } }, p.text))),
+      h(Card, { title: k.dp ? "\u{1F4CB} Dianping terms (print on the quote)" : "\u{1F4CB} Group policy (prints on the quote)" },
+        k.dp && h("div", { style: { background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 8, padding: "7px 10px", fontSize: 12, color: "#991b1b", marginBottom: 6 } }, h("strong", null, "Not negotiable. "), `If the agency won't accept every term, use Standard group terms instead (${Math.round(s.discount_weekday * 100)}% / ${Math.round(s.discount_weekend * 100)}% discount, free driver/guide meals).`),
+        (k.dp ? trDpPolicies().concat(trPractical()) : trPolicies(s)).map((p) => h("div", { key: p.id, style: { display: "flex", gap: 8, padding: "5px 0", borderTop: "1px solid #f3f4f6", fontSize: 12.5 } }, h("strong", { style: { width: 120, flexShrink: 0, color: "#374151" } }, p.title), h("span", { style: { color: "#4b5563" } }, p.text))),
         h("div", { style: { fontSize: 11, color: src === "sheet" ? "#047857" : "#9ca3af", marginTop: 6 } }, src === "sheet" ? "✓ Prices and discounts from the Calculator Config Sheet (menus, extras, settings tabs)." : "Built-in prices; the Calculator Config Sheet could not be reached.")));
     const summary = h("div", { id: "cq-summary", style: { position: "sticky", top: 60, alignSelf: "start", display: "flex", flexDirection: "column", gap: 10, scrollMarginTop: 10 } },
       h(SHdr, { qid: TR.id }),
@@ -3368,8 +3472,8 @@ ${CH.notes ? `<div class="meal"><div class="ml">Notes</div><div class="mc txt">$
         k.showCourses && !k.courseFilled && k.qualifies && h("div", { style: { marginTop: 6, fontSize: 11.5, color: "#92400e" } }, "⚠ Course choices not complete yet.")),
       h("div", { style: { background: "white", borderRadius: 10, border: "1px solid #e5e7eb", padding: "10px 14px", fontSize: 12, color: "#4b5563", lineHeight: 1.5 } },
         h("div", { style: { fontWeight: 700, fontSize: 13, color: "#111827", marginBottom: 4 } }, "\u{1F9EE} How it's worked out"),
-        h("div", null, `Menu price \xD7 guests, minus the group discount (${Math.round(s.discount_weekday * 100)}% Sun–Thu, ${Math.round(s.discount_weekend * 100)}% Fri–Sat) for ${s.min_group_size}+ guests. Children's prices only on the Luxury Brunch. Driver/guide meals are free on top and not deducted. Drinks, vouchers, dessert and cake are added at full price.`)));
-    const bar = { label: `${TR.agency || "Group booking"} \xB7 ${k.total} guests`, total: k.qualifies ? (k.variable ? "from " : "") + fmt(k.grand) : "—", pp: fmt(k.pp), margin: k.rate > 0 ? `${Math.round(k.rate * 100)}% group discount` : k.qualifies ? "full price" : `min. ${s.min_group_size} guests`, ok: k.qualifies };
+        k.dp ? h("div", null, `Dianping deal: fixed price \xD7 guests. No group discount and no free meals. Driver/guide meals go into the guest price, on their own line, or (agreed exception only) free. Thermos refills ${fmt(TR_DP.thermos)}; drinks, vouchers and cake at full price.`) : h("div", null, `Menu price \xD7 guests, minus the group discount (${Math.round(s.discount_weekday * 100)}% Sun–Thu, ${Math.round(s.discount_weekend * 100)}% Fri–Sat) for ${s.min_group_size}+ guests. Children's prices only on the Luxury Brunch. Driver/guide meals are free on top and not deducted. Drinks, vouchers, dessert and cake are added at full price.`)));
+    const bar = { label: `${TR.agency || "Group booking"} \xB7 ${k.total} guests`, total: k.qualifies ? (k.variable ? "from " : "") + fmt(k.grand) : "—", pp: fmt(k.pp), margin: k.dp ? "Dianping deal" : k.rate > 0 ? `${Math.round(k.rate * 100)}% group discount` : k.qualifies ? "full price" : `min. ${s.min_group_size} guests`, ok: k.qualifies };
     return h(React.Fragment, null,
       h("div", { className: "mg", style: { maxWidth: 1080, margin: "0 auto", padding: 14, display: "grid", gridTemplateColumns: "1fr 340px", gap: 14 } }, form, summary),
       !modal && h("div", { className: "sumbk", onClick: () => document.documentElement.classList.remove("sumopen") }),
