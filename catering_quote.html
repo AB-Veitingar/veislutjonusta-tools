@@ -1718,26 +1718,43 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
         React.createElement("button", { disabled: !live || busy || !(Number(C.fuelPricePerL) > 0), onClick: () => onSave(Number(C.fuelPricePerL)), title: live ? "Save this quote's fuel price as the default for all new quotes, dated today" : "Sheet not reachable", style: { border: "none", background: live ? "#0369a1" : "#e5e7eb", color: live ? "white" : "#9ca3af", borderRadius: 6, padding: "6px 10px", fontSize: 11.5, fontWeight: 700, cursor: live ? "pointer" : "default" } }, busy ? "\u2026" : differs ? `Save ${C.fuelPricePerL} kr/L as default` : "Confirm price checked today")));
   };
   var HELP = [
-    ["The basic idea", ["Custom Event builds the price from what the event costs us. You enter the real costs (food, staff, equipment); the calculator adds a small safety buffer and our margin, then VAT. Drinks, the hall and hired-out staff have their own fixed prices and are added on top.", "Everything you change updates the summary on the right straight away."]],
-    ["Staff lines — what one line costs", ["Cost = staff \xD7 hours \xD7 base kr/hr \xD7 rate \xD7 salary-related costs.", "Base kr/hr is the daytime wage for that role (general staff 3,000; head chef 3,500 — set in ⚙️ Roles). Rate is the shift supplement: daytime \xD71.0, evening \xD71.33, weekend \xD71.45, holiday \xD71.9. “Auto” reads the event date and start time. Salary-related costs (\xD71.33) cover pension, holiday pay and payroll taxes.", "Example: 1 waiter \xD7 8h \xD7 3,000 \xD7 1.45 (weekend) \xD7 1.33 = 46,284 kr. This is our true cost, with no profit in it. Hover the cost on any line to see its own sum.", "Use the note on each line to record why it's there (“pin assembly, 1 per 45 guests”), so the quote still makes sense when you come back to it."]],
-    ["Hire out (staff sold separately)", ["Tick “Hire out” for staff the client pays for as a separate line, e.g. a house manager on a food-only event. The line is then not part of the menu price: the client pays cost \xD7 1.33, or the hire price you type, plus 24% VAT."]],
-    ["From cost to price — contingency, overhead and margin", ["Catering cost = ingredients + own staff + planning hours + equipment + consumables (+ transport when bundled).", "Contingency (5–7%) is added on top as a buffer for the things that always go a bit wrong. It counts as a cost, so the margin is worked out on top of it — yes, it makes everything a little dearer.", "Price = (cost + contingency) \xF7 (1 − margin % − overhead %). With 25% margin and 10% overhead that is \xF7 0.65. Margin is a share of the price, not a mark-up on cost: a 25% margin is a 33% mark-up.", "Overhead % is our share of rent, electricity, subscriptions, insurance and accounting."]],
-    ["Menu builder (food cost)", ["Build the food cost per guest from components: price per kg / litre / piece, average portion per guest and yield after trimming and cooking loss. Two proteins on a buffet? Split the total, e.g. 140 g lamb + 60 g turkey = 200 g meat.", "House rule for buffets: a guest eats about 500 g, so plan about 600 g in total (all courses, sides and sauces). The builder shows the planned grams against that target. Over-production % is then added on top so the buffet does not run out \u2014 it raises both the cost and the buy quantities."]],
-    ["Drinks package", ["Option A: pre-paid units at a fixed price (1,250 kr incl. VAT), not refundable once the final number is confirmed. Option B: a higher price per unit drunk, with a minimum share of the ordered units charged.", "Drink prices are fixed, not marked up. Our cost is the units we expect to be drunk \xD7 the average cost from the beer / cider / wine mix; unused units go back into stock. Soft drinks are billed separately per unit."]],
-    ["Ingólfshvoll hall", ["Hall rent is 170,000 kr ex. VAT. With food and a drinks package of at least the minimum units per guest, 9% of food & drink spend (incl. VAT) comes off the rent, down to 0 kr. VAT on the hall is added to what is left.", "“Fold the hall into the menu price” hides the hall line and adds the remaining rent to the menu price (billed at the food VAT rate).", "The landlord takes 12.5% of all event revenue ex. VAT. The calculator counts it as a cost."]],
-    ["What the margin means on a full event", ["With drinks, hall or hire on the quote, the calculator finds the food price that gives the target margin across the whole event, after landlord and overhead. Food is never priced below its own cost. “Event profit after landlord & overhead” is the real bottom line; “Menu price per guest” is the number to quote a party planner."]],
-    ["Price ladder", ["Only shown for Ingólfshvoll quotes, folded away by default. It guesses the food price per guest the same setup would need at 50 to 1,000 guests, scaling prep and service staff (a little less than in proportion, in whole people). The staffing at each size is an estimate, so use it to sanity-check a price list for a repeat format, not to quote a one-off event."]],
-    ["VAT", ["Food and drinks 11%. Transport as a separate line, staff hire and the hall 24% (or none / folded — to be confirmed with the accountant)."]],
-    ["Quotes, templates, roles and policies", ["\u{1F4BE} Save stores the whole quote (staff lines, drinks, hall) in History and in the Catering Quotes Log Sheet. Templates store a setup to reuse. Roles live in the Roles tab and booking policies in the Policies tab of the same Sheet — tick which policies go on each quote.", "Client PDF shows prices only: the cost lines are scaled up to the selling price, so no costs or margins are shown. Review PDF is internal: costs, landlord, margin and profit."]]
-    ["Private chef \u2014 how days are counted", ["We count the Nordic Luxury way. A service day is one breakfast and one dinner. An arrival dinner and a departure breakfast together make one day, so a 3-day villa stay (dinner, full day, breakfast) is 2 service days. The tab takes the larger of the two counts: 2 breakfasts and 3 dinners is 3 days. There are no partial days.", "With no breakfast at all, each dinner is a one-off dinner (95,000 kr + 7,000 kr per guest), which carries the drive in its fee."]],
-    ["Private chef \u2014 the price", ["Service day: 110,000 kr chef fee + 11,000 kr per guest for guests 1\u20135 + 9,000 kr per guest above 5. For 8 guests: 110,000 + 55,000 + 27,000 = 192,000 kr. The per-guest part pays for the food.", "Holidays: only the major holidays (st\xF3rh\xE1t\xED\xF0ardagar \u2014 New Year's Day, Good Friday, Easter Sunday, Whit Sunday, 17 June, Christmas Day, and Christmas Eve and New Year's Eve from 12:00) are \xD71.9 on the chef fee, extra staff and the on-site lunch fee. Other public holidays (Maundy Thursday, Easter Monday, First Day of Summer, 1 May, Ascension Day, Whit Monday, Commerce Day, 26 December) are normal price.", "Lunch is extra: boxes 3,800 kr per guest; lunch on site 60,000 kr + ingredients at cost + 30%.", "Each day has its own extra staff (waiter or bartender: 58,800 kr a meal, 98,000 kr a full day), purchases at cost + 30% (wine, drinks, private shopping), fixed-price extras (welcome cocktails 800 kr, host dinners 2,900 kr) and a note that prints on the quote.", "All prices include 11% VAT; the invoice is one \u201CPrivate chef\u201D line. The panel shows what the booking earns with a contractor chef (65,000 kr a day) and with an employed chef (hours \xD7 3,500 \xD7 1.33, \xD71.45 weekends and holidays). \u{1F9EE} How it's worked out in the panel shows every step with this quote's numbers."]],
-    ["Private chef \u2014 menus", ["Pick a dinner menu per day (Ing\xF3lfsfjall, \xD6lfus\xE1, Lax\xE1, Haginn, Vegetarian, Farewell feast, Celebration tasting) or build a custom one from \u{1F4A1} Menu ideas. Breakfast shows the standard buffet; Choose items to drop or add things. Every dish and breakfast item can carry a food cost per guest (+ cost, or \u{1F9EE} to cost it from the price book); it is saved in the Recipes tab of the Quotes Log Sheet and every quote uses it. Dishes without a cost use the default breakfast and dinner cost.", "Food is meant to be charged close to cost: the per-guest part of the fee covers it. Drinks and purchases are their price incl. VAT + 30%."]],
-    ["\u{1F4A1} Suggestion box", ["Every tab has a \u{1F4A1} Suggest button: report a bug, a missing menu or dish, or an idea. It goes to the Suggestions tab in the Catering Quotes Log Sheet, where \xC1rni sets the status and can reply; replies show in the box."]],
+    ["Getting around", ["Four tabs: Standard (our website menus), Custom Event (priced from cost), Private chef and Travel agency (group menus at Fröken Selfoss). Everything you change updates the summary straight away; on a phone or inside the website it sits behind the dark bar at the bottom — tap the bar to open it, tap anywhere outside to close it.",
+      "Your work survives a reload: every tab keeps its current quote in this browser until you press \u{1F195} New.",
+      "\u{1F4BE} Save stores the quote in History and in the Catering Quotes Log Sheet. \u{1F4DC} History finds any saved quote by name, client, location or date; ✕ deletes one quote after ARE YOU SURE?.",
+      "⬇️ Client PDF is what the client sees: prices only. Review PDF is internal: costs, margin and profit. \u{1F468}‍\u{1F373} Chef sheet is for the kitchen: no prices, just menu, quantities, location, pack list and the on-site rules.",
+      "Location (Standard, Custom Event and Private chef): type an address or place, or paste a Google Maps link. \u{1F4CD} Map opens it, and it prints as a link on the client PDF and the chef sheet."]],
+    ["Standard", ["Our website menus, priced incl. VAT exactly as on the website. Volume discount: 5% from 25 guests, 8% from 50, 12% from 100. Pick the service (pickup, delivery, full service, with bar, full package); delivery inside Selfoss or by km. A drinks package can be added.",
+      "The chef sheet works out the pieces: units per guest \xD7 guests, and about how many of each type."]],
+    ["Custom Event — the basic idea", ["Custom Event builds the price from what the event costs us. You enter the real costs (food, staff, equipment); the calculator adds a small safety buffer and our margin, then VAT. Drinks, the hall and hired-out staff have their own fixed prices and are added on top."]],
+    ["Staff lines — what one line costs", ["Cost = staff \xD7 hours \xD7 base kr/hr \xD7 rate \xD7 salary-related costs.", "Base kr/hr is the daytime wage for that role (general staff 3,000; head chef 3,500 — set in ⚙️ Roles). Rate is the shift supplement: daytime \xD71.0, evening \xD71.33, weekend \xD71.45, holiday \xD71.9. “Auto” reads the event date and start time. Salary-related costs (\xD71.33) cover pension, holiday pay and payroll taxes.", "Example: 1 waiter \xD7 8h \xD7 3,000 \xD7 1.45 (weekend) \xD7 1.33 = 46,284 kr. This is our true cost, with no profit in it.", "Tick “Hire out” for staff the client pays for as a separate line: cost \xD7 1.33, or the hire price you type, plus 24% VAT."]],
+    ["From cost to price", ["Catering cost = ingredients + own staff + planning hours + equipment + consumables (+ transport when bundled). Contingency (5–7%) is added on top as a buffer and counts as a cost.", "Price = (cost + contingency) \xF7 (1 − margin % − overhead %). With 25% margin and 10% overhead that is \xF7 0.65. Margin is a share of the price, not a mark-up on cost: a 25% margin is a 33% mark-up."]],
+    ["Menu builder (food cost)", ["Build the food cost per guest from components: price per kg / litre / piece, portion per guest and yield after trimming and cooking loss.", "House rule for buffets: a guest eats about 500 g, so plan about 600 g in total (all courses, sides and sauces). Over-production % is added on top so the buffet does not run out — it raises both the cost and the buy quantities."]],
+    ["Drinks package", ["Option A: pre-paid units at a fixed price (1,250 kr incl. VAT), not refundable once the final number is confirmed. Option B: a higher price per unit drunk, with a minimum share of the ordered units charged. Soft drinks are billed separately per unit."]],
+    ["Ingólfshvoll hall", ["Hall rent is 170,000 kr ex. VAT. With food and a drinks package of at least the minimum units per guest, 9% of food & drink spend (incl. VAT) comes off the rent, down to 0 kr. “Fold the hall into the menu price” hides the hall line and adds the rest of the rent to the menu price.", "The landlord takes 12.5% of all event revenue ex. VAT; the calculator counts it as a cost. With drinks, hall or hire on the quote it finds the food price that gives the target margin across the whole event. The price ladder (Ingólfshvoll only) guesses the price per guest at 50 to 1,000 guests — a sanity check, not a quote."]],
+    ["Private chef — days and price", ["A service day is one breakfast and one dinner; an arrival dinner and a departure breakfast together make one day. With no breakfast at all, each dinner is a one-off dinner.",
+      "Service day: 110,000 kr + 11,000 kr per guest for guests 1–5 + 9,000 kr per guest above 5. One-off dinner: 95,000 kr + 7,000 kr per guest. Lunch is extra: boxes 3,800 kr per guest; on site 60,000 kr + ingredients at cost + 30%. Extra staff are priced like the chef: 66,000 kr a meal (60% of a day), 110,000 kr a full day.",
+      "Major holidays (New Year's Day, Good Friday, Easter Sunday, Whit Sunday, 17 June, Christmas Day, and Christmas and New Year's Eve from 12:00) are \xD71.9 on the chef fee — on a one-off dinner on 65,000 kr. Other public holidays are normal price.",
+      "Children (on top of the guests): Kids' meal (pizza, burgers) is 1,500 kr per child per dinner, breakfast is the standard buffet; Same as adults counts them as guests; Free is for infants. The quote shows e.g. 7 + 2 children.",
+      "What it earns: contractor chef 65,000 kr a day, or 39,000 kr for a one-off dinner (60% of a day); employed chef by the hour (4 h breakfast, 4 h dinner, 6 h for a one-off dinner) \xD7 3,500 \xD7 1.33. All prices include 11% VAT. Rates can be changed under Rates."]],
+    ["Private chef — menus, breakfast and lunch", ["Dinner: start from \u{1F4D6} Our menus or \u{1F4A1} Menu ideas, or just type — ideas pop up while you write. Add alternatives for guests who can't eat a dish, and a note per course. \u{1F4BE} Save as our menu keeps the whole dinner under Saved by us for everyone; load it again and choose Update or Save as a new menu. Lunch on site works the same way with \u{1F4D6} Our lunches and \u{1F4BE} Save as our lunch.",
+      "Breakfast and lunch boxes: Choose items to tick what this group gets, add your own (saved to the idea bank), ✎ Edit list to rename or delete (ARE YOU SURE?), and a note line.",
+      "The idea bank is shared: in the dropdown or in \u{1F4A1} Menu ideas you can save a new dish, ✎ update one, or \u{1F5D1} delete it. Snacks to graze on, drinks and private shopping are line by line; what you type there is saved too.",
+      "Every dish can carry a food cost per guest (+ cost, or \u{1F9EE} from the price book); dishes without one use the default estimate (4,000 kr breakfast, 6,000 kr dinner)."]],
+    ["Private chef — policies", ["Tick which policies print on the quote. Payment: 30% non-refundable deposit to confirm, 50% due 14 days before the first day (80% up front if booked at short notice), final 20% due 14 days after the stay. Cancellation: more than 14 days before, the deposit is kept; within 14 days, 50% of the quote. Fewer guests is fine close to the stay unless special preparation has started."]],
+    ["Travel agency", ["Group menus at Fröken Selfoss, priced from the master Sheet (Travel menus, extras and settings tabs). Standard group terms: group discount (Sunday–Thursday 13%, Friday–Saturday 10%) and free driver/guide meals by group size.",
+      "Dianping deal (Chinese agencies): fixed deal price, no discount, no free meals, at least 5 Dianping reviews of 4.5★, outside food charged per person, thermos refills charged. The terms are not negotiable — if the agency won't accept them, use Standard group terms. Driver and guide meals go into the guest price, on their own line, or free only as an agreed exception."]],
+    ["\u{1F9FA} Pack list and chef sheet", ["The \u{1F9FA} Pack list line under Location opens the pack list, a pop-up like the idea bank. \u{1F4CC} Every gig is the mandatory kit and always prints on the chef sheet (knife, cutting board, sharpener, probe, blowtorch, cling film and the rest). Everything else is a suggestion: click it to pack it for this party; the quantity is suggested from the guest count and can be changed. Search, or jump to a section; \u2713 Packed for this party shows what you picked.",
+      "\u270E Edit list: rename, \u{1F5D1} delete (ARE YOU SURE?) or make any item mandatory with \u{1F4CD}/\u{1F4CC}; + Add your own in any section. Saved in the Pack list tab of the master Sheet for everyone.",
+      "The chef sheet also prints the on-site rules (garbage out, kitchen left cleaner than we found it, never say no) and, for private chef, the prep standard: professional containers only, sleek on the work surface, a little more than enough."]],
+    ["VAT", ["Food and drinks 11%. Transport as a separate line, staff hire and the hall 24%."]],
+    ["\u{1F4A1} Suggestion box and what's new", ["Every tab has a \u{1F4A1} Suggest button: report a bug, a missing menu or dish, or an idea. It goes to the Suggestions tab in the Catering Quotes Log Sheet, where \xC1rni sets the status and can reply. \u{1F195} What's new lists every change."]]
   ];
-  var HelpContent = () => React.createElement("div", { style: { fontSize: 13, lineHeight: 1.55, color: "#374151" } }, HELP.map(([h, ps]) => React.createElement("div", { key: h, style: { marginBottom: 14 } }, React.createElement("div", { style: { fontWeight: 700, fontSize: 13.5, color: "#111827", marginBottom: 4 } }, h), ps.map((p, i) => React.createElement("p", { key: i, style: { margin: "0 0 6px" } }, p)))));
+  var HelpContent = () => React.createElement("div", { style: { fontSize: 13, lineHeight: 1.55, color: "#374151" } }, HELP.filter(Boolean).map(([h, ps]) => React.createElement("div", { key: h, style: { marginBottom: 14 } }, React.createElement("div", { style: { fontWeight: 700, fontSize: 13.5, color: "#111827", marginBottom: 4 } }, h), (ps || []).map((p, i) => React.createElement("p", { key: i, style: { margin: "0 0 6px" } }, p)))));
   var CHANGELOG = [
     { v: "2026-10-08", title: "Children, pack lists and on-site rules on every chef sheet; a one-off dinner is 6 hours", items: [
-      "\u{1F9FA} Pack list works like the idea bank: \u{1F4CC} Every gig (the mandatory kit, now with knife, cutting board and sharpener) always prints on the chef sheet; the set-up list (table and service, the new Serving section with serving bowls, plates, cutlery and appetizer plates, outdoor and fire, cooking, coffee and tea, drinks) is hand-picked per party with suggested quantities. \u270E Edit list: rename, delete (ARE YOU SURE?) or make any item mandatory with \u{1F4CC}; add your own in any section. Saved in the Pack list tab of the master Sheet for everyone.",
+      "\u2139\uFE0F How it works is fixed (it stopped opening after an earlier change) and rewritten for every tab: Standard, Custom Event, Private chef (days and price, children, menus, breakfast and lunch, policies), Travel agency (Dianping), pack list and chef sheet.",
+      "Private chef extra staff follow the chef price: 110,000 kr a full day, 66,000 kr a single meal (60%), \xD71.9 on major holidays (was 98,000 / 58,800). Quotes still on the old staff prices move over when opened.",
+      "\u{1F9FA} Pack list is a pop-up like the idea bank, opened from one compact line under Location: \u{1F4CC} Every gig (the mandatory kit, now with knife, cutting board and sharpener) always prints on the chef sheet; click anything else to pack it for this party, with a suggested quantity you can change. New Serving section (serving bowls, plates, cutlery, appetizer plates). Search, sections, \u2713 Packed for this party, and \u270E Edit list to rename, delete (ARE YOU SURE?) or make any item mandatory. Saved in the Pack list tab of the master Sheet for everyone.",
       "Private chef quotes with children show the head count as guests + children (e.g. 7 + 2 children) on the client PDF, the review and the floating bar.",
       "The price panel that opens from the floating bar now closes when you click anywhere outside it (the click still does what you meant).",
       "Private chef payment terms: 30% non-refundable deposit to confirm, 50% due 14 days before the first day (80% up front if booked at short notice), final 20% due 14 days after the stay.",
@@ -2289,8 +2306,8 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
     lunchMarkupPct: 30,
     lunchBoxPrice: 3800,
     markupPct: 30,
-    staffFull: 98e3,
-    staffSingle: 58800,
+    staffFull: 11e4,
+    staffSingle: 66e3,
     contractorDay: 65e3,
     contractorDinner: 39e3,
     holDinnerBase: 65e3,
@@ -2330,7 +2347,9 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
     const pre = CH.holDinnerBase == null;
     /* food cost estimates were 3,000 + 3,000 before; quotes still on those defaults move to 4,000 breakfast / 6,000 dinner */
     const oldFood = !CH.foodV && Number(CH.foodB) === 3e3 && Number(CH.foodD) === 3e3;
-    return { ...CH, ...(oldFood ? { foodB: 4e3, foodD: 6e3, foodV: 2 } : {}), holDinnerBase: pre ? 65e3 : CH.holDinnerBase, contractorDinner: pre && Number(CH.contractorDinner) === 65e3 ? Math.round((Number(CH.contractorDay) || 65e3) * 0.6) : CH.contractorDinner, days, staff: [], extras: [] };
+    /* extra staff are priced like the chef: when the chef went to 110,000 a day, staff followed (full day 110,000, a meal 60% = 66,000) */
+    const oldStaff = Number(CH.staffFull) === 98e3 && Number(CH.staffSingle) === 58800;
+    return { ...CH, ...(oldFood ? { foodB: 4e3, foodD: 6e3, foodV: 2 } : {}), ...(oldStaff ? { staffFull: 11e4, staffSingle: 66e3 } : {}), holDinnerBase: pre ? 65e3 : CH.holDinnerBase, contractorDinner: pre && Number(CH.contractorDinner) === 65e3 ? Math.round((Number(CH.contractorDay) || 65e3) * 0.6) : CH.contractorDinner, days, staff: [], extras: [] };
   };
   var CHEF_TEMPLATES = [
     { id: "dinner", icon: "\u{1F37D}️", name: "Single dinner", desc: "One dinner, 95,000 kr + 7,000 kr per guest", days: [{ b: false, d: true }] },
@@ -2474,9 +2493,9 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
   var CHEF_POLICIES = [
     { id: "cp_service", icon: "\u{1F468}‍\u{1F373}", text: "A service day is breakfast and a 3-course dinner for the group, with menu planning, shopping, cooking, service and clean-up. Travel within 30 minutes of Selfoss is included." },
     { id: "cp_markup", icon: "\u{1F6D2}", text: "Anything we buy for you beyond the menu — wine and drinks, private shopping, special requests — is charged at cost + 30%. Amounts in this quote are estimates; the invoice uses the actual receipts." },
-    { id: "cp_drinks", icon: "\u{1F377}", text: "Drinks are charged at their price incl. VAT + 30% and served by the chef; a welcome cocktail is about 800 kr per guest. A full bar needs a bartender (58,800 kr per evening)." },
+    { id: "cp_drinks", icon: "\u{1F377}", text: "Drinks are charged at their price incl. VAT + 30% and served by the chef; a welcome cocktail is about 800 kr per guest. A full bar needs a bartender (66,000 kr per evening)." },
     { id: "cp_lunch", icon: "\u{1F96A}", text: "Lunch is not part of a service day. Lunch on site is 60,000 kr plus ingredients; lunch boxes are 3,800 kr per guest." },
-    { id: "cp_staff", icon: "\u{1F935}", text: "Extra staff are priced like the chef: 98,000 kr for a full day, 58,800 kr for a single meal, \xD71.9 on major holidays." },
+    { id: "cp_staff", icon: "\u{1F935}", text: "Extra staff are priced like the chef: 110,000 kr for a full day, 66,000 kr for a single meal, \xD71.9 on major holidays." },
     { id: "cp_host", icon: "\u{1F37D}️", text: "Meals for lodge staff or hosts are 2,900 kr per person." },
     { id: "cp_holiday", icon: "\u{1F384}", text: "Major holidays are charged at 1.9\xD7 the chef fee: New Year's Day, Good Friday, Easter Sunday, Whit Sunday, 17 June and Christmas Day, and Christmas Eve and New Year's Eve from 12:00. Other public holidays are normal price." },
     { id: "cp_travel", icon: "\u{1F697}", text: "When breakfast is before 08:30 and the location is more than 30 minutes from Selfoss, the chef needs accommodation nearby; it is invoiced at cost." },
@@ -3704,7 +3723,7 @@ ${CH.notes ? `<div class="meal"><div class="ml">Notes</div><div class="mc txt">$
   var packSheetHTML = (o) => {
     const bank = packBank(), g = Number(o.guests) || 0;
     const must = bank.filter((x) => x.m);
-    const items = o.setup ? (o.items || []).filter((x) => x && (x.t || x.id)).map((x) => { const b = bank.find((y) => y.id === x.id); return { s: b ? b.s : x.s || "Other", t: b ? b.t : x.t, q: x.q || "", m: b ? b.m : false }; }).filter((x) => !x.m) : [];
+    const items = (o.items || []).filter((x) => x && (x.t || x.id)).map((x) => { const b = bank.find((y) => y.id === x.id); return { s: b ? b.s : x.s || "Other", t: b ? b.t : x.t, q: x.q || "", m: b ? b.m : false }; }).filter((x) => !x.m);
     const head = `${pdfH2(items.length ? "Pack list — set-up" : "Pack list — every gig")}${items.length ? `<div class="pkg">Every gig</div>` : ""}${packBoxes(must.map((x) => [x.t, packSug(x, g)]))}`;
     const secs = PACK_SECTIONS.concat(items.map((x) => x.s).filter((s0, i0, a) => PACK_SECTIONS.indexOf(s0) === -1 && a.indexOf(s0) === i0));
     const setup = secs.map((title) => {
@@ -3716,68 +3735,98 @@ ${CH.notes ? `<div class="meal"><div class="ml">Notes</div><div class="mc txt">$
   };
   /* private chef: the prep standard, printed right under the brief so it is read before packing */
   var packPrepHTML = () => `${PACK_CSS}${pdfH2("Prep standard \u2014 private chef")}<div class="pkr"><ul>${PACK_PREP.map((t) => `<li>${pdfEsc(t)}</li>`).join("")}</ul></div>`;
-  /* the pack list on each tab. Every gig: the mandatory kit, always on the chef sheet. Set-up pack list (switch): hand-pick
-     what this party needs. ✎ Edit list: rename, delete (ARE YOU SURE?) or make an item mandatory, for everyone. */
-  var PackToggle = ({ on, onChange, items, onItems, guests }) => {
+  /* the pack list on each tab: one compact line that opens the pack list, a pop-up like the idea bank.
+     📌 Every gig is the mandatory kit, always on the chef sheet. Everything else is a suggestion: click to pack it for this
+     party (with a suggested quantity you can change). ✎ Edit list: rename, delete (ARE YOU SURE?) or make mandatory, for everyone. */
+  var PackToggle = ({ items, onItems, guests }) => {
     const h = React.createElement, g = Number(guests) || 0, list = Array.isArray(items) ? items : [];
-    const [, setTick] = React.useState(0), bump = () => setTick((t) => t + 1);
-    const [add, setAdd] = React.useState({}), [edit, setEdit] = React.useState(false), [conf, setConf] = React.useState(null), [ren, setRen] = React.useState({});
+    const [open, setOpen] = React.useState(false), [, setTick] = React.useState(0), bump = () => setTick((t) => t + 1);
     React.useEffect(() => { packLoad().then((ch) => { if (ch) bump(); }); }, []);
+    const bank = packBank(), must = bank.filter((x) => x.m);
+    const picked = list.map((x) => { const b = bank.find((y) => y.id === x.id); return b ? (b.m ? null : b.t) : x.t; }).filter(Boolean);
+    return h("div", { style: { gridColumn: "1 / -1" } },
+      h("div", { onClick: () => setOpen(true), role: "button", style: { display: "flex", alignItems: "center", gap: 10, background: "#f9fafb", border: "1px solid #e5e7eb", borderRadius: 10, padding: "7px 10px", cursor: "pointer" } },
+        h("span", { style: { fontSize: 12.5, fontWeight: 700, color: "#374151", flexShrink: 0 } }, "\u{1F9FA} Pack list"),
+        h("span", { style: { fontSize: 11.5, color: "#6b7280", flex: 1, minWidth: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" } },
+          `\u{1F4CC} ${must.length} every gig`, picked.length ? ` \xB7 ${picked.length} for this party: ${picked.join(", ")}` : " \xB7 nothing extra picked yet"),
+        h("span", { style: { fontSize: 11.5, fontWeight: 700, color: "#111827", border: "1px solid #e5e7eb", background: "white", borderRadius: 8, padding: "3px 9px", flexShrink: 0 } }, picked.length ? "Edit" : "+ Add")),
+      open && h(PackModal, { list, onItems, g, onClose: () => { setOpen(false); bump(); } }));
+  };
+  var PackModal = ({ list, onItems, g, onClose }) => {
+    const h = React.createElement;
+    const [, setTick] = React.useState(0), bump = () => setTick((t) => t + 1);
+    const [q, setQ] = React.useState(""), [sec, setSec] = React.useState("all"), [edit, setEdit] = React.useState(false), [conf, setConf] = React.useState(null), [ren, setRen] = React.useState({}), [add, setAdd] = React.useState({});
+    React.useEffect(() => { const fn = (e) => { if (e.key === "Escape") onClose(); }; document.addEventListener("keydown", fn); return () => document.removeEventListener("keydown", fn); }, []);
     const bank = packBank();
     const pick = (id) => list.findIndex((x) => x.id === id);
     const tog = (it) => { const i0 = pick(it.id); onItems(i0 === -1 ? list.concat({ id: it.id, s: it.s, t: it.t, q: packSug(it, g) || "" }) : list.filter((_, j) => j !== i0)); };
-    const setQ = (i0, q) => onItems(list.map((x, j) => j === i0 ? { ...x, q } : x));
+    const setQty = (i0, v) => onItems(list.map((x, j) => j === i0 ? { ...x, q: v } : x));
     const save = (it, patch) => { packSave(it, patch).then(bump); bump(); };
-    const btn = (title, txt, fn, color) => h("button", { title, onClick: fn, style: { border: "none", background: "none", cursor: "pointer", fontSize: 11.5, color: color || "#6b7280", padding: "0 2px" } }, txt);
-    const chip = (it, mand) => {
-      const i0 = pick(it.id), sel = mand || i0 !== -1, sug = packSug(it, g), base = { display: "inline-flex", alignItems: "center", gap: 4, border: `1px ${sel ? "solid" : "dashed"} ${mand ? "#a8a29e" : sel ? "#ca8a04" : "#d6d3d1"}`, background: sel ? "white" : "transparent", borderRadius: 20, padding: "3px 6px 3px 9px", maxWidth: "100%" };
-      if (edit && conf === it.id) return h("span", { key: it.id, style: { ...base, border: "1px solid #fecaca", background: "#fef2f2", gap: 6 } },
-        h("span", { style: { fontSize: 11.5, color: "#991b1b", fontWeight: 800 } }, "ARE YOU SURE?"),
-        h("span", { style: { fontSize: 11, color: "#991b1b" } }, "“", it.t, "” goes for everyone"),
-        h("button", { onClick: () => { save(it, { hidden: true }); if (i0 !== -1) onItems(list.filter((_, j) => j !== i0)); setConf(null); }, style: { border: "none", background: "#dc2626", color: "white", borderRadius: 7, padding: "2px 8px", fontSize: 11, fontWeight: 700, cursor: "pointer" } }, "Yes, delete"),
-        h("button", { onClick: () => setConf(null), style: { border: "1px solid #e5e7eb", background: "white", borderRadius: 7, padding: "2px 8px", fontSize: 11, cursor: "pointer" } }, "No"));
+    const ic = (title, txt, fn, color) => h("button", { title, onClick: (e) => { e.stopPropagation(); fn(); }, style: { border: "none", background: "none", cursor: "pointer", fontSize: 12, color: color || "#6b7280", padding: "0 2px" } }, txt);
+    const chip = (it) => {
+      const mand = it.m, i0 = pick(it.id), sel = mand || i0 !== -1, sug = packSug(it, g);
+      const base = { display: "inline-flex", alignItems: "center", gap: 5, border: `1px solid ${mand ? "#d6d3d1" : sel ? "#111827" : "#e5e7eb"}`, background: mand ? "#f5f5f4" : sel ? "#111827" : "white", color: sel && !mand ? "white" : "#374151", borderRadius: 20, padding: "5px 8px 5px 11px", fontSize: 12.5, maxWidth: "100%", cursor: edit || mand ? "default" : "pointer" };
+      if (edit && conf === it.id) return h("span", { key: it.id, style: { ...base, background: "#fef2f2", border: "1px solid #fecaca", color: "#991b1b", gap: 6 } },
+        h("b", null, "ARE YOU SURE?"), h("span", { style: { fontSize: 11.5 } }, "“", it.t, "” goes for everyone"),
+        h("button", { onClick: () => { save(it, { hidden: true }); const i1 = pick(it.id); if (i1 !== -1) onItems(list.filter((_, j) => j !== i1)); setConf(null); }, style: { border: "none", background: "#dc2626", color: "white", borderRadius: 7, padding: "2px 9px", fontSize: 11.5, fontWeight: 700, cursor: "pointer" } }, "Yes, delete"),
+        h("button", { onClick: () => setConf(null), style: { border: "1px solid #e5e7eb", background: "white", borderRadius: 7, padding: "2px 9px", fontSize: 11.5, cursor: "pointer" } }, "No"));
       if (edit && ren[it.id] != null) {
         const done = () => { const t = String(ren[it.id]).trim(); if (t && t !== it.t) { save(it, { text: t }); if (i0 !== -1) onItems(list.map((x, j) => j === i0 ? { ...x, t } : x)); } setRen({ ...ren, [it.id]: undefined }); };
-        return h("span", { key: it.id, style: { ...base, padding: "2px 4px 2px 6px" } },
-          h("input", { value: ren[it.id], autoFocus: true, onChange: (e) => setRen({ ...ren, [it.id]: e.target.value }), onKeyDown: (e) => { if (e.key === "Enter") done(); if (e.key === "Escape") setRen({ ...ren, [it.id]: undefined }); }, style: { border: "1px solid #e5e7eb", borderRadius: 6, padding: "2px 6px", fontSize: 11.5, width: Math.max(150, it.t.length * 6.5) } }),
-          h("button", { onClick: done, style: { border: "none", background: "#111827", color: "white", borderRadius: 7, padding: "2px 8px", fontSize: 11, fontWeight: 700, cursor: "pointer" } }, "Save"));
+        return h("span", { key: it.id, style: { ...base, background: "white", color: "#374151", padding: "3px 4px 3px 8px" } },
+          h("input", { value: ren[it.id], autoFocus: true, onChange: (e) => setRen({ ...ren, [it.id]: e.target.value }), onKeyDown: (e) => { e.stopPropagation(); if (e.key === "Enter") done(); if (e.key === "Escape") setRen({ ...ren, [it.id]: undefined }); }, style: { border: "1px solid #e5e7eb", borderRadius: 6, padding: "2px 6px", fontSize: 12, width: Math.max(150, it.t.length * 7) } }),
+          h("button", { onClick: done, style: { border: "none", background: "#111827", color: "white", borderRadius: 7, padding: "2px 9px", fontSize: 11.5, fontWeight: 700, cursor: "pointer" } }, "Save"));
       }
-      return h("span", { key: it.id, style: base },
-        h("span", { onClick: edit || mand ? undefined : () => tog(it), style: { fontSize: 11.5, color: mand ? "#44403c" : sel ? "#713f12" : "#a8a29e", cursor: edit || mand ? "default" : "pointer", fontWeight: sel && !mand ? 600 : 400 } }, edit ? "" : mand ? "" : sel ? "✓ " : "+ ", it.t, !sel && !edit && sug ? h("span", { style: { color: "#a8a29e" } }, " \xB7 ", sug) : mand && sug ? h("span", { style: { color: "#a8a29e" } }, " \xB7 ", sug) : null),
-        !edit && !mand && i0 !== -1 && h("input", { value: list[i0].q || "", placeholder: "qty", onChange: (e) => setQ(i0, e.target.value), style: { border: "1px solid #e5e7eb", borderRadius: 6, padding: "1px 5px", fontSize: 11, width: Math.max(44, String(list[i0].q || "").length * 6.2 + 14) } }),
-        edit && btn("Rename", "✎", () => { setConf(null); setRen({ ...ren, [it.id]: it.t }); }),
-        edit && btn(it.m ? "Mandatory on every gig — click to make it optional" : "Make mandatory on every gig", it.m ? "\u{1F4CC}" : "\u{1F4CD}", () => save(it, { mandatory: !it.m }), it.m ? "#b45309" : "#9ca3af"),
-        edit && btn("Delete from the list", "\u{1F5D1}", () => setConf(it.id), "#b91c1c"));
+      return h("span", { key: it.id, onClick: edit || mand ? undefined : () => tog(it), style: base },
+        !edit && !mand && h("span", { style: { opacity: 0.8 } }, sel ? "✓" : "+"), it.t,
+        sug && !(sel && !mand) && h("span", { style: { color: "#a8a29e", fontSize: 11.5 } }, sug),
+        !edit && sel && !mand && h("input", { value: list[i0].q || "", placeholder: "qty", onClick: (e) => e.stopPropagation(), onChange: (e) => setQty(i0, e.target.value), style: { border: "none", borderRadius: 6, padding: "1px 6px", fontSize: 11.5, width: Math.max(46, String(list[i0].q || "").length * 6.3 + 14), color: "#111827" } }),
+        edit && ic("Rename", "✎", () => { setConf(null); setRen({ ...ren, [it.id]: it.t }); }),
+        edit && ic(it.m ? "Mandatory on every gig — click to make it optional" : "Make mandatory on every gig", it.m ? "\u{1F4CC}" : "\u{1F4CD}", () => save(it, { mandatory: !it.m }), it.m ? "#b45309" : "#9ca3af"),
+        edit && ic("Delete from the list", "\u{1F5D1}", () => setConf(it.id), "#b91c1c"));
     };
-    const addBox = (sec, mand) => h("input", { value: add[sec] || "", placeholder: mand ? "Add to the every-gig kit — press Enter" : "Add your own (saved for everyone) — press Enter", onChange: (e) => setAdd({ ...add, [sec]: e.target.value }), onKeyDown: (e) => {
-      const t = String(add[sec] || "").trim(); if (e.key !== "Enter" || !t) return;
+    const addTo = (key, sName, mand) => {
+      const t = String(add[key] || "").trim(); if (!t) return;
       const ex = bank.find((x) => x.t.toLowerCase() === t.toLowerCase());
-      if (ex) { if (!mand && !ex.m && pick(ex.id) === -1) tog(ex); }
-      else { const it = { s: mand ? "Kitchen kit" : sec, t, m: !!mand, qs: "" }; packSave(it, {}).then(() => { bump(); if (!mand) { const nb = packBank().find((x) => x.t === t && !x.m); if (nb) onItems((Array.isArray(items) ? items : []).concat({ id: nb.id, s: nb.s, t: nb.t, q: "" })); } }); bump(); }
-      setAdd({ ...add, [sec]: "" });
-    }, style: { marginTop: 5, border: "1px solid #e5e7eb", borderRadius: 8, padding: "4px 8px", fontSize: 11.5, width: "100%", maxWidth: 340, background: "white" } });
-    const must = bank.filter((x) => x.m), opt = bank.filter((x) => !x.m);
-    const secs = PACK_SECTIONS.concat(opt.map((x) => x.s).filter((s0, i0, a) => PACK_SECTIONS.indexOf(s0) === -1 && a.indexOf(s0) === i0));
-    const head = (t, extra) => h("div", { style: { display: "flex", alignItems: "center", gap: 8, fontSize: 10.5, fontWeight: 700, color: "#854d0e", textTransform: "uppercase", letterSpacing: "0.04em" } }, t, extra);
-    return h("div", { style: { gridColumn: "1 / -1", background: on ? "#fefce8" : "#f9fafb", border: `1px solid ${on ? "#fde68a" : "#f1f2f4"}`, borderRadius: 10, padding: "8px 10px" } },
-      h("div", { style: { display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" } },
-        h("span", { style: { fontSize: 12.5, fontWeight: 700, color: "#374151" } }, "\u{1F9FA} Pack list"),
-        h("span", { style: { fontSize: 11.5, color: "#6b7280", flex: 1, minWidth: 180 } }, "Prints on the chef sheet. \u{1F4CC} Every gig is always packed."),
-        h("button", { onClick: () => { setEdit(!edit); setConf(null); setRen({}); }, style: { border: `1px solid ${edit ? "#111827" : "#e5e7eb"}`, background: edit ? "#111827" : "white", color: edit ? "white" : "#374151", borderRadius: 8, padding: "3px 9px", fontSize: 11, cursor: "pointer" } }, edit ? "Done" : "✎ Edit list")),
-      edit && h("div", { style: { fontSize: 10.5, color: "#a16207", marginTop: 4 } }, "✎ rename \xB7 \u{1F4CC} mandatory on every gig (click \u{1F4CD} to make an item mandatory) \xB7 \u{1F5D1} delete. Changes are saved for everyone."),
-      h("div", { style: { marginTop: 7 } }, head("\u{1F4CC} Every gig"), h("div", { style: { display: "flex", flexWrap: "wrap", gap: 5, marginTop: 4 } }, must.map((it) => chip(it, true))), edit && addBox("__must", true)),
-      h("label", { style: { display: "flex", gap: 8, alignItems: "flex-start", fontSize: 12.5, color: "#374151", cursor: "pointer", marginTop: 9 } },
-        h("input", { type: "checkbox", checked: !!on, onChange: (e) => onChange(e.target.checked), style: { marginTop: 2 } }),
-        h("span", null, h("strong", null, "Set-up pack list"), h("span", { style: { color: "#6b7280" } }, on ? ` — pick what this party needs; only ticked items print${list.length ? ` (${list.length} picked)` : ""}.` : " — a buffet, an outdoor set-up or a gourmet theme: hand-pick the table setting, serving, fire, cooking, coffee and drinks."))),
-      (on || edit) && secs.map((title) => {
-        const its = opt.filter((x) => x.s === title);
-        if (!its.length && !edit && PACK_SECTIONS.indexOf(title) === -1) return null;
-        const allOn = its.length && its.every((x) => pick(x.id) !== -1);
-        return h("div", { key: title, style: { marginTop: 8 } },
-          head(title, !edit && on && its.length > 0 && h("button", { onClick: () => onItems(allOn ? list.filter((x) => !its.some((y) => y.id === x.id)) : list.concat(its.filter((x) => pick(x.id) === -1).map((x) => ({ id: x.id, s: x.s, t: x.t, q: packSug(x, g) || "" })))), style: { border: "none", background: "none", color: "#a16207", fontSize: 10.5, cursor: "pointer", textTransform: "none", letterSpacing: 0, padding: 0 } }, allOn ? "clear" : "all")),
-          h("div", { style: { display: "flex", flexWrap: "wrap", gap: 5, marginTop: 4 } }, its.map((it) => chip(it, false))),
-          addBox(title, false));
-      }));
+      if (ex) { if (!ex.m && pick(ex.id) === -1 && !mand) tog(ex); }
+      else packSave({ s: sName, t, m: !!mand, qs: "" }, {}).then(() => { bump(); if (!mand) { const nb = packBank().find((x) => x.t === t && !x.m); if (nb) onItems(list.concat({ id: nb.id, s: nb.s, t: nb.t, q: "" })); } });
+      setAdd({ ...add, [key]: "" }); bump();
+    };
+    const addBox = (key, sName, mand) => h("input", { value: add[key] || "", placeholder: mand ? "+ Add to every gig" : "+ Add your own", onChange: (e) => setAdd({ ...add, [key]: e.target.value }), onKeyDown: (e) => { e.stopPropagation(); if (e.key === "Enter") addTo(key, sName, mand); }, style: { border: "1px dashed #d6d3d1", borderRadius: 20, padding: "5px 11px", fontSize: 12.5, width: 170, background: "transparent" } });
+    const fq = q.trim().toLowerCase(), match = (x) => !fq || x.t.toLowerCase().indexOf(fq) !== -1;
+    const opt = bank.filter((x) => !x.m), mustAll = bank.filter((x) => x.m);
+    const secNames = PACK_SECTIONS.filter((s0) => s0 !== "Kitchen kit" || opt.some((x) => x.s === s0)).concat(opt.map((x) => x.s).filter((s0, i0, a) => PACK_SECTIONS.indexOf(s0) === -1 && a.indexOf(s0) === i0));
+    const pickedN = list.filter((x) => { const b = bank.find((y) => y.id === x.id); return !b || !b.m; }).length;
+    const group = (key, title, its, mand, sName) => {
+      const shown = its.filter(match);
+      if (!shown.length && fq) return null;
+      const n = mand ? its.length : its.filter((x) => pick(x.id) !== -1).length, allOn = its.length && its.every((x) => pick(x.id) !== -1);
+      return h("div", { key, style: { marginBottom: 16 } },
+        h("div", { style: { display: "flex", alignItems: "baseline", gap: 8, marginBottom: 7 } },
+          h("span", { style: { fontSize: 12, fontWeight: 800, color: "#374151", textTransform: "uppercase", letterSpacing: "0.04em" } }, title),
+          h("span", { style: { fontSize: 11.5, color: "#9ca3af" } }, mand ? "always packed, prints on every chef sheet" : n ? `${n} packed` : ""),
+          !mand && !edit && its.length > 0 && h("button", { onClick: () => onItems(allOn ? list.filter((x) => !its.some((y) => y.id === x.id)) : list.concat(its.filter((x) => pick(x.id) === -1).map((x) => ({ id: x.id, s: x.s, t: x.t, q: packSug(x, g) || "" })))), style: { border: "none", background: "none", color: "#6b7280", fontSize: 11.5, cursor: "pointer", textDecoration: "underline", padding: 0 } }, allOn ? "clear" : "pack all")),
+        h("div", { style: { display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center" } }, shown.map(chip), (!fq && (edit || !mand)) && addBox(key, sName, mand)));
+    };
+    const body = [];
+    if (sec === "all" || sec === "must") body.push(group("must", "\u{1F4CC} Every gig", mustAll, true, "Kitchen kit"));
+    secNames.forEach((s0) => { if (sec === "all" || sec === s0) body.push(group(s0, s0, opt.filter((x) => x.s === s0), false, s0)); });
+    if (sec === "picked") body.push(h("div", { key: "pk" }, pickedN ? group("picked", "Packed for this party", opt.filter((x) => pick(x.id) !== -1), false, "Other") : h("div", { style: { color: "#9ca3af", fontSize: 13 } }, "Nothing picked yet.")));
+    const tab = (v, t) => h("button", { key: v, onClick: () => setSec(v), style: { padding: "5px 11px", borderRadius: 20, border: "none", background: sec === v ? "white" : "rgba(255,255,255,.12)", color: sec === v ? "#111827" : "#e5e7eb", fontSize: 12, fontWeight: 700, cursor: "pointer" } }, t);
+    return h("div", { onClick: onClose, style: { position: "fixed", inset: 0, background: "rgba(17,24,39,.55)", zIndex: 200, display: "flex", alignItems: "flex-start", justifyContent: "center", padding: "28px 10px", overflowY: "auto" } },
+      h("div", { onClick: (e) => e.stopPropagation(), style: { background: "#f9fafb", borderRadius: 18, width: "100%", maxWidth: 980, boxShadow: "0 24px 70px rgba(0,0,0,.35)", overflow: "hidden" } },
+        h("div", { style: { background: "linear-gradient(135deg,#111827,#374151)", color: "white", padding: "16px 18px 12px" } },
+          h("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 10 } },
+            h("div", null, h("div", { style: { fontWeight: 800, fontSize: 18 } }, "\u{1F9FA} Pack list"), h("div", { style: { fontSize: 12, color: "#d1d5db", marginTop: 2 } }, `${g ? `${g} guests. ` : ""}\u{1F4CC} Every gig is always packed. Click anything else to pack it for this party; quantities are suggested from the guest count. Prints on the chef sheet.`)),
+            h("div", { style: { display: "flex", gap: 6, flexShrink: 0 } },
+              h("button", { onClick: () => { setEdit(!edit); setConf(null); setRen({}); }, style: { border: "none", background: edit ? "white" : "rgba(255,255,255,.12)", color: edit ? "#111827" : "white", borderRadius: 10, padding: "0 11px", height: 32, fontSize: 12, fontWeight: 700, cursor: "pointer" } }, edit ? "Done editing" : "✎ Edit list"),
+              h("button", { onClick: onClose, style: { border: "none", background: "rgba(255,255,255,.12)", color: "white", borderRadius: 10, width: 32, height: 32, fontSize: 16, cursor: "pointer" } }, "✕"))),
+          h("input", { value: q, onChange: (e) => setQ(e.target.value), placeholder: "Search: plates, blankets, gas…", style: { width: "100%", boxSizing: "border-box", marginTop: 10, border: "none", borderRadius: 10, padding: "9px 12px", fontSize: 14 } }),
+          h("div", { style: { display: "flex", gap: 6, flexWrap: "wrap", marginTop: 10 } }, [tab("all", "All"), tab("must", "\u{1F4CC} Every gig")].concat(secNames.map((s0) => tab(s0, s0)), [tab("picked", `✓ Packed for this party${pickedN ? ` (${pickedN})` : ""}`)]))),
+        edit && h("div", { style: { background: "#fffbeb", color: "#92400e", fontSize: 12, padding: "7px 18px" } }, "✎ rename \xB7 \u{1F4CD} make mandatory on every gig (\u{1F4CC} = mandatory, click to make optional) \xB7 \u{1F5D1} delete. Changes are saved for everyone."),
+        h("div", { style: { padding: "14px 18px", maxHeight: "62vh", overflowY: "auto" } }, body.filter(Boolean).length ? body : h("div", { style: { color: "#9ca3af", fontSize: 13 } }, "Nothing matches.")),
+        h("div", { style: { display: "flex", alignItems: "center", gap: 10, padding: "10px 18px", borderTop: "1px solid #e5e7eb", background: "white" } },
+          h("span", { style: { flex: 1, fontSize: 12, color: "#6b7280" } }, `Chef sheet: \u{1F4CC} ${mustAll.length} every-gig items${pickedN ? ` + ${pickedN} for this party` : ""}.`),
+          h("button", { onClick: onClose, style: { border: "none", background: "#111827", color: "white", borderRadius: 10, padding: "8px 18px", fontSize: 13, fontWeight: 700, cursor: "pointer" } }, "Done"))));
   };
   /* ---------- Standard tab: drinks package + delivery (same rules as Custom Event) ---------- */
   var stdDrinkDefaults = () => ({ drinkUnitsPP: 0, drinkOption: defaultCustom.drinkOption || "A", drinkUnitPrice: defaultCustom.drinkUnitPrice, drinkPriceB: defaultCustom.drinkPriceB, drinkMinPctB: defaultCustom.drinkMinPctB, drinkConsumedPct: defaultCustom.drinkConsumedPct, mixBeer: defaultCustom.mixBeer, mixCider: defaultCustom.mixCider, mixWine: defaultCustom.mixWine, costBeer: defaultCustom.costBeer, costCider: defaultCustom.costCider, costWineBottle: defaultCustom.costWineBottle, sodaUnits: 0, sodaPrice: defaultCustom.sodaPrice, sodaCost: defaultCustom.sodaCost });
