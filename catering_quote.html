@@ -1737,6 +1737,7 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
   var HelpContent = () => React.createElement("div", { style: { fontSize: 13, lineHeight: 1.55, color: "#374151" } }, HELP.map(([h, ps]) => React.createElement("div", { key: h, style: { marginBottom: 14 } }, React.createElement("div", { style: { fontWeight: 700, fontSize: 13.5, color: "#111827", marginBottom: 4 } }, h), ps.map((p, i) => React.createElement("p", { key: i, style: { margin: "0 0 6px" } }, p)))));
   var CHANGELOG = [
     { v: "2026-10-08", title: "Children, pack lists and on-site rules on every chef sheet; a one-off dinner is 6 hours", items: [
+      "Private chef quotes with children show the head count as guests + children (e.g. 7 + 2 children) on the client PDF, the review and the floating bar.",
       "The price panel that opens from the floating bar now closes when you click anywhere outside it (the click still does what you meant).",
       "Private chef payment terms: 30% non-refundable deposit to confirm, 50% due 14 days before the first day (80% up front if booked at short notice), final 20% due 14 days after the stay.",
       "Private chef cancellation policy: more than 14 days before, the 30% deposit is kept; within 14 days, 50% of the quote. Fewer guests can be agreed close to the stay at no charge, unless special preparation for the menu has started. (Catering keeps its stricter 48-hour / 70% rule.)",
@@ -2349,6 +2350,9 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
     const q = Number(x.qty) || 0;
     return { price: q * (Number(x.unit) || 0), cost: q * (Number(x.unitCost) || 0), sub: `${q} \xD7 ${fmt(Number(x.unit) || 0)}` };
   };
+  /* "7 guests + 2 children": guests are the adults, children are counted on top */
+  var chefKidsTxt = (k) => `${k.kidsN} child${k.kidsN === 1 ? "" : "ren"}`;
+  var chefHeads = (k) => k.kidsN ? `${k.adults} guest${k.adults === 1 ? "" : "s"} + ${chefKidsTxt(k)}` : `${k.g} guest${k.g === 1 ? "" : "s"}`;
   var chefCalc = (CH0, costFn0) => {
     const CH = normChef(CH0), costFn = costFn0 || (() => null);
     /* children: "adult" = eat and pay as guests, "menu" = kids' meal (pizza, burgers) at a small price per meal, "free" = very young, no charge */
@@ -2513,7 +2517,7 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
       return `<div style="margin-bottom:6px"><strong>${d.label}</strong>${d.hol ? ` <span style="color:#92400e">(${d.hol})</span>` : ""} \u2014 ${parts || "no meals"}${bfl.length ? `<div style="color:#555;font-size:11.5px;margin-left:10px">Breakfast: ${bfl.map(esc).join(", ")}${d.bfNote ? ` <em>(${esc(d.bfNote)})</em>` : ""}</div>` : ""}${lunchHtml}${d.kids ? `<div style="color:#555;font-size:11.5px;margin-left:10px">Kids: ${esc(d.kids)}${d.kidsNote ? ` <em>(${esc(d.kidsNote)})</em>` : ""}</div>` : ""}${m ? `<div style="color:#555;font-size:11.5px;margin-left:10px">${m.canapes ? `Pre-course: ${cn("canapes", m.canapes)}<br>` : ""}${[["starter", m.c[0]], ["main", m.c[1]], ["dessert", m.c[2]]].filter((x) => x[1]).map((x) => cn(x[0], x[1])).join(" \xB7 ")}</div>` : ""}${d.note ? `<div style="color:#555;font-size:11.5px;margin-left:10px;font-style:italic">${esc(d.note)}</div>` : ""}</div>`;
     }).join("");
     const bfTxt = "";
-    const rows = CH.pdfMode === "single" ? `<tr><td>Private chef — ${k.serviceDays ? `${k.serviceDays} service day${k.serviceDays > 1 ? "s" : ""}` : `${k.oneOff} dinner${k.oneOff > 1 ? "s" : ""}`}, ${k.g} guests, food and service included</td><td style="text-align:right">${fmt(k.total)}</td></tr>` : k.lines.map((l) => `<tr><td>${esc(l.label)}${l.note ? `<span class="ls">${esc(l.note)}</span>` : ""}</td><td style="text-align:right">${l.free ? "No charge" : fmt(l.amt)}</td></tr>`).join("");
+    const rows = CH.pdfMode === "single" ? `<tr><td>Private chef — ${k.serviceDays ? `${k.serviceDays} service day${k.serviceDays > 1 ? "s" : ""}` : `${k.oneOff} dinner${k.oneOff > 1 ? "s" : ""}`}, ${chefHeads(k)}, food and service included</td><td style="text-align:right">${fmt(k.total)}</td></tr>` : k.lines.map((l) => `<tr><td>${esc(l.label)}${l.note ? `<span class="ls">${esc(l.note)}</span>` : ""}</td><td style="text-align:right">${l.free ? "No charge" : fmt(l.amt)}</td></tr>`).join("");
     const pols = chefPolicyState(CH, k).filter((p) => p.on);
     const m = k.modes, row = (a, b, c, st) => `<tr${st || ""}>${td}">${a}</td>${td};color:#6b7280">${b}</td>${td};text-align:right">${c}</td></tr>`;
     const review = reviewMode ? `<h3 style="font-size:13px;margin:20px 0 8px;border-top:1px solid #e5e7eb;padding-top:16px">What this booking earns (internal, ex. VAT)</h3><table style="font-size:12px;border-collapse:collapse;width:100%">
@@ -2534,7 +2538,7 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
     return pdfDoc({
       kind: reviewMode ? "Internal review" : "Private chef quote", id: CH.id, review: !!reviewMode, client: cl,
       eyebrow: "Private chef", title: esc(CH.eventName) || "Your private chef",
-      location: CH.location, facts: [["Dates", first ? pdfRange(first.date, last.date) || "To be confirmed" : "To be confirmed"], ["Guests", String(k.g)], ["Service", svc]],
+      location: CH.location, facts: [["Dates", first ? pdfRange(first.date, last.date) || "To be confirmed" : "To be confirmed"], ["Guests", k.kidsN ? `${k.adults} + ${chefKidsTxt(k)}` : String(k.g)], ["Service", svc]],
       sections: dayHtml ? pdfH2("Your menu") + pdfChefDays(CH, k, false) : "",
       rows: rows + `<tr class="sub"><td>Included VAT 11%</td><td>${fmt(k.vat)}</td></tr>`,
       total: fmt(k.total), pp: `${fmt(Math.round(k.pp))} per guest`,
@@ -2986,7 +2990,7 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
           h("div", { style: { fontSize: 10.5, color: "#92400e", marginTop: 4 } }, `Estimates per guest until the dishes are costed in the price book: ${fmt(CH.foodB)} breakfast, ${fmt(CH.foodD)} dinner.`),
           sec("Chef cost"),
           h("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 } }, rate("Contractor per day", "contractorDay"), rate("Contractor one-off dinner (60% of a day)", "contractorDinner"), rate("Employed kr/hr", "chefHourly"), rate("Salary costs \xD7", "salaryCosts", 0.01), rate("Weekend & holiday \xD7", "weekendMult", 0.05), rate("Hours breakfast", "hrsB"), rate("Hours dinner (service day)", "hrsD"), rate("Hours one-off dinner", "hrsOneOff"), rate("Kids' meal food cost", "kidsCost"), rate("Hours lunch on site", "hrsL")))));
-    const bar = { label: `${CH.eventName || "Private chef"} \xB7 ${k.g} guests`, total: fmt(k.total), pp: fmt(k.pp), margin: "margin " + pct(k.cur.margin), ok };
+    const bar = { label: `${CH.eventName || "Private chef"} \xB7 ${chefHeads(k)}`, total: fmt(k.total), pp: fmt(k.pp), margin: "margin " + pct(k.cur.margin), ok };
     return h(React.Fragment, null,
       menuPick && h(ChefMenuPick, { target: menuPick, cur: (CH.days[menuPick.day] || {})[menuPick.fld] || {}, costOf, onRemove: (mm) => chefMenuHide(mm).then((ok) => { setIdeaTick((t) => t + 1); return ok; }), onPick: (mm) => { useMenu(menuPick.day, menuPick.fld, mm); setMenuPick(null); }, onClose: () => setMenuPick(null) }),
       ideas && h(ChefIdeas, { target: ideas, onPick: pickIdea, onClose: () => setIdeas(null), costOf, onSetCost, onBuild: openBuilder, bfOn: (id) => { const dd = CH.days[ideas.day]; return !!dd && dd.b !== false && chefBfOf(chefDay(dd)).indexOf(id) !== -1; }, boxOn: (id) => { const dd = CH.days[ideas.day]; return !!dd && dd.lunch === "box" && chefBoxOf(dd).indexOf(id) !== -1; } }),
