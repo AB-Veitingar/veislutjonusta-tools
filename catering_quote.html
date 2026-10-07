@@ -531,6 +531,9 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
     const [menuId, setMenuId] = (0, import_react.useState)("bistro");
     const [svcId, setSvcId] = (0, import_react.useState)("pickup");
     const [coop, setCoop] = (0, import_react.useState)(false);
+    const [stdDr, setStdDr] = (0, import_react.useState)(stdDrinkDefaults);
+    const [stdZone, setStdZone] = (0, import_react.useState)("selfoss");
+    const [stdKm, setStdKm] = (0, import_react.useState)(0);
     const [qid, setQid] = (0, import_react.useState)(genId);
     const [stdAdj, setStdAdj] = (0, import_react.useState)(0);
     const [policies, setPolicies] = (0, import_react.useState)([]);
@@ -674,11 +677,12 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
       });
     }, []);
     const menu = MENUS.find((m) => m.id === menuId), svc = SERVICES.find((s) => s.id === svcId), tier = TIERS.find((t) => guests >= t.min);
-    const gDisc = tier.rate, cDisc = coop ? COOP_DISC : 0, ppp = Math.round(menu.price * (1 - gDisc) * (1 - cDisc));
-    const fSub = ppp * guests, bSub = svc.bar ? BAR_PP * guests : 0, vFee = svc.venue ? VENUE_BASE : 0, del = svc.delivery;
+    const gDisc = tier.rate, cDisc = 0, ppp = Math.round(menu.price * (1 - gDisc) * (1 - cDisc));
+    const stdD = stdDrinkCalc(stdDr, guests), stdDelFee = stdDeliveryFee(stdZone, stdKm, guests);
+    const fSub = ppp * guests, bSub = Math.round(stdD.totalEx), vFee = svc.venue ? VENUE_BASE : 0, del = svc.id === "delivery" ? stdDelFee : 0;
     const credit = svc.staff ? Math.round((fSub + bSub) * CREDIT_RATE) : 0;
     const exVAT = fSub + bSub + vFee + del - (svc.venue ? credit : 0);
-    const stdTotal = Math.round((exVAT + Math.round(fSub * VAT_FOOD) + Math.round(bSub * VAT_BAR)) * (1 + stdAdj / 100));
+    const stdTotal = Math.round((exVAT + Math.round(fSub * VAT_FOOD) + Math.round((bSub + del) * VAT_FOOD)) * (1 + stdAdj / 100));
     const savedAmt = menu.price * guests - fSub;
     const upd = (k, v) => setC((p) => ({ ...p, [k]: v })), updN = (k) => (e) => upd(k, parseFloat(e.target.value) || 0);
     const SC = C.salaryCosts || SALARY_COSTS;
@@ -862,7 +866,7 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
       if (tab === "chef") return saveChef();
       setStatus("saving");
       const id = isCustom ? cQid : qid;
-      const q = isCustom ? { id, ts: Date.now(), type: "custom", client: cc, evDate: cDate, notes: cNotes, eventName: C.eventName, guests: C.guests, totalCost, totalInclVAT, ppInclVAT, ppExVAT, custom: C, equipment, customItems, policyIds: policySel } : { id, ts: Date.now(), type: "standard", client, evDate, evType, notes, guests, menuId, svcId, coop, total: stdTotal, menuName: menu.name, policyIds: policySel };
+      const q = isCustom ? { id, ts: Date.now(), type: "custom", client: cc, evDate: cDate, notes: cNotes, eventName: C.eventName, guests: C.guests, totalCost, totalInclVAT, ppInclVAT, ppExVAT, custom: C, equipment, customItems, policyIds: policySel } : { id, ts: Date.now(), type: "standard", client, evDate, evType, notes, guests, menuId, svcId, coop: false, stdDrinks: stdDr, stdZone, stdKm, total: stdTotal, menuName: menu.name, policyIds: policySel };
       try {
         localStorage.setItem(`cq:${id}`, JSON.stringify(q));
         try {
@@ -983,7 +987,10 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
         setGuests(q.guests || 10);
         setMenuId(q.menuId || "bistro");
         setSvcId(q.svcId || "pickup");
-        setCoop(q.coop || false);
+        setCoop(false);
+        setStdDr({ ...stdDrinkDefaults(), ...(q.stdDrinks || {}) });
+        setStdZone(q.stdZone || "selfoss");
+        setStdKm(q.stdKm || 0);
         setQid(q.id);
         setTab("standard");
       }
@@ -1028,6 +1035,9 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
         setMenuId("bistro");
         setSvcId("pickup");
         setCoop(false);
+        setStdDr(stdDrinkDefaults());
+        setStdZone("selfoss");
+        setStdKm(0);
         setQid(genId());
       }
     }
@@ -1099,7 +1109,7 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
         clientLines[clientLines.length - 1].amt += drift;
       }
       const custTotal = custSubtotal + foodVAT + (isBundle2 ? 0 : transCost + transVAT) + passTotal + Math.round(drinks.revIncl) + Math.round(soda.revIncl) + Math.round(rental.revEx) + rentalVAT + (hallFolded ? hallVAT : Math.round(ev.hallAfterGross));
-      const stdVATamt = Math.round(fSub * VAT_FOOD) + Math.round(bSub * VAT_BAR);
+      const stdVATamt = Math.round(fSub * VAT_FOOD) + Math.round((bSub + del) * VAT_FOOD);
       const stdAdjAmt = stdTotal - (exVAT + stdVATamt);
       const listSub = menu ? menu.price * guests : 0;
       let rows = isCustom ? `
@@ -1116,7 +1126,7 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
     ` : `
       <tr><td><strong>${menu.name}</strong> — ${fmt(menu.price)}/pax \xD7 ${guests}</td><td style="text-align:right">${fmt(listSub)}</td></tr>
       ${savedAmt !== 0 ? `<tr><td style="color:#059669">Discount (${Math.round((1 - (1 - gDisc) * (1 - cDisc)) * 100)}%)</td><td style="text-align:right;color:#059669">−${fmt(savedAmt)}</td></tr>` : ""}
-      ${svc.bar ? `<tr><td>Bar Package</td><td style="text-align:right">${fmt(bSub)}</td></tr>` : ""}
+      ${stdD.units > 0 ? `<tr><td>Drinks package \u2014 ${Math.round(stdD.billed)} units \xD7 ${fmt(stdD.price)} incl. VAT (${stdDr.drinkUnitsPP}/guest, ${stdDr.drinkOption === "B" ? `billed on consumption, min. ${stdDr.drinkMinPctB}%` : "pre-paid"}) ex. VAT</td><td style="text-align:right">${fmt(stdD.revEx)}</td></tr>` : ""}${stdD.soda > 0 ? `<tr><td>Soft drinks \u2014 ${stdD.soda} \xD7 ${fmt(stdDr.sodaPrice)} incl. VAT, ex. VAT</td><td style="text-align:right">${fmt(stdD.sodaIncl / 1.11)}</td></tr>` : ""}
       ${svc.venue ? `<tr><td>Venue Rental</td><td style="text-align:right">${fmt(vFee)}</td></tr>` : ""}
       ${del > 0 ? `<tr><td>Delivery</td><td style="text-align:right">${fmt(del)}</td></tr>` : ""}
       ${svc.venue && credit > 0 ? `<tr><td style="color:#059669">Venue Credit</td><td style="text-align:right;color:#059669">−${fmt(credit)}</td></tr>` : ""}
@@ -1178,16 +1188,16 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
       setJsonPaste("");
       setJsonError("");
       setModal("loadJson");
-    }, style: BS("#fff", "#e5e7eb", "#374151") }, "\u{1F4E5} Load JSON"), /* @__PURE__ */ React.createElement("button", { onClick: newQuote, title: "Clears the form and starts a fresh quote \u2014 use this before Save if you don't want to overwrite the current one", style: BS("#fff", "#e5e7eb", "#374151") }, "\u{1F195} New"), /* @__PURE__ */ React.createElement("button", { onClick: () => handleSave(tab === "custom"), disabled: status === "saving", style: { ...BS("#e11d48", "#e11d48", "white"), fontWeight: 700, opacity: status === "saving" ? 0.6 : 1 } }, status === "saving" ? "\u2026" : status === "saved" ? "\u2713 Saved!" : "\u{1F4BE} Save"), /* @__PURE__ */ React.createElement("button", { onClick: () => downloadPDF(tab === "custom", false), disabled: pdfBusy, style: { ...BS("#111827", "#111827", "white"), opacity: pdfBusy ? 0.6 : 1 } }, pdfBusy ? "\u23F3 Generating\u2026" : "\u2B07\uFE0F Client PDF"), /* @__PURE__ */ React.createElement("button", { onClick: () => downloadPDF(tab === "custom", true), disabled: pdfBusy, style: { ...BS("#fef9c3", "#ca8a04", "#92400e"), opacity: pdfBusy ? 0.6 : 1 } }, pdfBusy ? "\u23F3 Generating\u2026" : "\u2B07\uFE0F Review PDF"))), tab === "standard" && /* @__PURE__ */ React.createElement("div", { className: "mg", style: { maxWidth: 1080, margin: "0 auto", padding: 14, display: "grid", gridTemplateColumns: "1fr 310px", gap: 14 } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 10 } }, /* @__PURE__ */ React.createElement("div", { style: { background: "white", borderRadius: 10, border: "1px solid #e5e7eb", padding: "10px 14px", display: "flex", gap: 10, alignItems: "center" } }, /* @__PURE__ */ React.createElement(Tog, { val: coop, set: setCoop }), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 600, fontSize: 12 } }, "\u{1F91D} Co-op Partner Mode"), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, color: "#9ca3af" } }, "12% wholesale discount \u2014 partner use only"))), /* @__PURE__ */ React.createElement(Card, { title: "\u{1F464} Client & Event" }, /* @__PURE__ */ React.createElement("div", { className: "g2c", style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 } }, [["Name", "name", "text"], ["Company", "company", "text"], ["Email", "email", "email"], ["Phone", "phone", "tel"]].map(([l, k, t]) => /* @__PURE__ */ React.createElement(F, { key: k, label: l }, /* @__PURE__ */ React.createElement("input", { type: t, value: client[k], onChange: (e) => setClient({ ...client, [k]: e.target.value }), style: I }))), /* @__PURE__ */ React.createElement(F, { label: "Event Date" }, /* @__PURE__ */ React.createElement("input", { type: "date", value: evDate, onChange: (e) => setEvDate(e.target.value), style: I })), /* @__PURE__ */ React.createElement(F, { label: "Event Type" }, /* @__PURE__ */ React.createElement("select", { value: evType, onChange: (e) => setEvType(e.target.value), style: { ...I, background: "white" } }, EVENT_TYPES.map((t) => /* @__PURE__ */ React.createElement("option", { key: t }, t)))), /* @__PURE__ */ React.createElement(F, { label: "Notes", span2: true }, /* @__PURE__ */ React.createElement("textarea", { rows: 2, value: notes, onChange: (e) => setNotes(e.target.value), style: { ...I, resize: "vertical" } })))), /* @__PURE__ */ React.createElement(Card, { title: "\u{1F465} Guest Count" }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 10, alignItems: "center" } }, /* @__PURE__ */ React.createElement("div", { style: { flex: 1 } }, /* @__PURE__ */ React.createElement("input", { type: "range", min: 1, max: 500, value: guests, onChange: (e) => setGuests(Number(e.target.value)), style: { width: "100%", accentColor: "#e11d48" } }), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", fontSize: 10, color: "#9ca3af" } }, /* @__PURE__ */ React.createElement("span", null, "1"), /* @__PURE__ */ React.createElement("span", null, "100"), /* @__PURE__ */ React.createElement("span", null, "200"), /* @__PURE__ */ React.createElement("span", null, "300"), /* @__PURE__ */ React.createElement("span", null, "400"), /* @__PURE__ */ React.createElement("span", null, "500"))), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 4, alignItems: "center" } }, /* @__PURE__ */ React.createElement(SB, { onClick: () => setGuests(Math.max(1, guests - 1)) }, "\u2212"), /* @__PURE__ */ React.createElement("input", { type: "number", value: guests, onChange: (e) => setGuests(Math.min(500, Math.max(1, Number(e.target.value)))), style: { width: 56, textAlign: "center", border: "1px solid #e5e7eb", borderRadius: 8, padding: 4, fontSize: 17, fontWeight: 700, outline: "none" } }), /* @__PURE__ */ React.createElement(SB, { onClick: () => setGuests(Math.min(500, guests + 1)) }, "+"))), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 6, marginTop: 8, flexWrap: "wrap" } }, [...TIERS].reverse().map((t) => /* @__PURE__ */ React.createElement("span", { key: t.min, style: { fontSize: 11, padding: "2px 10px", borderRadius: 20, fontWeight: 600, background: tier.min === t.min ? "#fee2e2" : "#f3f4f6", color: tier.min === t.min ? "#be123c" : "#9ca3af" } }, t.label, t.rate > 0 ? ` \u2212${Math.round(t.rate * 100)}%` : ""))), (gDisc > 0 || cDisc > 0) && /* @__PURE__ */ React.createElement("div", { style: { marginTop: 8, fontSize: 12, color: "#065f46", background: "#d1fae5", padding: "6px 12px", borderRadius: 8 } }, "\u2713 ", Math.round((1 - (1 - gDisc) * (1 - cDisc)) * 100), "% off \u2192 ", fmt(ppp), "/pax \xB7 Saving: ", /* @__PURE__ */ React.createElement("strong", null, fmt(savedAmt)))), /* @__PURE__ */ React.createElement(Card, { title: "\u{1F37D}\uFE0F Menu" }, menuCats.map((cat) => /* @__PURE__ */ React.createElement("div", { key: cat, style: { marginBottom: 10 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 10, fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 5 } }, cat), MENUS.filter((m) => m.cat === cat).map((m) => {
+    }, style: BS("#fff", "#e5e7eb", "#374151") }, "\u{1F4E5} Load JSON"), /* @__PURE__ */ React.createElement("button", { onClick: newQuote, title: "Clears the form and starts a fresh quote \u2014 use this before Save if you don't want to overwrite the current one", style: BS("#fff", "#e5e7eb", "#374151") }, "\u{1F195} New"), /* @__PURE__ */ React.createElement("button", { onClick: () => handleSave(tab === "custom"), disabled: status === "saving", style: { ...BS("#e11d48", "#e11d48", "white"), fontWeight: 700, opacity: status === "saving" ? 0.6 : 1 } }, status === "saving" ? "\u2026" : status === "saved" ? "\u2713 Saved!" : "\u{1F4BE} Save"), /* @__PURE__ */ React.createElement("button", { onClick: () => downloadPDF(tab === "custom", false), disabled: pdfBusy, style: { ...BS("#111827", "#111827", "white"), opacity: pdfBusy ? 0.6 : 1 } }, pdfBusy ? "\u23F3 Generating\u2026" : "\u2B07\uFE0F Client PDF"), /* @__PURE__ */ React.createElement("button", { onClick: () => downloadPDF(tab === "custom", true), disabled: pdfBusy, style: { ...BS("#fef9c3", "#ca8a04", "#92400e"), opacity: pdfBusy ? 0.6 : 1 } }, pdfBusy ? "\u23F3 Generating\u2026" : "\u2B07\uFE0F Review PDF"))), tab === "standard" && /* @__PURE__ */ React.createElement("div", { className: "mg", style: { maxWidth: 1080, margin: "0 auto", padding: 14, display: "grid", gridTemplateColumns: "1fr 310px", gap: 14 } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 10 } }, false && /* @__PURE__ */ React.createElement("div", { style: { background: "white", borderRadius: 10, border: "1px solid #e5e7eb", padding: "10px 14px", display: "flex", gap: 10, alignItems: "center" } }, /* @__PURE__ */ React.createElement(Tog, { val: coop, set: setCoop }), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 600, fontSize: 12 } }, "\u{1F91D} Co-op Partner Mode"), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, color: "#9ca3af" } }, "12% wholesale discount \u2014 partner use only"))), /* @__PURE__ */ React.createElement(Card, { title: "\u{1F464} Client & Event" }, /* @__PURE__ */ React.createElement("div", { className: "g2c", style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 } }, [["Name", "name", "text"], ["Company", "company", "text"], ["Email", "email", "email"], ["Phone", "phone", "tel"]].map(([l, k, t]) => /* @__PURE__ */ React.createElement(F, { key: k, label: l }, /* @__PURE__ */ React.createElement("input", { type: t, value: client[k], onChange: (e) => setClient({ ...client, [k]: e.target.value }), style: I }))), /* @__PURE__ */ React.createElement(F, { label: "Event Date" }, /* @__PURE__ */ React.createElement("input", { type: "date", value: evDate, onChange: (e) => setEvDate(e.target.value), style: I })), /* @__PURE__ */ React.createElement(F, { label: "Event Type" }, /* @__PURE__ */ React.createElement("select", { value: evType, onChange: (e) => setEvType(e.target.value), style: { ...I, background: "white" } }, EVENT_TYPES.map((t) => /* @__PURE__ */ React.createElement("option", { key: t }, t)))), /* @__PURE__ */ React.createElement(F, { label: "Notes", span2: true }, /* @__PURE__ */ React.createElement("textarea", { rows: 2, value: notes, onChange: (e) => setNotes(e.target.value), style: { ...I, resize: "vertical" } })))), /* @__PURE__ */ React.createElement(Card, { title: "\u{1F465} Guest Count" }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 10, alignItems: "center" } }, /* @__PURE__ */ React.createElement("div", { style: { flex: 1 } }, /* @__PURE__ */ React.createElement("input", { type: "range", min: 1, max: 500, value: guests, onChange: (e) => setGuests(Number(e.target.value)), style: { width: "100%", accentColor: "#e11d48" } }), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", fontSize: 10, color: "#9ca3af" } }, /* @__PURE__ */ React.createElement("span", null, "1"), /* @__PURE__ */ React.createElement("span", null, "100"), /* @__PURE__ */ React.createElement("span", null, "200"), /* @__PURE__ */ React.createElement("span", null, "300"), /* @__PURE__ */ React.createElement("span", null, "400"), /* @__PURE__ */ React.createElement("span", null, "500"))), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 4, alignItems: "center" } }, /* @__PURE__ */ React.createElement(SB, { onClick: () => setGuests(Math.max(1, guests - 1)) }, "\u2212"), /* @__PURE__ */ React.createElement("input", { type: "number", value: guests, onChange: (e) => setGuests(Math.min(500, Math.max(1, Number(e.target.value)))), style: { width: 56, textAlign: "center", border: "1px solid #e5e7eb", borderRadius: 8, padding: 4, fontSize: 17, fontWeight: 700, outline: "none" } }), /* @__PURE__ */ React.createElement(SB, { onClick: () => setGuests(Math.min(500, guests + 1)) }, "+"))), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 6, marginTop: 8, flexWrap: "wrap" } }, [...TIERS].reverse().map((t) => /* @__PURE__ */ React.createElement("span", { key: t.min, style: { fontSize: 11, padding: "2px 10px", borderRadius: 20, fontWeight: 600, background: tier.min === t.min ? "#fee2e2" : "#f3f4f6", color: tier.min === t.min ? "#be123c" : "#9ca3af" } }, t.label, t.rate > 0 ? ` \u2212${Math.round(t.rate * 100)}%` : ""))), (gDisc > 0 || cDisc > 0) && /* @__PURE__ */ React.createElement("div", { style: { marginTop: 8, fontSize: 12, color: "#065f46", background: "#d1fae5", padding: "6px 12px", borderRadius: 8 } }, "\u2713 ", Math.round((1 - (1 - gDisc) * (1 - cDisc)) * 100), "% off \u2192 ", fmt(ppp), "/pax \xB7 Saving: ", /* @__PURE__ */ React.createElement("strong", null, fmt(savedAmt)))), /* @__PURE__ */ React.createElement(Card, { title: "\u{1F37D}\uFE0F Menu" }, menuCats.map((cat) => /* @__PURE__ */ React.createElement("div", { key: cat, style: { marginBottom: 10 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 10, fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 5 } }, cat), MENUS.filter((m) => m.cat === cat).map((m) => {
       const ep = Math.round(m.price * (1 - gDisc) * (1 - cDisc)), sel = menuId === m.id;
       return /* @__PURE__ */ React.createElement("div", { key: m.id, onClick: () => setMenuId(m.id), style: { display: "flex", gap: 8, padding: "8px 10px", borderRadius: 9, border: `1.5px solid ${sel ? "#e11d48" : "#e5e7eb"}`, background: sel ? "#fff1f2" : "white", cursor: "pointer", marginBottom: 4 } }, /* @__PURE__ */ React.createElement(Rad, { sel }), /* @__PURE__ */ React.createElement("div", { style: { flex: 1 } }, /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 600, fontSize: 13 } }, m.name), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, color: "#6b7280" } }, m.desc, m.min > 1 && ` \xB7 Min ${m.min}`)), /* @__PURE__ */ React.createElement("div", { style: { textAlign: "right", flexShrink: 0 } }, /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 700, color: "#be123c", fontSize: 13 } }, fmt(ep)), ep < m.price && /* @__PURE__ */ React.createElement("div", { style: { fontSize: 10, color: "#9ca3af", textDecoration: "line-through" } }, fmt(m.price)), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 10, color: "#9ca3af" } }, "/pax")));
     })))), /* @__PURE__ */ React.createElement(Card, { title: "\u2699\uFE0F Service Level" }, SERVICES.map((s) => {
       const sel = svcId === s.id, perks = [];
       if (s.staff) perks.push("Free delivery \u226430km", `${Math.round(CREDIT_RATE * 100)}% venue credit`);
-      if (s.bar) perks.push("Bar incl.");
+      if (s.bar) perks.push("Bar staff \u2014 drinks package below");
       if (s.venue) perks.push("Venue rental");
-      return /* @__PURE__ */ React.createElement("div", { key: s.id, onClick: () => setSvcId(s.id), style: { display: "flex", gap: 8, padding: "8px 10px", borderRadius: 9, border: `1.5px solid ${sel ? "#e11d48" : "#e5e7eb"}`, background: sel ? "#fff1f2" : "white", cursor: "pointer", marginBottom: 5 } }, /* @__PURE__ */ React.createElement(Rad, { sel }), /* @__PURE__ */ React.createElement("div", { style: { flex: 1 } }, /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 600, fontSize: 13 } }, s.icon, " ", s.name), perks.length > 0 && /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 4, marginTop: 3, flexWrap: "wrap" } }, perks.map((p) => /* @__PURE__ */ React.createElement("span", { key: p, style: { fontSize: 10, background: "#d1fae5", color: "#065f46", padding: "2px 7px", borderRadius: 20, fontWeight: 600 } }, p)))), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, color: "#6b7280", flexShrink: 0 } }, s.delivery > 0 ? `+${fmt(s.delivery)}` : s.staff ? "Staff incl." : "Free"));
-    }))), /* @__PURE__ */ React.createElement("div", { style: { position: "sticky", top: 60, alignSelf: "start", display: "flex", flexDirection: "column", gap: 10 } }, /* @__PURE__ */ React.createElement(SHdr, { qid }), /* @__PURE__ */ React.createElement("div", { style: { background: "white", borderRadius: 10, border: "1px solid #e5e7eb", padding: "12px 14px" } }, /* @__PURE__ */ React.createElement("div", { style: { borderBottom: "1px solid #f3f4f6", paddingBottom: 10, marginBottom: 10, fontSize: 12 } }, /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 600 } }, client.name || "Client"), client.company && /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, color: "#6b7280" } }, client.company), client.email && /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, color: "#6b7280" } }, client.email), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, color: "#9ca3af", marginTop: 2 } }, evDate || "Date TBD", " \xB7 ", evType, " \xB7 ", guests, " pax"), coop && /* @__PURE__ */ React.createElement("span", { style: { fontSize: 10, background: "#fef3c7", color: "#92400e", padding: "2px 7px", borderRadius: 4, fontWeight: 700 } }, "PARTNER QUOTE")), /* @__PURE__ */ React.createElement(LR, { label: menu.name, sub: `${fmt(ppp)}/pax\xD7${guests}`, val: fmt(fSub) }), (gDisc > 0 || cDisc > 0) && /* @__PURE__ */ React.createElement(LR, { label: `Discount (${Math.round((1 - (1 - gDisc) * (1 - cDisc)) * 100)}%)`, val: `\u2212${fmt(savedAmt)}`, green: true }), svc.bar && /* @__PURE__ */ React.createElement(LR, { label: "Bar", val: fmt(bSub) }), svc.venue && /* @__PURE__ */ React.createElement(LR, { label: "Venue Rental", val: fmt(vFee) }), del > 0 && /* @__PURE__ */ React.createElement(LR, { label: "Delivery", val: fmt(del) }), svc.venue && credit > 0 && /* @__PURE__ */ React.createElement(LR, { label: "Venue Credit", val: `\u2212${fmt(credit)}`, green: true }), /* @__PURE__ */ React.createElement("div", { style: { borderTop: "1px solid #f3f4f6", margin: "8px 0 4px" } }), /* @__PURE__ */ React.createElement(LR, { label: "Subtotal ex. VAT", val: fmt(exVAT), muted: true }), /* @__PURE__ */ React.createElement(LR, { label: "VAT", val: fmt(Math.round(fSub * VAT_FOOD) + Math.round(bSub * VAT_BAR)), muted: true }), /* @__PURE__ */ React.createElement("div", { style: { borderTop: "2px solid #111", marginTop: 8, paddingTop: 10 } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", fontWeight: 700, fontSize: 17, marginBottom: 6 } }, /* @__PURE__ */ React.createElement("span", null, "Total (incl. VAT)"), /* @__PURE__ */ React.createElement("span", null, fmt(stdTotal))), /* @__PURE__ */ React.createElement("div", { style: { background: "#fef3c7", borderRadius: 8, padding: "8px 10px", marginBottom: 8 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, color: "#92400e", fontWeight: 700 } }, "Per person"), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 19, fontWeight: 700, color: "#78350f" } }, fmt(Math.round(stdTotal / guests)), " ", /* @__PURE__ */ React.createElement("span", { style: { fontSize: 11, fontWeight: 400 } }, "incl. VAT")), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "#92400e" } }, fmt(ppp), " ex. VAT")), /* @__PURE__ */ React.createElement("div", { style: { background: "white", border: "1px solid #e5e7eb", borderRadius: 8, padding: "10px 12px" } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, fontWeight: 700 } }, "\u{1F3AF} Price adjustment"), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, fontWeight: 700, color: stdAdj > 0 ? "#15803d" : stdAdj < 0 ? "#dc2626" : "#6b7280" } }, stdAdj > 0 ? "+" : "", stdAdj, "%")), /* @__PURE__ */ React.createElement("input", { type: "range", min: -20, max: 30, value: stdAdj, onChange: (e) => setStdAdj(Number(e.target.value)), style: { width: "100%", accentColor: "#e11d48" } }), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", fontSize: 10, color: "#9ca3af" } }, /* @__PURE__ */ React.createElement("span", null, "\u221220%"), /* @__PURE__ */ React.createElement("span", null, "0"), /* @__PURE__ */ React.createElement("span", null, "+30%"))))), /* @__PURE__ */ React.createElement(PC, { policies, selected: policySel, info: polInfo, onReset: resetPolicies, onToggle: togglePolicy, onAdd: addPolicy, onDelete: delPolicy, busy: polBusy }))), tab === "custom" && /* @__PURE__ */ React.createElement("div", { className: "mg", style: { maxWidth: 1080, margin: "0 auto", padding: 14, display: "grid", gridTemplateColumns: "1fr 310px", gap: 14 } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 10 } }, /* @__PURE__ */ React.createElement("div", { style: { background: "white", borderRadius: 10, border: "1px solid #e5e7eb", padding: "12px 14px" } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 } }, "\u26A1 Quick Start \u2014 pick an event type"), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 6, flexWrap: "wrap" } }, PRESETS.map((p) => /* @__PURE__ */ React.createElement(
+      return /* @__PURE__ */ React.createElement("div", { key: s.id, onClick: () => setSvcId(s.id), style: { display: "flex", gap: 8, padding: "8px 10px", borderRadius: 9, border: `1.5px solid ${sel ? "#e11d48" : "#e5e7eb"}`, background: sel ? "#fff1f2" : "white", cursor: "pointer", marginBottom: 5 } }, /* @__PURE__ */ React.createElement(Rad, { sel }), /* @__PURE__ */ React.createElement("div", { style: { flex: 1 } }, /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 600, fontSize: 13 } }, s.icon, " ", s.name), perks.length > 0 && /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 4, marginTop: 3, flexWrap: "wrap" } }, perks.map((p) => /* @__PURE__ */ React.createElement("span", { key: p, style: { fontSize: 10, background: "#d1fae5", color: "#065f46", padding: "2px 7px", borderRadius: 20, fontWeight: 600 } }, p)))), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, color: "#6b7280", flexShrink: 0 } }, s.id === "delivery" ? (stdDelFee > 0 ? `+${fmt(stdDelFee)}` : "Free") : s.staff ? "Staff incl." : "Free"));
+    }), svcId === "delivery" && React.createElement(StdDeliveryBox, { zone: stdZone, km: stdKm, setZone: setStdZone, setKm: setStdKm, guests, fee: stdDelFee })), React.createElement(DrinksCard, { C: stdDr, upd: (k, v) => setStdDr((p) => ({ ...p, [k]: v })), updN: (k) => (e) => setStdDr((p) => ({ ...p, [k]: parseFloat(e.target.value) || 0 })), d: stdD })), /* @__PURE__ */ React.createElement("div", { style: { position: "sticky", top: 60, alignSelf: "start", display: "flex", flexDirection: "column", gap: 10 } }, /* @__PURE__ */ React.createElement(SHdr, { qid }), /* @__PURE__ */ React.createElement("div", { style: { background: "white", borderRadius: 10, border: "1px solid #e5e7eb", padding: "12px 14px" } }, /* @__PURE__ */ React.createElement("div", { style: { borderBottom: "1px solid #f3f4f6", paddingBottom: 10, marginBottom: 10, fontSize: 12 } }, /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 600 } }, client.name || "Client"), client.company && /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, color: "#6b7280" } }, client.company), client.email && /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, color: "#6b7280" } }, client.email), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, color: "#9ca3af", marginTop: 2 } }, evDate || "Date TBD", " \xB7 ", evType, " \xB7 ", guests, " pax"), coop && /* @__PURE__ */ React.createElement("span", { style: { fontSize: 10, background: "#fef3c7", color: "#92400e", padding: "2px 7px", borderRadius: 4, fontWeight: 700 } }, "PARTNER QUOTE")), /* @__PURE__ */ React.createElement(LR, { label: menu.name, sub: `${fmt(ppp)}/pax\xD7${guests}`, val: fmt(fSub) }), (gDisc > 0 || cDisc > 0) && /* @__PURE__ */ React.createElement(LR, { label: `Discount (${Math.round((1 - (1 - gDisc) * (1 - cDisc)) * 100)}%)`, val: `\u2212${fmt(savedAmt)}`, green: true }), stdD.units > 0 && React.createElement(LR, { label: "Drinks package", sub: `${Math.round(stdD.billed)} units \xD7 ${fmt(stdD.price)} incl. VAT`, val: fmt(stdD.revEx) }), stdD.soda > 0 && React.createElement(LR, { label: "Soft drinks", sub: `${stdD.soda} \xD7 ${fmt(stdDr.sodaPrice)} incl. VAT`, val: fmt(stdD.sodaIncl / 1.11) }), svc.venue && /* @__PURE__ */ React.createElement(LR, { label: "Venue Rental", val: fmt(vFee) }), del > 0 && /* @__PURE__ */ React.createElement(LR, { label: stdZone === "selfoss" ? "Delivery (Selfoss, under 30 guests)" : `Delivery (${stdKm * 2} km)`, val: fmt(del) }), svc.venue && credit > 0 && /* @__PURE__ */ React.createElement(LR, { label: "Venue Credit", val: `\u2212${fmt(credit)}`, green: true }), /* @__PURE__ */ React.createElement("div", { style: { borderTop: "1px solid #f3f4f6", margin: "8px 0 4px" } }), /* @__PURE__ */ React.createElement(LR, { label: "Subtotal ex. VAT", val: fmt(exVAT), muted: true }), /* @__PURE__ */ React.createElement(LR, { label: "VAT", val: fmt(Math.round(fSub * VAT_FOOD) + Math.round((bSub + del) * VAT_FOOD)), muted: true }), /* @__PURE__ */ React.createElement("div", { style: { borderTop: "2px solid #111", marginTop: 8, paddingTop: 10 } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", fontWeight: 700, fontSize: 17, marginBottom: 6 } }, /* @__PURE__ */ React.createElement("span", null, "Total (incl. VAT)"), /* @__PURE__ */ React.createElement("span", null, fmt(stdTotal))), /* @__PURE__ */ React.createElement("div", { style: { background: "#fef3c7", borderRadius: 8, padding: "8px 10px", marginBottom: 8 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, color: "#92400e", fontWeight: 700 } }, "Per person"), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 19, fontWeight: 700, color: "#78350f" } }, fmt(Math.round(stdTotal / guests)), " ", /* @__PURE__ */ React.createElement("span", { style: { fontSize: 11, fontWeight: 400 } }, "incl. VAT")), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "#92400e" } }, fmt(ppp), " ex. VAT")), /* @__PURE__ */ React.createElement("div", { style: { background: "white", border: "1px solid #e5e7eb", borderRadius: 8, padding: "10px 12px" } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, fontWeight: 700 } }, "\u{1F3AF} Price adjustment"), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, fontWeight: 700, color: stdAdj > 0 ? "#15803d" : stdAdj < 0 ? "#dc2626" : "#6b7280" } }, stdAdj > 0 ? "+" : "", stdAdj, "%")), /* @__PURE__ */ React.createElement("input", { type: "range", min: -20, max: 30, value: stdAdj, onChange: (e) => setStdAdj(Number(e.target.value)), style: { width: "100%", accentColor: "#e11d48" } }), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", fontSize: 10, color: "#9ca3af" } }, /* @__PURE__ */ React.createElement("span", null, "\u221220%"), /* @__PURE__ */ React.createElement("span", null, "0"), /* @__PURE__ */ React.createElement("span", null, "+30%"))))), /* @__PURE__ */ React.createElement(PC, { policies, selected: policySel, info: polInfo, onReset: resetPolicies, onToggle: togglePolicy, onAdd: addPolicy, onDelete: delPolicy, busy: polBusy }))), tab === "custom" && /* @__PURE__ */ React.createElement("div", { className: "mg", style: { maxWidth: 1080, margin: "0 auto", padding: 14, display: "grid", gridTemplateColumns: "1fr 310px", gap: 14 } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 10 } }, /* @__PURE__ */ React.createElement("div", { style: { background: "white", borderRadius: 10, border: "1px solid #e5e7eb", padding: "12px 14px" } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 8 } }, "\u26A1 Quick Start \u2014 pick an event type"), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 6, flexWrap: "wrap" } }, PRESETS.map((p) => /* @__PURE__ */ React.createElement(
       "button",
       {
         key: p.id,
@@ -1488,6 +1498,13 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
   ];
   var HelpContent = () => React.createElement("div", { style: { fontSize: 13, lineHeight: 1.55, color: "#374151" } }, HELP.map(([h, ps]) => React.createElement("div", { key: h, style: { marginBottom: 14 } }, React.createElement("div", { style: { fontWeight: 700, fontSize: 13.5, color: "#111827", marginBottom: 4 } }, h), ps.map((p, i) => React.createElement("p", { key: i, style: { margin: "0 0 6px" } }, p)))));
   var CHANGELOG = [
+    { v: "2026-10-11", title: "Menu idea bank; Standard tab: drinks package, real delivery, no co-op", items: [
+      "Private chef: \u{1F4A1} Menu ideas on every day opens the idea bank \u2014 every dish we have sent or cooked (with how many jobs), Nordic Luxury's sample menus from Bjarki, our cocktails, wines and pairing ideas. Click to put a dish on the day as a custom menu, add cocktails or wine, or add breakfast and lunch ideas to the day note.",
+      "Private chef: set menus show a pairing idea under the dishes.",
+      "Standard: the co-op partner mode is gone (partners use the partner portal).",
+      "Standard: the flat 25,000 kr delivery fee is gone. Delivery now uses the same rule as Custom Event: in Selfoss free from 30 guests, 2,990 kr under 30; outside Selfoss km \xD7 2 \xD7 vehicle cost per km.",
+      "Standard: the flat 4,500 kr per guest bar is replaced by the drinks package from Custom Event (units per guest, option A pre-paid or B pay for what's drunk, soft drinks), at 11% VAT."
+    ] },
     { v: "2026-10-10", title: "Private chef: per-day extras, menus, explanations; suggestion box", items: [
       "\u{1F4A1} Suggest button on every tab: report a bug, a missing menu or an idea. It lands in the Suggestions tab of the Quotes Log Sheet; status and replies show in the box.",
       "Private chef: extra staff, purchases and extras are now added per day. Wine, drinks and private shopping are charged at cost + 30%; welcome cocktails and host dinners have fixed prices. Staff on a public holiday are \xD71.9.",
@@ -1754,15 +1771,20 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
   ];
   var CHEF_BREAKFAST = "Breakfast buffet: egg course of the day, bacon, sausages, baked beans, sourdough with butter and jams, Icelandic pastry of the day, cheese and ham, skyr, cereals, fresh fruit, juice, coffee and tea.";
   var CHEF_MENUS = [
-    { id: "ingolfsfjall", name: "Ing\xF3lfsfjall", sub: "Icelandic classic", c: ["Creamy seafood or langoustine soup with sea-truffle cream", "Slow-cooked lamb sirloin, potato gratin, pickled red onion, port-wine wild mushroom sauce", "Warm rhubarb & apple crumble with ice cream"] },
-    { id: "olfusa", name: "\xD6lfus\xE1", sub: "reindeer & Arctic char", c: ["Reindeer carpaccio, sorrel pesto, Grettir cheese, toasted nuts", "Pan-fried Arctic char, roasted vegetables, pickled fennel, garlic-caper butter", "Lava cake with pistachio centre, caramel and bilberries"] },
-    { id: "laxa", name: "Lax\xE1", sub: "salmon & steak", c: ["Smoked salmon, tartar sauce, roe and Icelandic flatbread", "Grilled beef steak with b\xE9arnaise", "Lemon skyr posset with crumble and bilberries"] },
-    { id: "haginn", name: "Haginn", sub: "beets & beef tenderloin", c: ["Smoked beets, goat cheese, hazelnut vinaigrette, popped barley", "Beef tenderloin with sunchokes and demi-glace", "Lemon skyr posset with crumble and bilberries"] },
-    { id: "veg", name: "Vegetarian", sub: "", c: ["Smoked beets with goat cheese, or wild mushroom velout\xE9 with truffle cream", "Vegan Wellington, or nut steak with thyme sauce", "Rhubarb & apple crumble, or lava cake"] },
-    { id: "feast", name: "Farewell feast", sub: "family-style", c: ["Icelandic charcuterie and garlic-roasted langoustine tails with garlic bread", "Rack of Icelandic lamb, caramelised potatoes, pickled red cabbage, peas, demi-glace", "Randal\xEDna with skyr ganache and bilberry compote, Icelandic craft liqueurs"] },
-    { id: "celebration", name: "Celebration tasting", sub: "", c: ["Appetiser trio: broccoli tempura, cured wild goose, reindeer carpaccio", "Lamb sirloin with smashed cheese potatoes", "Brownie with skyr ganache and traditional skyr"] }
+    { id: "ingolfsfjall", pair: "Riesling with the soup, Rioja with the lamb, an Icelandic craft liqueur with dessert", name: "Ing\xF3lfsfjall", sub: "Icelandic classic", c: ["Creamy seafood or langoustine soup with sea-truffle cream", "Slow-cooked lamb sirloin, potato gratin, pickled red onion, port-wine wild mushroom sauce", "Warm rhubarb & apple crumble with ice cream"] },
+    { id: "olfusa", pair: "Pinot Noir with the carpaccio, Sauvignon Blanc with the char, tawny port with the lava cake", name: "\xD6lfus\xE1", sub: "reindeer & Arctic char", c: ["Reindeer carpaccio, sorrel pesto, Grettir cheese, toasted nuts", "Pan-fried Arctic char, roasted vegetables, pickled fennel, garlic-caper butter", "Lava cake with pistachio centre, caramel and bilberries"] },
+    { id: "laxa", pair: "Champagne with the salmon, Malbec with the steak, Moscato d'Asti with the posset", name: "Lax\xE1", sub: "salmon & steak", c: ["Smoked salmon, tartar sauce, roe and Icelandic flatbread", "Grilled beef steak with b\xE9arnaise", "Lemon skyr posset with crumble and bilberries"] },
+    { id: "haginn", pair: "Sauvignon Blanc with the beets, Cabernet Sauvignon with the tenderloin, Moscato d'Asti with the posset", name: "Haginn", sub: "beets & beef tenderloin", c: ["Smoked beets, goat cheese, hazelnut vinaigrette, popped barley", "Beef tenderloin with sunchokes and demi-glace", "Lemon skyr posset with crumble and bilberries"] },
+    { id: "veg", pair: "Sauvignon Blanc with the starter, Pinot Noir with the main", name: "Vegetarian", sub: "", c: ["Smoked beets with goat cheese, or wild mushroom velout\xE9 with truffle cream", "Vegan Wellington, or nut steak with thyme sauce", "Rhubarb & apple crumble, or lava cake"] },
+    { id: "feast", pair: "Ruinart Ros\xE9 to start, Rioja with the lamb, Icelandic craft liqueurs with the randal\xEDna", name: "Farewell feast", sub: "family-style", c: ["Icelandic charcuterie and garlic-roasted langoustine tails with garlic bread", "Rack of Icelandic lamb, caramelised potatoes, pickled red cabbage, peas, demi-glace", "Randal\xEDna with skyr ganache and bilberry compote, Icelandic craft liqueurs"] },
+    { id: "celebration", pair: "Riesling with the trio, Rioja with the lamb", name: "Celebration tasting", sub: "", c: ["Appetiser trio: broccoli tempura, cured wild goose, reindeer carpaccio", "Lamb sirloin with smashed cheese potatoes", "Brownie with skyr ganache and traditional skyr"] }
   ];
   var chefMenu = (id) => CHEF_MENUS.find((m) => m.id === id) || null;
+  var chefMenuOf = (d) => {
+    if (!d || !d.d) return null;
+    if (d.menu === "custom") { const cm = d.cm || {}; return { id: "custom", name: "Custom menu", c: [cm.starter || "", cm.main || "", cm.dessert || ""], canapes: cm.canapes || "" }; }
+    return chefMenu(d.menu);
+  };
   var defaultChef = () => ({
     kind: "chef",
     id: genId(),
@@ -1946,9 +1968,9 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
     const CH = normChef(CH0), cl = CH.client || {}, esc = (t) => String(t == null ? "" : t).replace(/&/g, "&amp;").replace(/</g, "&lt;");
     const td = '<td style="padding:4px 8px;border:1px solid #e5e7eb';
     const dayHtml = k.dates.filter((d) => d.active || d.note).map((d) => {
-      const m = d.d ? chefMenu(d.menu) : null;
+      const m = chefMenuOf(d);
       const parts = [d.b && "breakfast", d.lunch === "onsite" && "lunch on site", d.lunch === "box" && "lunch boxes", d.d && (m ? `dinner: ${m.name}` : d.style === "plated" ? "plated dinner" : "shared dinner")].filter(Boolean).join(", ");
-      return `<div style="margin-bottom:6px"><strong>${d.label}</strong>${d.hol ? ` <span style="color:#92400e">(${d.hol})</span>` : ""} — ${parts || "no meals"}${m ? `<div style="color:#555;font-size:11.5px;margin-left:10px">${m.c.map(esc).join(" \xB7 ")}</div>` : ""}${d.note ? `<div style="color:#555;font-size:11.5px;margin-left:10px;font-style:italic">${esc(d.note)}</div>` : ""}</div>`;
+      return `<div style="margin-bottom:6px"><strong>${d.label}</strong>${d.hol ? ` <span style="color:#92400e">(${d.hol})</span>` : ""} — ${parts || "no meals"}${m ? `<div style="color:#555;font-size:11.5px;margin-left:10px">${m.canapes ? `Canap\xE9s: ${esc(m.canapes)}<br>` : ""}${m.c.filter(Boolean).map(esc).join(" \xB7 ")}</div>` : ""}${d.note ? `<div style="color:#555;font-size:11.5px;margin-left:10px;font-style:italic">${esc(d.note)}</div>` : ""}</div>`;
     }).join("");
     const bfTxt = k.B > 0 ? `<div style="font-size:11.5px;color:#555;margin-top:4px">${esc(CHEF_BREAKFAST)}</div>` : "";
     const rows = CH.pdfMode === "single" ? `<tr><td>Private chef — ${k.serviceDays ? `${k.serviceDays} service day${k.serviceDays > 1 ? "s" : ""}` : `${k.oneOff} dinner${k.oneOff > 1 ? "s" : ""}`}, ${k.g} guests, food and service included</td><td style="text-align:right">${fmt(k.total)}</td></tr>` : k.lines.map((l) => `<tr><td>${esc(l.label)}</td><td style="text-align:right">${fmt(l.amt)}</td></tr>`).join("");
@@ -2019,6 +2041,24 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
     const [showRates, setShowRates] = React.useState(false);
     const [showHow, setShowHow] = React.useState(true);
     const [openNote, setOpenNote] = React.useState({});
+    const [ideas, setIdeas] = React.useState(null);
+    const pickIdea = (c, n) => {
+      const i = ideas.day;
+      if (["canape", "starter", "main", "dessert"].indexOf(c) !== -1) {
+        const slot = c === "canape" ? "canapes" : c;
+        setDay(i, (dd) => {
+          const base = dd.menu === "custom" ? dd.cm || {} : (() => { const mm = chefMenu(dd.menu); return mm ? { starter: mm.c[0], main: mm.c[1], dessert: mm.c[2] } : {}; })();
+          return { d: true, menu: "custom", cm: { ...base, [slot]: n } };
+        });
+      } else if (c === "breakfast" || c === "lunch") {
+        setDay(i, (dd) => ({ note: (dd.note ? dd.note + "\n" : "") + n }));
+        setOpenNote((o) => ({ ...o, [i]: true }));
+      } else if (c === "cocktail") {
+        setDay(i, (dd) => ({ extras: dd.extras.concat({ id: chefStaffId(), label: "Welcome cocktail: " + n.split(" \u2014 ")[0], mode: "unit", tag: "drinks", qty: CH.guests, unit: 800, unitCost: 554, cost: 0 }) }));
+      } else if (c === "wine") {
+        setDay(i, (dd) => ({ extras: dd.extras.concat({ id: chefStaffId(), label: "Wine: " + n, mode: "markup", tag: "drinks", qty: 1, unit: 0, unitCost: 0, cost: 0 }) }));
+      }
+    };
     const mode = CH.chefMode, setMode = (v) => up("chefMode", v);
     const ok = k.cur.margin * 100 >= CH.targetPct - 0.05;
     const pill = (on, onClick, label, extra) => h("button", { onClick, style: { padding: "6px 10px", borderRadius: 8, border: `1.5px solid ${on ? "#e11d48" : "#e5e7eb"}`, background: on ? "#fff1f2" : "white", color: on ? "#be123c" : "#6b7280", fontWeight: 600, fontSize: 12, cursor: "pointer", ...(extra || {}) } }, label);
@@ -2059,7 +2099,7 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
           h("span", { style: { marginLeft: "auto", color: "#374151", fontWeight: 600 } }, `${fmt(e.price)}${x.mode === "markup" ? ` (cost + ${CH.markupPct}%)` : ""}`)));
     };
     const dayCard = (d) => {
-      const m = d.d ? chefMenu(d.menu) : null, noteOpen = openNote[d.i] || !!d.note;
+      const m = chefMenuOf(d), noteOpen = openNote[d.i] || !!d.note, cm = d.cm || {};
       return h("div", { key: d.i, style: { border: `1px solid ${d.hol ? "#fcd34d" : "#e5e7eb"}`, background: d.hol ? "#fffbeb" : d.active ? "white" : "#f9fafb", borderRadius: 10, padding: "9px 10px", marginBottom: 8 } },
         h("div", { style: { display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" } },
           h("div", { style: { fontWeight: 700, fontSize: 13, minWidth: 92 } }, d.label),
@@ -2071,15 +2111,17 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
         h("div", { style: { display: "flex", gap: 6, marginTop: 6, flexWrap: "wrap", alignItems: "center" } },
           sel(d.lunch, (e) => setDay(d.i, { lunch: e.target.value }), [["none", "No lunch"], ["box", `Lunch boxes (${fmt(CH.lunchBoxPrice)}/guest)`], ["onsite", `Lunch on site (${fmt(CH.lunchFee)} + food)`]]),
           d.d && sel(d.style, (e) => setDay(d.i, { style: e.target.value }), [["plated", "Plated 3–4 courses"], ["shared", "Casual / shared"]]),
-          d.d && sel(d.menu || "", (e) => setDay(d.i, { menu: e.target.value }), [["", "Dinner menu: to be chosen"]].concat(CHEF_MENUS.map((mm) => [mm.id, `${mm.name}${mm.sub ? ` — ${mm.sub}` : ""}`])))),
-        m && h("div", { style: { fontSize: 11.5, color: "#4b5563", marginTop: 5, lineHeight: 1.45 } }, m.c.map((c, j) => h("div", { key: j }, ["Starter", "Main", "Dessert"][j], ": ", c))),
+          d.d && sel(d.menu || "", (e) => setDay(d.i, { menu: e.target.value }), [["", "Dinner menu: to be chosen"]].concat(CHEF_MENUS.map((mm) => [mm.id, `${mm.name}${mm.sub ? ` \u2014 ${mm.sub}` : ""}`]), [["custom", "\u270F\uFE0F Custom menu (idea bank)"]]))),
+        m && m.id !== "custom" && h("div", { style: { fontSize: 11.5, color: "#4b5563", marginTop: 5, lineHeight: 1.45 } }, m.c.map((c, j) => h("div", { key: j }, ["Starter", "Main", "Dessert"][j], ": ", c)), m.pair && h("div", { style: { color: "#c2410c", marginTop: 2 } }, "\u{1F377} Pairing idea: ", m.pair)),
+        m && m.id === "custom" && h("div", { style: { display: "grid", gridTemplateColumns: "84px 1fr", gap: 4, alignItems: "center", marginTop: 6, fontSize: 11, color: "#6b7280" } }, [["canapes", "Canap\xE9s"], ["starter", "Starter"], ["main", "Main"], ["dessert", "Dessert"]].map(([k2, l2]) => h(React.Fragment, { key: k2 }, h("span", null, l2), h("input", { value: cm[k2] || "", placeholder: k2 === "canapes" ? "optional" : "type or pick from \u{1F4A1} Menu ideas", onChange: (e) => setDay(d.i, (dd) => ({ cm: { ...(dd.cm || {}), [k2]: e.target.value } })), style: small })))),
         d.staff.map((s) => staffRow(d, s)),
         d.extras.map((x) => extraRow(d, x)),
         noteOpen && h("textarea", { rows: 2, value: d.note, placeholder: "Note for this day: times, allergies, plans (shown on the quote)", onChange: (e) => setDay(d.i, { note: e.target.value }), style: { ...small, resize: "vertical", marginTop: 6, width: "100%" } }),
         h("div", { style: { display: "flex", gap: 5, flexWrap: "wrap", marginTop: 7 } },
           chip(() => addWaiter(d.i), "+ Waiter / bartender", `${fmt(CH.staffSingle)} a meal`),
           CHEF_EXTRA_PRESETS.map((pr) => h(React.Fragment, { key: pr.k }, chip(() => addX(d.i, pr), `+ ${pr.label || "Other"}`, pr.hint || (pr.unit ? `${fmt(pr.unit)}${pr.perGuest ? " per guest" : " each"}` : "")))),
-          !noteOpen && chip(() => setOpenNote({ ...openNote, [d.i]: true }), "\u{1F4DD} Note")));
+          !noteOpen && chip(() => setOpenNote({ ...openNote, [d.i]: true }), "\u{1F4DD} Note"),
+          chip(() => setIdeas({ day: d.i, label: d.label }), "\u{1F4A1} Menu ideas", "Dishes, cocktails and pairings from our jobs and the Nordic Luxury samples")));
     };
     const form = h("div", { style: { display: "flex", flexDirection: "column", gap: 10 } },
       h("div", { style: { background: "white", borderRadius: 10, border: "1px solid #e5e7eb", padding: "10px 14px" } },
@@ -2157,12 +2199,143 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
           h("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 } }, rate("Contractor per day", "contractorDay"), rate("Contractor one-off dinner", "contractorDinner"), rate("Employed kr/hr", "chefHourly"), rate("Salary costs \xD7", "salaryCosts", 0.01), rate("Weekend & holiday \xD7", "weekendMult", 0.05), rate("Hours breakfast", "hrsB"), rate("Hours dinner", "hrsD"), rate("Hours lunch on site", "hrsL")))));
     const bar = { label: `${CH.eventName || "Private chef"} \xB7 ${k.g} guests`, total: fmt(k.total), pp: fmt(k.pp), margin: "margin " + pct(k.cur.margin), ok };
     return h(React.Fragment, null,
+      ideas && h(ChefIdeas, { target: ideas, onPick: pickIdea, onClose: () => setIdeas(null) }),
       h("div", { className: "mg", style: { maxWidth: 1080, margin: "0 auto", padding: 14, display: "grid", gridTemplateColumns: "1fr 340px", gap: 14 } }, form, summary),
       !modal && h("div", { className: "sumbk", onClick: () => document.documentElement.classList.remove("sumopen") }),
       !modal && h("div", { className: "mbar", "data-bar": JSON.stringify(bar), onClick: () => { document.documentElement.classList.toggle("sumopen"); }, style: { position: "fixed", left: 0, right: 0, bottom: 0, zIndex: 40, background: "#111827", color: "white", padding: "10px 14px", paddingBottom: "max(10px, env(safe-area-inset-bottom))", alignItems: "center", gap: 12, boxShadow: "0 -4px 12px rgba(0,0,0,.15)", cursor: "pointer" } },
         h("div", { style: { flex: 1, minWidth: 0 } }, h("div", { style: { fontSize: 10.5, color: "#9ca3af", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" } }, bar.label), h("div", { style: { fontSize: 17, fontWeight: 800 } }, bar.total)),
         h("div", { style: { textAlign: "right" } }, h("div", { style: { fontSize: 13, fontWeight: 700 } }, bar.pp, h("span", { style: { fontWeight: 400, fontSize: 10.5, color: "#9ca3af" } }, " /guest")), h("div", { style: { fontSize: 11, color: ok ? "#86efac" : "#fca5a5" } }, bar.margin)),
         h("div", { className: "mbar-ar", style: { fontSize: 18, color: "#9ca3af" } }, "↑")));
+  };
+  /* ---------- Private chef: menu idea bank (from our jobs, Nordic Luxury samples, drinks) ---------- */
+  /* src: o = served or sent by us (n = how many jobs), b = Nordic Luxury / Bjarki sample menu, s = pairing suggestion */
+  var CHEF_IDEA_CATS = [
+    ["canape", "\u{1F962} Canap\xE9s & welcome"], ["starter", "\u{1F963} Starters"], ["main", "\u{1F37D}️ Mains"], ["dessert", "\u{1F370} Desserts"],
+    ["breakfast", "☕ Breakfast"], ["lunch", "\u{1F96A} Lunch & set-ups"], ["cocktail", "\u{1F378} Cocktails & mocktails"], ["wine", "\u{1F377} Wine & pairings"]
+  ];
+  var CHEF_IDEAS = [
+    ["canape", "Ceviche (cod, shrimp or seafood) with chili mayo on flatbread", "o", 4],
+    ["canape", "Bacon-wrapped reindeer p\xE2t\xE9 with cranberry jam", "o", 4],
+    ["canape", "Duck salad with cashews, sesame and sour apple on romaine", "o", 3],
+    ["canape", "Korean BBQ pulled pork in a steamed bun, pickled fennel", "o", 2],
+    ["canape", "Mini burger with aioli and red onion jam", "o", 2],
+    ["canape", "Parma ham & cantaloupe", "o", 2],
+    ["canape", "Chicken thigh skewer in peanut crust", "o", 2],
+    ["canape", "Half-cured Arctic char on flatbread, wood sorrel pesto", "o", 2],
+    ["canape", "Foal tenderloin tataki", "o", 1],
+    ["canape", "Crispy chicken tacos with ponzu mayo", "o", 1],
+    ["canape", "Icelandic charcuterie platter", "o", 1],
+    ["canape", "Cheese, dips & crudit\xE9s platter", "o", 1],
+    ["canape", "Appetiser trio on flatbread: broccoli tempura, cured wild goose, reindeer carpaccio", "o", 1],
+    ["starter", "Reindeer carpaccio, sorrel pesto, Grettir cheese, toasted nuts, rapeseed oil", "o", 15],
+    ["starter", "Creamy seafood or langoustine soup with sea-truffle cream", "o", 11],
+    ["starter", "Smoked and slow-cooked salmon, tartar sauce, roe, Icelandic flatbread", "o", 9],
+    ["starter", "Smoked beets, goat cheese, hazelnut vinaigrette, popped barley", "o", 7],
+    ["starter", "Garlic-roasted langoustine or lobster tails with garlic bread", "o", 4],
+    ["starter", "Broccoli tempura with sesame (vegan)", "o", 3],
+    ["starter", "Wild mushroom velout\xE9 with truffle cream", "o", 2],
+    ["starter", "Cured wild goose breast, bilberries, horseradish mayo", "o", 1],
+    ["starter", "Baked farmer's Brie with chilli honey", "o", 1],
+    ["starter", "Icelandic lamb soup (kj\xF6ts\xFApa) with sweet rye bread", "o", 1],
+    ["starter", "Goat cheese & honey salad", "o", 1],
+    ["starter", "Beetroot & walnut salad", "o", 1],
+    ["starter", "Beef carpaccio with truffle mayo", "b"],
+    ["starter", "Beetroot salad with \xCDsb\xFAi cheese", "b"],
+    ["main", "Pan-fried Arctic char, roasted vegetables, pickled fennel, garlic-caper butter", "o", 15],
+    ["main", "Slow-cooked lamb sirloin or hip, potato gratin, pickled red onion, port-wine mushroom sauce", "o", 14],
+    ["main", "Rack of Icelandic lamb, family-style, caramelised potatoes, pickled red cabbage, peas, demi-glace", "o", 3],
+    ["main", "Grilled foal tenderloin, served rare", "o", 3],
+    ["main", "Grilled beef steak with b\xE9arnaise", "o", 2],
+    ["main", "Beef tenderloin with sunchokes and demi-glace", "o", 1],
+    ["main", "Beef tenderloin with chimichurri, baked potato, fried mushrooms", "o", 1],
+    ["main", "Beef Wellington, gratin, root vegetables, mushroom sauce", "o", 1],
+    ["main", "Lamb cutlets with demi-glace and gratin", "o", 1],
+    ["main", "Braised Reykjagar\xF0ur chicken thighs with lemon thyme (no-seafood swap)", "o", 1],
+    ["main", "Chicken breast with thyme sauce", "o", 1],
+    ["main", "Vegan Wellington (Greenway chunks, sesame sauce)", "o", 4],
+    ["main", "Nut steak (barley, mushrooms, nuts) with thyme sauce", "o", 2],
+    ["main", "Mushroom & barley risotto", "o", 1],
+    ["main", "Salted cod (saltfiskur)", "o", 1],
+    ["main", "Pan-fried Arctic char with mussel sauce", "b"],
+    ["main", "Charred beef tenderloin", "b"],
+    ["main", "Slow-cooked halibut with hollandaise", "b"],
+    ["main", "Lamb ribeye with sm\xE6lki potatoes", "b"],
+    ["dessert", "Warm rhubarb & apple crumble with ice cream (also as pie or cake)", "o", 17],
+    ["dessert", "Lava cake with pistachio centre, caramel and bilberries", "o", 11],
+    ["dessert", "Lemon skyr posset with crumble and bilberries", "o", 5],
+    ["dessert", "Brownie with skyr ganache, brown sugar caramel and local berries", "o", 3],
+    ["dessert", "Traditional skyr with cream, bilberries and sugar", "o", 3],
+    ["dessert", "Randal\xEDna with skyr ganache and bilberry compote", "o", 1],
+    ["dessert", "Gluten-free almond crumble with skyr ganache", "o", 1],
+    ["dessert", "Chocolate cake with skyr ganache, caramel and bilberries", "o", 1],
+    ["dessert", "Dark chocolate mousse with raspberry", "o", 1],
+    ["dessert", "Basque cheesecake", "b"],
+    ["dessert", "Skyramisu", "b"],
+    ["dessert", "Lava cake", "b"],
+    ["breakfast", "Egg course of the day: quiche, omelette or eggs Benedict", "o"],
+    ["breakfast", "Icelandic pastry of the day: waffles with rhubarb jam and cream, p\xF6nnuk\xF6kur, kleinur", "o"],
+    ["breakfast", "Live omelette station", "o"],
+    ["breakfast", "Smoked salmon on the buffet", "o"],
+    ["breakfast", "Avocado toast; skyr with bilberries", "o"],
+    ["breakfast", "Gluten-free: GF bread and cornflakes, roasted tomatoes and mushrooms, oatmeal, smoothie station", "o"],
+    ["breakfast", "Vegetarian: veggie sausages, Icelandic, American and protein pancakes", "o"],
+    ["breakfast", "Skyr station: skyr smoothies and bowls, whipped skyr with caramel on pancakes", "o"],
+    ["lunch", "Lunch box: chicken pesto pasta with Grettir cheese", "o"],
+    ["lunch", "Lunch box: grilled chicken thighs, sweet potato, dates, hazelnuts, bacon", "o"],
+    ["lunch", "Lunch box: salmon poke bowl", "o"],
+    ["lunch", "Lunch box: egg noodles with beef teriyaki", "o"],
+    ["lunch", "Lunch box: Parma ham & burrata ciabatta / roast beef with remoulade on focaccia", "o"],
+    ["lunch", "Lunch box: gravlax with pickled fennel", "o"],
+    ["lunch", "Lunch box (veg): garlic Oumph! sandwich, grilled veggie wrap, quinoa-feta box", "o"],
+    ["lunch", "On-site: homestyle fish or chicken casserole, hearty soup or salad", "o"],
+    ["lunch", "BBQ set-up: chicken thighs with gremolata, sweet potato & pecan salad, broccolini with Feykir cheese, chocolate mousse", "o"],
+    ["cocktail", "The Volcano / Spicy Volcano — rye-bread Eldur vodka, ginger, rhubarb, Birkir snaps, ginger ale", "o"],
+    ["cocktail", "Cherry on the Top", "o"],
+    ["cocktail", "Cr\xE8me Br\xFBl\xE9e Martini", "o"],
+    ["cocktail", "\xD3lafsson gin & tonic", "o"],
+    ["cocktail", "Mocktail: Very Demure, Very Mindful", "o"],
+    ["cocktail", "0% ros\xE9 prosecco", "o"],
+    ["cocktail", "Mulled wine (cave and winter set-ups)", "o"],
+    ["wine", "Ruinart Ros\xE9 Champagne (welcome)", "o"],
+    ["wine", "Saint Clair Sauvignon Blanc", "o"],
+    ["wine", "Cerro A\xF1\xF3n 2019 Rioja", "o"],
+    ["wine", "Riesling with the amuse-bouche", "o"],
+    ["wine", "Icelandic craft liqueurs with dessert", "o"],
+    ["wine", "Wine pairing for 3 courses (served by the chef)", "o"],
+    ["wine", "Reindeer or beef carpaccio → light red (Pinot Noir)", "s"],
+    ["wine", "Seafood or langoustine soup → dry Riesling or lightly oaked Chardonnay", "s"],
+    ["wine", "Smoked salmon → Champagne or Sauvignon Blanc", "s"],
+    ["wine", "Arctic char → Sauvignon Blanc or Riesling", "s"],
+    ["wine", "Lamb sirloin or rack → Rioja (Cerro A\xF1\xF3n) or Syrah", "s"],
+    ["wine", "Beef steak with b\xE9arnaise → Malbec or Cabernet Sauvignon", "s"],
+    ["wine", "Lava cake or brownie → tawny port or an Icelandic craft liqueur", "s"],
+    ["wine", "Rhubarb crumble or skyr posset → late-harvest Riesling or Moscato d'Asti", "s"]
+  ];
+  var CHEF_SRC = { o: ["ours", "#ecfdf5", "#047857"], b: ["Nordic Luxury sample", "#eff6ff", "#1d4ed8"], s: ["pairing idea", "#fff7ed", "#c2410c"] };
+  var ChefIdeas = ({ target, onPick, onClose }) => {
+    const h = React.createElement;
+    const [cat, setCat] = React.useState(target && target.cat || "all");
+    const [q, setQ] = React.useState("");
+    const [flash, setFlash] = React.useState("");
+    const rows = CHEF_IDEAS.filter(([c, n]) => (cat === "all" || c === cat) && (!q || n.toLowerCase().indexOf(q.toLowerCase()) !== -1));
+    const act = { canape: "Use as canap\xE9s", starter: "Use as starter", main: "Use as main", dessert: "Use as dessert", breakfast: "Add to day note", lunch: "Add to day note", cocktail: "Add welcome cocktails", wine: "Add as wine (cost + 30%)" };
+    return h("div", { onClick: onClose, style: { position: "fixed", inset: 0, background: "rgba(0,0,0,.45)", zIndex: 200, display: "flex", alignItems: "flex-start", justifyContent: "center", padding: "40px 12px", overflowY: "auto" } },
+      h("div", { onClick: (e) => e.stopPropagation(), style: { background: "white", borderRadius: 14, width: "100%", maxWidth: 760, padding: 16, boxShadow: "0 20px 60px rgba(0,0,0,.3)" } },
+        h("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 } },
+          h("div", { style: { fontWeight: 800, fontSize: 16 } }, "\u{1F4A1} Menu idea bank", target ? h("span", { style: { fontWeight: 400, fontSize: 12, color: "#6b7280" } }, " — for ", target.label) : null),
+          h("button", { onClick: onClose, style: { border: "none", background: "none", fontSize: 18, cursor: "pointer", color: "#6b7280" } }, "✕")),
+        h("div", { style: { fontSize: 11.5, color: "#6b7280", marginBottom: 8 } }, "Dishes we have sent or cooked (with how many jobs), Nordic Luxury's sample menus from Bjarki, our cocktails and pairing ideas. Click a dish to put it on the day."),
+        h("input", { value: q, onChange: (e) => setQ(e.target.value), placeholder: "Search: lamb, skyr, vegan, char…", style: { ...I, marginBottom: 8 } }),
+        h("div", { style: { display: "flex", gap: 5, flexWrap: "wrap", marginBottom: 10 } }, [["all", "All"]].concat(CHEF_IDEA_CATS).map(([v, t]) => h("button", { key: v, onClick: () => setCat(v), style: { padding: "4px 9px", borderRadius: 20, border: `1px solid ${cat === v ? "#e11d48" : "#e5e7eb"}`, background: cat === v ? "#fff1f2" : "white", color: cat === v ? "#be123c" : "#4b5563", fontSize: 11.5, fontWeight: 600, cursor: "pointer" } }, t))),
+        flash && h("div", { style: { fontSize: 12, color: "#047857", marginBottom: 6 } }, "✓ ", flash),
+        h("div", { style: { maxHeight: "60vh", overflowY: "auto" } }, rows.map(([c, n, src, cnt], i) => {
+          const [tag, bg, fg] = CHEF_SRC[src];
+          return h("div", { key: i, style: { display: "flex", gap: 8, alignItems: "center", padding: "7px 8px", borderBottom: "1px solid #f3f4f6" } },
+            h("div", { style: { flex: 1, fontSize: 12.5, color: "#111827" } }, n,
+              h("span", { style: { marginLeft: 6, fontSize: 10, background: bg, color: fg, borderRadius: 10, padding: "1px 6px", fontWeight: 700, whiteSpace: "nowrap" } }, tag, cnt > 1 ? ` \xD7${cnt}` : ""),
+              cat === "all" && h("span", { style: { marginLeft: 6, fontSize: 10, color: "#9ca3af" } }, (CHEF_IDEA_CATS.find((x) => x[0] === c) || ["", ""])[1])),
+            target && src !== "s" && h("button", { onClick: () => { onPick(c, n); setFlash(`${act[c]}: ${n.slice(0, 50)}`); }, style: { ...BS("#fff", "#e5e7eb", "#374151"), fontSize: 11, whiteSpace: "nowrap" } }, act[c]));
+        }))));
   };
   /* ---------- Staff suggestion box (all tabs) ---------- */
   var SUG_TYPES = [["Bug", "\u{1F41E} Something's wrong"], ["Missing menu", "\u{1F37D}️ Missing menu / dish"], ["Idea", "\u{1F4A1} Idea or change"], ["Other", "\u{1F4AC} Other"]];
@@ -2220,6 +2393,31 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
       queue.map((s) => row(s, true)),
       items === null ? h("div", { style: { fontSize: 12, color: "#9ca3af" } }, "Loading…") : items.length === 0 && !queue.length ? h("div", { style: { fontSize: 12, color: "#9ca3af" } }, "None yet.") : items.slice(0, 40).map((s) => row(s, false)));
   };
+  /* ---------- Standard tab: drinks package + delivery (same rules as Custom Event) ---------- */
+  var stdDrinkDefaults = () => ({ drinkUnitsPP: 0, drinkOption: defaultCustom.drinkOption || "A", drinkUnitPrice: defaultCustom.drinkUnitPrice, drinkPriceB: defaultCustom.drinkPriceB, drinkMinPctB: defaultCustom.drinkMinPctB, drinkConsumedPct: defaultCustom.drinkConsumedPct, mixBeer: defaultCustom.mixBeer, mixCider: defaultCustom.mixCider, mixWine: defaultCustom.mixWine, costBeer: defaultCustom.costBeer, costCider: defaultCustom.costCider, costWineBottle: defaultCustom.costWineBottle, sodaUnits: 0, sodaPrice: defaultCustom.sodaPrice, sodaCost: defaultCustom.sodaCost });
+  var stdDrinkCalc = (S, g) => {
+    const dVat = 1.11;
+    const mixSum = (S.mixBeer || 0) + (S.mixCider || 0) + (S.mixWine || 0);
+    const avgCost = mixSum > 0 ? ((S.mixBeer || 0) * (S.costBeer || 0) + (S.mixCider || 0) * (S.costCider || 0) + (S.mixWine || 0) * (S.costWineBottle || 0) / 5) / mixSum : 0;
+    const units = Math.round((S.drinkUnitsPP || 0) * g);
+    const consumed = units * Math.min(100, Math.max(0, S.drinkConsumedPct || 0)) / 100;
+    const billed = S.drinkOption === "B" ? Math.max(consumed, units * (S.drinkMinPctB || 0) / 100) : units;
+    const price = S.drinkOption === "B" ? S.drinkPriceB : S.drinkUnitPrice;
+    const soda = S.sodaUnits || 0;
+    const revIncl = billed * price + soda * (S.sodaPrice || 0);
+    return { units, consumed, billed, price, avgCost, revIncl: billed * price, revEx: billed * price / dVat, cost: consumed * avgCost, mixSum, mixOff: units > 0 && Math.abs(mixSum - 100) > 0.5, soda, sodaIncl: soda * (S.sodaPrice || 0), totalIncl: revIncl, totalEx: revIncl / dVat };
+  };
+  var stdDeliveryFee = (zone, km, guests) => {
+    if (zone === "selfoss") return guests >= 30 ? 0 : 2990;
+    const vpk = defaultCustom.fuelPricePerL * (defaultCustom.fuelConsumptionPer100 / 100) + KM_TAX + defaultCustom.vehicleOverheadPerKm;
+    return Math.round((defaultCustom.deliveryBaseFee || 0) + (Number(km) || 0) * 2 * vpk);
+  };
+  var StdDeliveryBox = ({ zone, km, setZone, setKm, guests, fee }) => React.createElement("div", { style: { margin: "4px 0 6px 22px", padding: "10px 12px", background: "#f9fafb", borderRadius: 9 } },
+    React.createElement("div", { style: { display: "flex", gap: 6, marginBottom: 8 } }, [["selfoss", "\u{1F4CD} In Selfoss"], ["outside", "\u{1F5FA}️ Outside Selfoss"]].map(([v, l]) => React.createElement("button", { key: v, onClick: () => setZone(v), style: { flex: 1, padding: 7, borderRadius: 8, border: `1.5px solid ${zone === v ? "#e11d48" : "#e5e7eb"}`, background: zone === v ? "#fff1f2" : "white", color: zone === v ? "#be123c" : "#6b7280", fontWeight: 600, fontSize: 12, cursor: "pointer" } }, l))),
+    zone === "selfoss" ? React.createElement("div", { style: { fontSize: 12, color: guests >= 30 ? "#15803d" : "#92400e", fontWeight: 600 } }, guests >= 30 ? `✓ Free delivery — ${guests} guests (30+ in Selfoss)` : "2.990 kr flat — under 30 guests in Selfoss")
+      : React.createElement("div", { style: { display: "flex", gap: 10, alignItems: "flex-end", flexWrap: "wrap" } },
+        React.createElement(F, { label: "Distance one way (km)" }, React.createElement("input", { type: "number", min: 0, value: km, onChange: (e) => setKm(Number(e.target.value) || 0), style: { ...I, width: 120 } })),
+        React.createElement("div", { style: { fontSize: 12, color: "#374151", paddingBottom: 8 } }, `${(Number(km) || 0) * 2} km \xD7 vehicle cost per km (fuel from Settings + k\xEDl\xF3metragjald + wear) = `, React.createElement("strong", null, fmt(fee)), " ex. VAT")));
   var PC = ({ policies, selected, info, onReset, onToggle, onAdd, onDelete, busy }) => {
     const [open, setOpen] = React.useState(false);
     const [icon, setIcon] = React.useState("\u{1F4CB}");
