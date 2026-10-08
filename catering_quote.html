@@ -1734,8 +1734,9 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
     ["Menu builder (food cost)", ["Build the food cost per guest from components: price per kg / litre / piece, portion per guest and yield after trimming and cooking loss.", "House rule for buffets: a guest eats about 500 g, so plan about 600 g in total (all courses, sides and sauces). Over-production % is added on top so the buffet does not run out — it raises both the cost and the buy quantities."]],
     ["Drinks package", ["Option A: pre-paid units at a fixed price (1,250 kr incl. VAT), not refundable once the final number is confirmed. Option B: a higher price per unit drunk, with a minimum share of the ordered units charged. Soft drinks are billed separately per unit."]],
     ["Ingólfshvoll hall", ["Hall rent is 170,000 kr ex. VAT. With food and a drinks package of at least the minimum units per guest, 9% of food & drink spend (incl. VAT) comes off the rent, down to 0 kr. “Fold the hall into the menu price” hides the hall line and adds the rest of the rent to the menu price.", "The landlord takes 12.5% of all event revenue ex. VAT; the calculator counts it as a cost. With drinks, hall or hire on the quote it finds the food price that gives the target margin across the whole event. The price ladder (Ingólfshvoll only) guesses the price per guest at 50 to 1,000 guests — a sanity check, not a quote."]],
-    ["Private chef — days and price", ["A service day is one breakfast and one dinner; an arrival dinner and a departure breakfast together make one day. With no breakfast at all, each dinner is a one-off dinner.",
+    ["Private chef — days and price", ["A service day is one breakfast and one dinner; an arrival dinner and a departure breakfast together make one day. A meal left over without its partner (a last breakfast, or a breakfast on a day they dine elsewhere) is a single-meal day: 60% of the day fee + that meal\u2019s estimated food cost per guest. One-off dinner pricing is only for a gig that is a single dinner and nothing else.",
       "Service day: 110,000 kr + 11,000 kr per guest for guests 1–5 + 9,000 kr per guest above 5. One-off dinner: 95,000 kr + 7,000 kr per guest. The quote shows the chef fee and the per-guest part (food and service) as separate lines: the chef fee stays the same if the guest count drops; the cancellation policy says how much a guest fewer takes off. Lunch is extra: boxes 3,800 kr per guest; on site 60,000 kr + ingredients at cost + 30%. Extra staff are priced like the chef: 66,000 kr a meal (60% of a day), 110,000 kr a full day.",
+      "Travel: within 40 minutes\u2019 drive of Selfoss it is included, and a one-off dinner carries its drive in the fee. Further away, the chef stays overnight between a dinner and the next breakfast: \u{1F3E0} lodging from the client (no charge), \u{1F6CF}\uFE0F we book nearby (at cost, enter the price per night) or \u{1F697} drive back and forth for every meal \u2014 the first return drive is included, every extra one (km + driving time) is charged at cost.",
       "Major holidays (New Year's Day, Good Friday, Easter Sunday, Whit Sunday, 17 June, Christmas Day, and Christmas and New Year's Eve from 12:00) are \xD71.9 on the chef fee — on a one-off dinner on 65,000 kr. Other public holidays are normal price.",
       "Children (on top of the guests): Kids' meal (pizza, burgers) is 1,500 kr per child per dinner, breakfast is the standard buffet; Same as adults counts them as guests; Free is for infants. The quote shows e.g. 7 + 2 children.",
       "What it earns: contractor chef 65,000 kr a day, or 39,000 kr for a one-off dinner (60% of a day); employed chef by the hour (4 h breakfast, 4 h dinner, 6 h for a one-off dinner) \xD7 3,500 \xD7 1.33. All prices include 11% VAT. Rates can be changed under Rates."]],
@@ -1756,6 +1757,10 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
   var CHANGELOG = [
     { v: "2026-10-08", title: "Children, pack lists and on-site rules on every chef sheet; a one-off dinner is 6 hours", items: [
       "\u2139\uFE0F How it works is fixed (it stopped opening after an earlier change) and rewritten for every tab: Standard, Custom Event, Private chef (days and price, children, menus, breakfast and lunch, policies), Travel agency (Dianping), pack list and chef sheet.",
+      "Private chef single-meal days: a breakfast and a dinner make a service day; a meal left over without its partner (the last breakfast, or a breakfast on a day they dine elsewhere) is 60% of the day fee + that meal\u2019s estimated food cost per guest, instead of a full day.",
+      "Private chef travel: included up to 40 minutes\u2019 drive (was 30). Further away, choose where the chef sleeps between a dinner and the next breakfast \u2014 lodging from the client, we book nearby (at cost), or drive back and forth for every meal (extra return drives and driving time at cost). The travel policy on the quote says the same.",
+      "One-off dinner pricing (95,000 kr + 7,000 kr per guest, 6 hours, contractor 60%) is now only for a gig that is a single dinner and nothing else. Several dinners without breakfast, or a single dinner with lunch on site, are counted in service days.",
+      "Holiday line on private chef quotes reads clearer: a one-off dinner shows \u201CMajor public holiday surcharge \u2014 Christmas Eve\u201D; service days show \u201CMajor public holiday \u2014 chef fee \xD71.9 (Christmas Day)\u201D.",
       "Notes you can\u2019t miss: \u{1F4DD} About the group (Private chef) and \u{1F4DD} Notes (Standard, Custom) stand out in yellow and print at the top of the quote and the chef sheet. The day note is now the first thing in each day, on screen, on the quote and on the chef sheet.",
       "\u{1F512} Internal note on every tab: staff only, red, printed at the very top of the chef sheet (and the Private chef review), never on the client quote.",
       "The course count follows the menu: fill in a pre-course and it is a 4-course dinner, only starter and main and it is a 2-course dinner, on the quote lines.",
@@ -2324,6 +2329,8 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
     hrsB: 4,
     hrsD: 4,
     hrsOneOff: 6,
+    partialPct: 60,
+    travelFreeMin: 40,
     kidsN: 0,
     kidsMode: "menu",
     kidsPrice: 1500,
@@ -2383,6 +2390,8 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
   /* courses actually on a dinner: pre-course, starter, main and dessert that are filled in (3 as standard before the menu is set) */
   var chefCourses = (d) => { const m = chefMenuOf(d); if (!m) return 0; return [m.canapes, m.c[0], m.c[1], m.c[2]].filter((x) => String(x || "").trim()).length; };
   var chefDinnerTxt = (dates) => { const ns = dates.filter((d) => d.d).map(chefCourses).map((n) => n || 3); const u = ns.filter((n, i) => ns.indexOf(n) === i); return u.length === 1 ? `${u[0]}-course dinner` : "dinner"; };
+  /* "2 service days + 1 single breakfast", or "1 dinner" */
+  var chefDaysTxt = (k) => k.oneOff ? `${k.oneOff} dinner${k.oneOff === 1 ? "" : "s"}` : [k.full ? `${k.full} service day${k.full === 1 ? "" : "s"}` : "", k.partial ? `${k.partial} single ${k.partKind}${k.partial === 1 ? "" : "s"}` : ""].filter(Boolean).join(" + ") || "no meals yet";
   var chefCalc = (CH0, costFn0) => {
     const CH = normChef(CH0), costFn = costFn0 || (() => null);
     /* children: "adult" = eat and pay as guests, "menu" = kids' meal (pizza, burgers) at a small price per meal, "free" = very young, no charge */
@@ -2395,7 +2404,14 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
       return { ...d, i, date, hol, major: !!(H && H.major), pmHol: !!(H && H.pm), hp: !!(H && H.major) && (!!d.d || (!!d.b && !H.pm)), wkd: dow === 0 || dow === 6, label: dt ? dt.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" }) : `Day ${i + 1}`, lunch, meals, active: meals > 0 || lunch !== "none" || d.staff.length > 0 || d.extras.length > 0 };
     });
     const B = dates.filter((d) => d.b).length, D = dates.filter((d) => d.d).length;
-    const oneOff = B === 0 ? D : 0, serviceDays = B === 0 ? 0 : Math.max(B, D);
+    /* one-off pricing only for a gig that is truly one dinner and nothing else (add-ons on that dinner are fine).
+       Anything with more meals is counted in service days, even a day that has only one meal. */
+    const onsiteL = dates.filter((d) => d.lunch === "onsite").length;
+    const oneOff = B === 0 && D === 1 && onsiteL === 0 ? 1 : 0;
+    /* a breakfast and a dinner make a full service day (an arrival dinner and the next breakfast count together);
+       a meal left over without its partner is a single-meal day: 60% of the day fee + that meal's estimated food cost per guest */
+    const full = oneOff ? 0 : Math.min(B, D), partial = oneOff ? 0 : Math.abs(B - D), partKind = B > D ? "breakfast" : "dinner";
+    const serviceDays = full + partial, partFee = Math.round(CH.dayFee * (Number(CH.partialPct) || 60) / 100);
     const guestFee = Math.min(g, CH.ppBreak) * CH.pp1 + Math.max(0, g - CH.ppBreak) * CH.pp2;
     dates.forEach((d) => {
       d.bfCost = 0; d.bfKnown = 0; d.dCost = 0; d.dKnown = 0;
@@ -2426,24 +2442,33 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
        (Christmas Eve / New Year's Eve breakfast is before 12:00 and stays normal). 23 Dec dinner + 24 Dec + 25 Dec breakfast
        = 2 service days, 2 of 4 meals on the holiday = 1 holiday day. */
     const holMeals = dates.reduce((n, d) => n + (d.b && d.major && !d.pmHol ? 1 : 0) + (d.d && d.major ? 1 : 0), 0);
-    const holService = B === 0 ? 0 : Math.min(serviceDays, Math.round(serviceDays * holMeals / ((B + D) || 1) * 2) / 2);
-    const holDinners = B === 0 ? holMealDates.filter((d) => d.d).length : 0;
+    const holDinners = oneOff ? holMealDates.filter((d) => d.d).length : 0;
+    /* holiday: the chef fee of the meals that fall on a major holiday ×holMult (split evenly over the meals) */
+    const feePerMeal = B + D ? (full * CH.dayFee + partial * partFee) / (B + D) : 0;
+    const holSvcAmt = oneOff ? 0 : holMeals * feePerMeal * (CH.holMult - 1);
     const lines = [];
     /* the chef fee is fixed whatever the guest count; the per-guest part (food and service) is what moves with the guest count */
     const dd = (n) => `${n} day${n > 1 ? "s" : ""}`, gg = `${g} guest${g === 1 ? "" : "s"}`;
-    if (serviceDays > 0) {
-      lines.push({ key: "svc", label: `Chef fee \u2014 ${serviceDays} service day${serviceDays > 1 ? "s" : ""} (breakfast + ${chefDinnerTxt(dates)})`, sub: `${serviceDays} \xD7 ${fmt(CH.dayFee)}, the same whatever the guest count`, amt: serviceDays * CH.dayFee });
-      if (g > 0) lines.push({ key: "svcg", label: `Food and service per guest \u2014 ${gg}${serviceDays > 1 ? ` \xD7 ${dd(serviceDays)}` : ""}`, sub: `${g > CH.ppBreak ? `${CH.ppBreak} \xD7 ${fmt(CH.pp1)} + ${g - CH.ppBreak} \xD7 ${fmt(CH.pp2)}` : `${g} \xD7 ${fmt(CH.pp1)}`} a day`, amt: serviceDays * guestFee });
+    const partDates = dates.filter((d) => partKind === "breakfast" ? d.b && !d.d : d.d && !d.b), partPool = partDates.length ? partDates : dates.filter((d) => partKind === "breakfast" ? d.b : d.d);
+    const partCost = partial ? Math.round(partPool.reduce((a, d) => a + (partKind === "breakfast" ? d.bfCost : d.dCost), 0) / (partPool.length || 1) / 10) * 10 : 0;
+    if (full > 0) {
+      lines.push({ key: "svc", label: `Chef fee \u2014 ${full} service day${full > 1 ? "s" : ""} (breakfast + ${chefDinnerTxt(dates)})`, sub: `${full} \xD7 ${fmt(CH.dayFee)}, the same whatever the guest count`, amt: full * CH.dayFee });
+      if (g > 0) lines.push({ key: "svcg", label: `Food and service per guest \u2014 ${gg}${full > 1 ? ` \xD7 ${dd(full)}` : ""}`, sub: `${g > CH.ppBreak ? `${CH.ppBreak} \xD7 ${fmt(CH.pp1)} + ${g - CH.ppBreak} \xD7 ${fmt(CH.pp2)}` : `${g} \xD7 ${fmt(CH.pp1)}`} a day`, amt: full * guestFee });
+    }
+    if (partial > 0) {
+      const pk = partial > 1 ? `${partial} single ${partKind}s` : `1 single ${partKind}`;
+      lines.push({ key: "part", label: `Chef fee \u2014 ${pk} (${CH.partialPct || 60}% of a service day)`, sub: `${partial} \xD7 ${fmt(partFee)}, the same whatever the guest count`, amt: partial * partFee });
+      if (g > 0) lines.push({ key: "partg", label: `Food per guest \u2014 ${pk}, ${gg}`, sub: `${partial > 1 ? `${partial} \xD7 ` : ""}${g} \xD7 ${fmt(partCost)} (estimated ${partKind} cost)`, amt: partial * g * partCost });
     }
     if (oneOff > 0) {
       lines.push({ key: "din", label: `Chef fee \u2014 ${oneOff} dinner${oneOff > 1 ? "s" : ""} (${chefDinnerTxt(dates).replace("-course dinner", " courses").replace(/^dinner$/, "set menu")})`, sub: `${oneOff} \xD7 ${fmt(CH.dinnerFee)}, the same whatever the guest count`, amt: oneOff * CH.dinnerFee });
       if (g > 0) lines.push({ key: "ding", label: `Food and service per guest \u2014 ${gg}${oneOff > 1 ? ` \xD7 ${oneOff} dinners` : ""}`, sub: `${oneOff > 1 ? `${oneOff} \xD7 ` : ""}${g} \xD7 ${fmt(CH.dinnerPP)}`, amt: oneOff * g * CH.dinnerPP });
     }
-    const holAmt = holService * CH.dayFee * (CH.holMult - 1) + holDinners * CH.holDinnerBase * (CH.holMult - 1);
+    const holAmt = Math.round(holSvcAmt + holDinners * CH.holDinnerBase * (CH.holMult - 1));
     /* fixed part (chef fee + its holiday extra) and what one guest fewer takes off */
-    const chefFixed = serviceDays * CH.dayFee + oneOff * CH.dinnerFee + holAmt;
-    const perGuestSave = serviceDays * (g > CH.ppBreak ? CH.pp2 : CH.pp1) + oneOff * CH.dinnerPP;
-    if (holAmt > 0) lines.push({ key: "hol", label: `Major holiday rate (\xD7${CH.holMult}) \u2014 ${holMealDates.map((d) => d.hol).join(", ")}`, sub: [holService ? `${fmt(CH.dayFee)} \xD7 ${(CH.holMult - 1).toFixed(1)} on ${holService === 0.5 ? "\xBD" : String(holService).replace(".5", "\xBD")} service day${holService > 1 ? "s" : ""}${holService !== holMealDates.length ? ` (${holMeals} of ${B + D} meals fall on the holiday)` : ""}` : "", holDinners ? `${fmt(CH.holDinnerBase)} \xD7 ${(CH.holMult - 1).toFixed(1)} on ${holDinners} dinner${holDinners > 1 ? "s" : ""}` : ""].filter(Boolean).join(" + "), amt: holAmt });
+    const chefFixed = full * CH.dayFee + partial * partFee + oneOff * CH.dinnerFee + holAmt;
+    const perGuestSave = full * (g > CH.ppBreak ? CH.pp2 : CH.pp1) + partial * partCost + oneOff * CH.dinnerPP;
+    if (holAmt > 0) lines.push({ key: "hol", label: !oneOff ? `Major public holiday \u2014 chef fee \xD7${CH.holMult} (${holMealDates.map((d) => d.hol).join(", ")})` : `Major public holiday surcharge \u2014 ${holMealDates.map((d) => d.hol).join(", ")}`, sub: !oneOff ? `${holMeals} of ${B + D} meals on the holiday \xD7 ${fmt(Math.round(feePerMeal))} chef fee per meal \xD7 ${(CH.holMult - 1).toFixed(1)}` : `${fmt(CH.holDinnerBase)} \xD7 ${(CH.holMult - 1).toFixed(1)} on ${holDinners} dinner${holDinners > 1 ? "s" : ""}`, amt: holAmt });
     let lunchFood = 0, boxCost = 0;
     const lunchOnsite = [], staff = [], extras = [];
     dates.forEach((d) => {
@@ -2475,27 +2500,42 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
     if (kidsN && kidsMode === "menu" && kidsMeals) {
       lines.push({ key: "kids", label: `Children's dinners — ${kidsN} child${kidsN === 1 ? "" : "ren"}, ${kidsMeals} dinner${kidsMeals === 1 ? "" : "s"}`, sub: `${kidsN} \xD7 ${kidsMeals} \xD7 ${fmt(CH.kidsPrice)}`, amt: kidsN * kidsMeals * (Number(CH.kidsPrice) || 0) });
     } else if (kidsN && kidsMode === "free") lines.push({ key: "kids", label: `${kidsN} young child${kidsN === 1 ? "" : "ren"} — no charge`, sub: "Very young children are not charged", amt: 0, free: true });
-    const T = CH.travel || {}, km = Number(T.km) || 0, trips = Number(T.trips) || 0;
+    /* travel: within travelFreeMin minutes' drive of Selfoss it is included, and a one-off dinner carries its drive in the fee.
+       Further away the chef stays overnight between a dinner and the next breakfast: lodging from the client (no charge),
+       lodging we book nearby (at cost), or, if neither is possible, driving back and forth for every meal (extra drives at cost). */
+    const T = CH.travel || {}, km = Number(T.km) || 0;
+    const mins = Number(T.mins) > 0 ? Number(T.mins) : km > 0 ? Math.round(km / (defaultCustom.avgSpeedKmh || 80) * 60) : 0;
+    const far = mins > (Number(CH.travelFreeMin) || 40) && !oneOff;
+    const nights = dates.filter((d, i) => d.d && dates[i + 1] && dates[i + 1].b).length;
+    const tMode = T.mode || "client";
+    const ev = [];
+    dates.forEach((d) => { if (d.b) ev.push([d.i, 0]); if (d.lunch === "onsite") ev.push([d.i, 1]); if (d.d) ev.push([d.i, 2]); });
+    const visits = tMode === "drive" || !nights ? ev.length : ev.reduce((n, e, x) => { const p0 = ev[x - 1]; const cont = p0 && (p0[0] === e[0] || (p0[0] === e[0] - 1 && p0[1] === 2 && e[1] === 0)); return n + (cont ? 0 : 1); }, 0);
     const vpk = defaultCustom.fuelPricePerL * (defaultCustom.fuelConsumptionPer100 / 100) + KM_TAX + defaultCustom.vehicleOverheadPerKm;
     const driveH = km > 0 ? round5(km * 2 / (defaultCustom.avgSpeedKmh || 80)) : 0;
     const chefHrCost = CH.chefHourly * SC;
-    const travelCost = trips * (km * 2 * vpk + driveH * chefHrCost);
-    const travelCharge = T.charge ? travelCost * CHEF_VAT : 0;
-    if (travelCharge > 0) lines.push({ key: "trav", label: `Travel — ${trips} return drive${trips > 1 ? "s" : ""}, ${km} km each way`, sub: `${km * 2} km \xD7 ${fmt(vpk)}/km + ${driveH} h drive, at cost`, amt: travelCharge });
+    const perTrip = km * 2 * vpk + driveH * chefHrCost;
+    const trips = far ? visits : 0, extraTrips = Math.max(0, trips - 1);
+    const lodgeNights = far && nights && tMode === "book" ? nights : 0, lodgeCost = lodgeNights * (Number(T.nightCost) || 0);
+    const travelCost = trips * perTrip + lodgeCost;
+    const travelCharge = far && T.charge !== false ? extraTrips * perTrip * CHEF_VAT : 0;
+    if (travelCharge > 0) lines.push({ key: "trav", label: `Travel \u2014 ${extraTrips} extra return drive${extraTrips > 1 ? "s" : ""}, ${km} km each way`, sub: `${km * 2} km \xD7 ${fmt(vpk)}/km + ${driveH} h driving each, at cost (the first drive is included)`, amt: travelCharge });
+    if (lodgeCost > 0) lines.push({ key: "lodge", label: `Chef's overnight stay nearby \u2014 ${lodgeNights} night${lodgeNights > 1 ? "s" : ""}`, sub: `${lodgeNights} \xD7 ${fmt(Number(T.nightCost) || 0)}, at cost`, amt: lodgeCost });
     const total = Math.round(lines.reduce((s, l) => s + l.amt, 0));
     const ex = total / CHEF_VAT, vat = total - ex;
     const foodCost = g * dates.reduce((s2, d) => s2 + d.bfCost + d.dCost, 0) + lunchFood + boxCost + kidsFood;
     const staffCost = staff.reduce((s, x) => s + x.cost, 0);
     const extrasCost = extras.reduce((s, x) => s + x.cost, 0);
-    const hrsDin = B === 0 ? CH.hrsOneOff : CH.hrsD;
+    const hrsDin = oneOff ? CH.hrsOneOff : CH.hrsD;
     const empDates = dates.map((d) => ({ d, h: (d.b ? CH.hrsB : 0) + (d.d ? hrsDin : 0) + (d.lunch === "onsite" ? CH.hrsL : 0) }));
     /* major holidays: chef and staff cost \xD7holMult too (Christmas Eve / New Year's Eve only from 12:00, so breakfast stays normal) */
     const mealMult = (d, meal) => d.major && (!d.pmHol || meal === "d") ? CH.holMult : d.wkd || d.hol ? CH.weekendMult : 1;
     const employed = empDates.reduce((s, x) => s + chefHrCost * ((x.d.b ? CH.hrsB * mealMult(x.d, "b") : 0) + (x.d.d ? hrsDin * mealMult(x.d, "d") : 0) + (x.d.lunch === "onsite" ? CH.hrsL * mealMult(x.d, "l") : 0)), 0);
     const empHours = empDates.reduce((s, x) => s + x.h, 0);
     const lunchShare = CH.contractorDay * (CH.hrsL / ((CH.hrsB + CH.hrsD) || 8));
-    const contractorHol = (holService * CH.contractorDay + holDinners * CH.contractorDinner + lunchOnsite.filter((d) => d.major && !d.pmHol).length * lunchShare) * (CH.holMult - 1);
-    const contractor = serviceDays * CH.contractorDay + oneOff * CH.contractorDinner + lunchOnsite.length * lunchShare + contractorHol;
+    const cPart = CH.contractorDay * (Number(CH.partialPct) || 60) / 100, cPerMeal = B + D ? (full * CH.contractorDay + partial * cPart) / (B + D) : 0;
+    const contractorHol = ((oneOff ? 0 : holMeals * cPerMeal) + holDinners * CH.contractorDinner + lunchOnsite.filter((d) => d.major && !d.pmHol).length * lunchShare) * (CH.holMult - 1);
+    const contractor = full * CH.contractorDay + partial * cPart + oneOff * CH.contractorDinner + lunchOnsite.length * lunchShare + contractorHol;
     const overhead = ex * CH.overheadPct / 100;
     const other = foodCost + staffCost + travelCost + extrasCost + overhead;
     const mk = (chef) => { const profit = ex - other - chef; return { chef, profit, margin: ex > 0 ? profit / ex : 0 }; };
@@ -2505,21 +2545,21 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
     const waiterDay = dates.find((d) => d.d && d.style === "plated" && g >= 9 && !d.staff.some((s) => (Number(s.qty) || 0) > 0));
     if (g >= 14) warn.push({ k: "big", tone: "amber", text: `${g} guests: a private chef is priced for small groups. Quote this as a Custom Event (catering) instead.`, act: "custom" });
     if (waiterDay) warn.push({ k: "waiter", tone: "amber", text: `Plated 3–4 course dinner for ${g} guests on ${waiterDay.label} usually needs a waiter.`, act: "waiter", day: waiterDay.i });
-    if (B === 0 && D > 1) warn.push({ k: "dinners", tone: "blue", text: `No breakfasts, so each of the ${D} dinners is priced as a one-off dinner.` });
-    if (B > D && B > 1) warn.push({ k: "bfonly", tone: "blue", text: "More breakfasts than dinners: each breakfast counts as a service day." });
+    if (partial > 0) warn.push({ k: "partial", tone: "blue", text: `${partial} single ${partKind}${partial > 1 ? "s" : ""} without ${partKind === "breakfast" ? "a dinner" : "a breakfast"} to pair with: ${CH.partialPct || 60}% of a service day each + the estimated ${partKind} cost per guest.${B === 0 ? " One-off dinner pricing is only for a gig that is a single dinner." : ""}` });
+    if (far && nights && tMode === "book" && !(Number(T.nightCost) > 0)) warn.push({ k: "lodge", tone: "amber", text: "We book the chef's overnight stay: enter the price per night in Travel." });
     if (!CH.start) warn.push({ k: "nodate", tone: "gray", text: "Set a start date to check weekends and public holidays." });
     if (total > 0 && cur.margin < 0) warn.push({ k: "loss", tone: "red", text: `This quote loses money with a ${CH.chefMode === "employed" ? "employed" : "contractor"} chef. Check the costs in the panel.` });
-    return { CH, g, chefFixed, perGuestSave, adults, kidsN, kidsMode, kidsMeals, kidsFood, dates, B, D, serviceDays, oneOff, guestFee, holMealDates, lines, total, ex, vat, pp: g ? total / g : 0, foodCost, staffCost, travelCost, extrasCost, overhead, modes, cur, staff, extras, km, trips, driveH, vpk, empHours, warn, chefHrCost, contractorHol, lunchOnsite };
+    return { CH, g, full, partial, partKind, partFee, partCost, mins, far, nights, tMode, visits, extraTrips, lodgeNights, lodgeCost, perTrip, chefFixed, perGuestSave, adults, kidsN, kidsMode, kidsMeals, kidsFood, dates, B, D, serviceDays, oneOff, guestFee, holMealDates, lines, total, ex, vat, pp: g ? total / g : 0, foodCost, staffCost, travelCost, extrasCost, overhead, modes, cur, staff, extras, km, trips, driveH, vpk, empHours, warn, chefHrCost, contractorHol, lunchOnsite };
   };
   var CHEF_POLICIES = [
-    { id: "cp_service", icon: "\u{1F468}‍\u{1F373}", text: "A service day is breakfast and dinner for the group (three courses as standard), with menu planning, shopping, cooking, service and clean-up. Travel within 30 minutes of Selfoss is included." },
+    { id: "cp_service", icon: "\u{1F468}‍\u{1F373}", text: "A service day is breakfast and dinner for the group (three courses as standard), with menu planning, shopping, cooking, service and clean-up. Travel within 40 minutes\u2019 drive of Selfoss is included." },
     { id: "cp_markup", icon: "\u{1F6D2}", text: "Anything we buy for you beyond the menu — wine and drinks, private shopping, special requests — is charged at cost + 30%. Amounts in this quote are estimates; the invoice uses the actual receipts." },
     { id: "cp_drinks", icon: "\u{1F377}", text: "Drinks are charged at their price incl. VAT + 30% and served by the chef; a welcome cocktail is about 800 kr per guest. A full bar needs a bartender (66,000 kr per evening)." },
     { id: "cp_lunch", icon: "\u{1F96A}", text: "Lunch is not part of a service day. Lunch on site is 60,000 kr plus ingredients; lunch boxes are 3,800 kr per guest." },
     { id: "cp_staff", icon: "\u{1F935}", text: "Extra staff are priced like the chef: 110,000 kr for a full day, 66,000 kr for a single meal, \xD71.9 on major holidays." },
     { id: "cp_host", icon: "\u{1F37D}️", text: "Meals for lodge staff or hosts are 2,900 kr per person." },
     { id: "cp_holiday", icon: "\u{1F384}", text: "Major holidays are charged at 1.9\xD7 the chef fee: New Year's Day, Good Friday, Easter Sunday, Whit Sunday, 17 June and Christmas Day, and Christmas Eve and New Year's Eve from 12:00. Other public holidays are normal price." },
-    { id: "cp_travel", icon: "\u{1F697}", text: "When breakfast is before 08:30 and the location is more than 30 minutes from Selfoss, the chef needs accommodation nearby; it is invoiced at cost." },
+    { id: "cp_travel", icon: "\u{1F697}", text: "Further than 40 minutes\u2019 drive from Selfoss, the chef stays overnight close by between dinner and the next morning\u2019s breakfast: in lodging you provide (often the case in villas), or we book something nearby, invoiced at cost. If an overnight stay is not possible, the extra return drives and the driving time are invoiced at cost." },
     { id: "cp_diet", icon: "\u{1F95C}", text: "Please send allergies and dietary needs at least 7 days before the first day." },
     { id: "cp_kitchen", icon: "\u{1F525}", text: "We assume the standard kitchen equipment is on location: oven and stove, pots and pans, basic utensils, plates and cutlery. Please let us know if anything is missing and we will sort it out." },
     { id: "cp_froken", icon: "\u{1F377}", text: "Fr\xF6ken Selfoss, our restaurant in Selfoss, welcomes the group for dinner with a 15% group discount on the set menu." },
@@ -2535,7 +2575,7 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
       case "cp_staff": return k.staff.some((s) => s.n > 0) ? [true, "extra staff in this quote"] : [false, "no extra staff"];
       case "cp_host": return has("host") ? [true, "host / staff dinner in this quote"] : [false, "no host dinners"];
       case "cp_holiday": return k.holMealDates.length ? [true, "a major holiday in this quote"] : [false, "no major holiday"];
-      case "cp_travel": return k.km > 0 && k.B > 0 ? [true, "breakfast outside Selfoss"] : [false, "no breakfast away from Selfoss"];
+      case "cp_travel": return k.far ? [true, `${k.mins} min drive from Selfoss`] : [false, k.mins ? `${k.mins} min drive: included` : "no distance set"];
       case "cp_diet": return k.dates.length > 1 ? [true, "multi-day stay"] : [false, "single day: ask at booking"];
       case "cp_froken": return [true, "the promise, on by default"];
       default: return [true, "always"];
@@ -2560,7 +2600,7 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
       return `<div style="margin-bottom:6px"><strong>${d.label}</strong>${d.hol ? ` <span style="color:#92400e">(${d.hol})</span>` : ""} \u2014 ${parts || "no meals"}${bfl.length ? `<div style="color:#555;font-size:11.5px;margin-left:10px">Breakfast: ${bfl.map(esc).join(", ")}${d.bfNote ? ` <em>(${esc(d.bfNote)})</em>` : ""}</div>` : ""}${lunchHtml}${d.kids ? `<div style="color:#555;font-size:11.5px;margin-left:10px">Kids: ${esc(d.kids)}${d.kidsNote ? ` <em>(${esc(d.kidsNote)})</em>` : ""}</div>` : ""}${m ? `<div style="color:#555;font-size:11.5px;margin-left:10px">${m.canapes ? `Pre-course: ${cn("canapes", m.canapes)}<br>` : ""}${[["starter", m.c[0]], ["main", m.c[1]], ["dessert", m.c[2]]].filter((x) => x[1]).map((x) => cn(x[0], x[1])).join(" \xB7 ")}</div>` : ""}${d.note ? `<div style="color:#555;font-size:11.5px;margin-left:10px;font-style:italic">${esc(d.note)}</div>` : ""}</div>`;
     }).join("");
     const bfTxt = "";
-    const rows = CH.pdfMode === "single" ? `<tr><td>Private chef — ${k.serviceDays ? `${k.serviceDays} service day${k.serviceDays > 1 ? "s" : ""}` : `${k.oneOff} dinner${k.oneOff > 1 ? "s" : ""}`}, ${chefHeads(k)}, food and service included</td><td style="text-align:right">${fmt(k.total)}</td></tr>` + (k.chefFixed > 0 ? `<tr class="sub"><td>Of which the chef fee, the same whatever the guest count</td><td>${fmt(k.chefFixed)}</td></tr>` : "") : k.lines.map((l) => `<tr><td>${esc(l.label)}${l.note ? `<span class="ls">${esc(l.note)}</span>` : ""}</td><td style="text-align:right">${l.free ? "No charge" : fmt(l.amt)}</td></tr>`).join("");
+    const rows = CH.pdfMode === "single" ? `<tr><td>Private chef — ${chefDaysTxt(k)}, ${chefHeads(k)}, food and service included</td><td style="text-align:right">${fmt(k.total)}</td></tr>` + (k.chefFixed > 0 ? `<tr class="sub"><td>Of which the chef fee, the same whatever the guest count</td><td>${fmt(k.chefFixed)}</td></tr>` : "") : k.lines.map((l) => `<tr><td>${esc(l.label)}${l.note ? `<span class="ls">${esc(l.note)}</span>` : ""}</td><td style="text-align:right">${l.free ? "No charge" : fmt(l.amt)}</td></tr>`).join("");
     const pols = chefPolicyState(CH, k).filter((p) => p.on);
     const m = k.modes, row = (a, b, c, st) => `<tr${st || ""}>${td}">${a}</td>${td};color:#6b7280">${b}</td>${td};text-align:right">${c}</td></tr>`;
     const review = reviewMode ? `<h3 style="font-size:13px;margin:20px 0 8px;border-top:1px solid #e5e7eb;padding-top:16px">What this booking earns (internal, ex. VAT)</h3><table style="font-size:12px;border-collapse:collapse;width:100%">
@@ -2568,15 +2608,15 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
       ${row("Food at cost", `${k.g} guests \xD7 ${k.dates.filter((d) => d.b || d.d).map((d) => `${d.label}: ${d.b ? `breakfast ${fmt(d.bfCost)}` : ""}${d.b && d.d ? " + " : ""}${d.d ? `dinner ${fmt(d.dCost)}` : ""}`).join("; ")}${k.dates.some((d) => d.lunch !== "none") ? " + lunches" : ""}`, "\u2212" + fmt(k.foodCost))}
       ${k.staff.filter((s) => s.n > 0).map((s) => row(`${esc(s.role)} — ${s.day.label}`, `${s.n} \xD7 ${s.hours}h \xD7 ${fmt(s.base)} \xD7${CH.salaryCosts}${chefCostMult(s.day, CH) !== 1 ? ` \xD7${chefCostMult(s.day, CH)}` : ""}`, "−" + fmt(s.cost))).join("")}
       ${k.extras.filter((x) => x.cost > 0).map((x) => row(`${esc(x.label || "Extra")} — ${x.day.label}`, x.mode === "markup" ? "purchase ex. VAT" : `${x.qty} \xD7 ${fmt(x.unitCost || 0)}`, "−" + fmt(x.cost))).join("")}
-      ${k.travelCost > 0 ? row("Travel", `${k.trips} \xD7 (${k.km * 2} km \xD7 ${fmt(k.vpk)} + ${k.driveH} h \xD7 ${fmt(k.chefHrCost)})`, "−" + fmt(k.travelCost)) : ""}
+      ${k.travelCost > 0 ? row("Travel", `${k.visits} return drive${k.visits === 1 ? "" : "s"} \xD7 ${fmt(Math.round(k.perTrip))}${k.lodgeCost ? ` + ${k.lodgeNights} night${k.lodgeNights === 1 ? "" : "s"} lodging` : ""}`, "\u2212" + fmt(k.travelCost)) : ""}
       ${row(`Overhead ${CH.overheadPct}%`, "rent, power, subscriptions, insurance, accounting", "−" + fmt(k.overhead))}
-      ${row("Chef — contractor", `${k.serviceDays} \xD7 ${fmt(CH.contractorDay)}${k.oneOff ? ` + ${k.oneOff} \xD7 ${fmt(CH.contractorDinner)}` : ""}${k.lunchOnsite.length ? " + on-site lunches" : ""}${k.contractorHol ? ` + major holiday \xD7${CH.holMult} (${fmt(k.contractorHol)})` : ""}`, "−" + fmt(m.contractor.chef), CH.chefMode === "contractor" ? ' style="background:#f0fdf4"' : "")}
+      ${row("Chef — contractor", `${k.full} \xD7 ${fmt(CH.contractorDay)}${k.partial ? ` + ${k.partial} \xD7 ${CH.partialPct || 60}%` : ""}${k.oneOff ? ` + ${k.oneOff} \xD7 ${fmt(CH.contractorDinner)}` : ""}${k.lunchOnsite.length ? " + on-site lunches" : ""}${k.contractorHol ? ` + major holiday \xD7${CH.holMult} (${fmt(k.contractorHol)})` : ""}`, "−" + fmt(m.contractor.chef), CH.chefMode === "contractor" ? ' style="background:#f0fdf4"' : "")}
       ${row("Chef — employed", `${k.empHours} h \xD7 ${fmt(k.chefHrCost)} (\xD7${CH.weekendMult} weekends and holidays, \xD7${CH.holMult} major holidays)`, "−" + fmt(m.employed.chef), CH.chefMode === "employed" ? ' style="background:#f0fdf4"' : "")}
       ${row("<strong>Profit, contractor chef</strong>", "", `<strong>${fmt(m.contractor.profit)} (${pct(m.contractor.margin)})</strong>`, ' style="background:#ecfdf5"')}
       ${row("<strong>Profit, employed chef</strong>", "", `<strong>${fmt(m.employed.profit)} (${pct(m.employed.margin)})</strong>`, ' style="background:#ecfdf5"')}
       </table>${k.warn.filter((w) => w.k !== "nodate").length ? `<div style="font-size:11px;color:#92400e;margin-top:8px">${k.warn.filter((w) => w.k !== "nodate").map((w) => "⚠️ " + esc(w.text)).join("<br>")}</div>` : ""}` : "";
     const ds = k.dates.filter((d) => d.active), first = ds[0], last = ds[ds.length - 1];
-    const svc = k.serviceDays ? `${k.serviceDays} service day${k.serviceDays > 1 ? "s" : ""}` : `${k.oneOff} dinner${k.oneOff === 1 ? "" : "s"}`;
+    const svc = chefDaysTxt(k);
     const pay1 = Math.round(k.total * 0.3), pay2 = Math.round(k.total * 0.5);
     return pdfDoc({
       kind: reviewMode ? "Internal review" : "Private chef quote", id: CH.id, review: !!reviewMode, client: cl,
@@ -2593,7 +2633,7 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
   /* the live "how it's worked out" steps, with this quote's numbers */
   var chefExplain = (CH, k) => {
     const g = k.g, s = [];
-    s.push(["Service days", `${k.B} breakfast${k.B === 1 ? "" : "s"} and ${k.D} dinner${k.D === 1 ? "" : "s"} → ${k.serviceDays ? `${k.serviceDays} service day${k.serviceDays === 1 ? "" : "s"}` : k.oneOff ? `${k.oneOff} one-off dinner${k.oneOff === 1 ? "" : "s"}` : "nothing yet"}. We count like Nordic Luxury: a service day is one breakfast and one dinner, and an arrival dinner plus a departure breakfast together make one day, so the larger of the two counts wins. There are no partial days. With no breakfast at all, each dinner is a one-off dinner.`]);
+    s.push(["Service days", `${k.B} breakfast${k.B === 1 ? "" : "s"} and ${k.D} dinner${k.D === 1 ? "" : "s"} \u2192 ${chefDaysTxt(k)}. A breakfast and a dinner make a service day (an arrival dinner and the next morning\u2019s breakfast count together, the Nordic Luxury way). A meal left over without its partner is a single-meal day: ${CH.partialPct || 60}% of the day fee + that meal\u2019s estimated food cost per guest. One-off dinner pricing is only for a gig that is a single dinner and nothing else.`]);
     s.push(["Price of a service day", `${fmt(CH.dayFee)} chef fee + ${Math.min(g, CH.ppBreak)} \xD7 ${fmt(CH.pp1)}${g > CH.ppBreak ? ` + ${g - CH.ppBreak} \xD7 ${fmt(CH.pp2)}` : ""} for the guests = ${fmt(CH.dayFee + k.guestFee)}. The per-guest part pays for the food; guests above ${CH.ppBreak} are cheaper because the chef's work barely grows.`]);
     s.push(["One-off dinner", `${fmt(CH.dinnerFee)} + ${g} \xD7 ${fmt(CH.dinnerPP)} = ${fmt(CH.dinnerFee + g * CH.dinnerPP)}. The drive is included in the fee.`]);
     s.push(["Holidays", `Only the major holidays (st\xF3rh\xE1t\xED\xF0ardagar: New Year's Day, Good Friday, Easter Sunday, Whit Sunday, 17 June, Christmas Day, and Christmas Eve and New Year's Eve from 12:00) are \xD7${CH.holMult} on the chef fee (not the per-guest part; on a one-off dinner the extra is worked out on ${fmt(CH.holDinnerBase)}, not the full one-off fee), on extra staff and on the on-site lunch fee. On a stay the rate follows the meals: a service day is a breakfast plus a dinner, so arriving for dinner on 23 Dec and leaving after breakfast on 25 Dec is 2 service days with 2 of 4 meals on the holiday (Christmas Eve dinner, Christmas Day breakfast) = 1 day at the holiday rate. Our costs follow: on a major holiday the contractor chef, the employed chef and every staff member cost \xD7${CH.holMult} too, so the margin stays honest. Other public holidays such as Easter Monday or 26 December are normal price; the employed chef and staff still cost \xD7${CH.weekendMult} on them, as on weekends.`]);
@@ -2977,13 +3017,21 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
             (CH.kidsMode || "menu") === "menu" && h("span", { style: { display: "inline-flex", gap: 4, alignItems: "center", fontSize: 12, color: "#6b7280" } }, h("input", { type: "number", min: 0, step: 100, value: CH.kidsPrice, onChange: upN("kidsPrice"), style: { ...I, width: 80, textAlign: "right" } }), "kr per child per dinner")),
             Number(CH.kidsN) > 0 && h("div", { style: { fontSize: 11, color: "#6b7280", marginTop: 4 } }, (CH.kidsMode || "menu") === "adult" ? `Counted and charged as guests: ${k.g} guests in total.` : (CH.kidsMode || "menu") === "free" ? "Not charged and not costed. They still count on the chef sheet." : `Simple food (pizza, burgers) at dinner while the adults have the full menu: ${k.kidsMeals} dinner${k.kidsMeals === 1 ? "" : "s"} \xD7 ${fmt(CH.kidsPrice)}, food cost ${fmt(CH.kidsCost)} each. Breakfast: the standard buffet, not charged (its food is costed). Infants: choose Free. Set what they eat with \u{1F9D2} Kids' meal on a day.`))),
         k.dates.map(dayCard),
-        h("div", { style: { fontSize: 11.5, color: "#6b7280", marginTop: 2, lineHeight: 1.5 } }, k.serviceDays > 0 ? `${k.B} breakfast${k.B === 1 ? "" : "s"} + ${k.D} dinner${k.D === 1 ? "" : "s"} = ${k.serviceDays} service day${k.serviceDays === 1 ? "" : "s"}, counted the Nordic way (see How it's worked out).` : k.oneOff > 0 ? `${k.oneOff} one-off dinner${k.oneOff === 1 ? "" : "s"}.` : "Tick at least one meal.", " Client wants a cheaper menu? ", h("a", { href: "#", onClick: (e) => { e.preventDefault(); onToStandard(); }, style: { color: "#be123c", fontWeight: 600 } }, "Quote a drop-off catering menu instead"), ".")),
+        h("div", { style: { fontSize: 11.5, color: "#6b7280", marginTop: 2, lineHeight: 1.5 } }, k.B + k.D > 0 ? `${k.B} breakfast${k.B === 1 ? "" : "s"} + ${k.D} dinner${k.D === 1 ? "" : "s"} = ${chefDaysTxt(k)}${k.oneOff ? " (one-off)" : ", counted the Nordic way (see How it\u2019s worked out)"}.` : "Tick at least one meal.", " Client wants a cheaper menu? ", h("a", { href: "#", onClick: (e) => { e.preventDefault(); onToStandard(); }, style: { color: "#be123c", fontWeight: 600 } }, "Quote a drop-off catering menu instead"), ".")),
       h(Card, { title: "\u{1F697} Travel" },
-        h("div", { style: { fontSize: 11.5, color: "#6b7280", marginBottom: 8 } }, "Within 30 minutes of Selfoss travel is included, and a one-off dinner carries it in the fee. Use this for multi-day stays further away without accommodation for the chef (daily return drives)."),
+        h("div", { style: { fontSize: 11.5, color: "#6b7280", marginBottom: 8 } }, `Within ${CH.travelFreeMin || 40} minutes\u2019 drive of Selfoss travel is included, and a one-off dinner carries its drive in the fee. Further away, the chef stays overnight between a dinner and the next breakfast.`),
         h("div", { className: "g2c", style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 } },
           h(F, { label: "Distance one way (km)" }, num((CH.travel || {}).km, (e) => upT({ km: Number(e.target.value) || 0 }))),
-          h(F, { label: "Return drives" }, h("div", { style: { display: "flex", gap: 4 } }, num((CH.travel || {}).trips, (e) => upT({ trips: Number(e.target.value) || 0 })), k.km > 0 && h("button", { onClick: () => upT({ trips: k.dates.filter((d) => d.meals > 0).length }), title: "One return drive per day with meals", style: { ...BS("#fff", "#e5e7eb", "#374151"), whiteSpace: "nowrap" } }, "↻ ", k.dates.filter((d) => d.meals > 0).length, "/day")))),
-        k.km > 0 && h("div", { style: { fontSize: 11.5, color: "#374151", marginTop: 8, display: "flex", justifyContent: "space-between", gap: 8, flexWrap: "wrap", alignItems: "center" } }, h("span", null, `${k.km * 2} km \xD7 ${fmt(k.vpk)}/km + ${k.driveH} h drive \xD7 ${fmt(k.chefHrCost)} = ${fmt(k.km * 2 * k.vpk + k.driveH * k.chefHrCost)} per drive`), h("label", { style: { display: "flex", gap: 6, alignItems: "center", fontSize: 12 } }, h(Tog, { val: !!(CH.travel || {}).charge, set: (v) => upT({ charge: v }) }), "Charge to client at cost"))),
+          h(F, { label: "Drive one way (minutes)" }, h("input", { type: "number", min: 0, value: (CH.travel || {}).mins || "", placeholder: k.mins ? `about ${k.mins} (from the km)` : "minutes", onChange: (e) => upT({ mins: Number(e.target.value) || 0 }), style: I }))),
+        k.mins > 0 && !k.far && h("div", { style: { fontSize: 12, color: "#047857", marginTop: 8 } }, k.oneOff ? "\u2713 One-off dinner: the drive is in the fee." : `\u2713 ${k.mins} min: within ${CH.travelFreeMin || 40} minutes, travel is included.`),
+        k.far && h("div", { style: { marginTop: 8, display: "flex", flexDirection: "column", gap: 6 } },
+          k.nights > 0 ? h("div", null, h("div", { style: { fontSize: 12, fontWeight: 700, color: "#374151", marginBottom: 4 } }, `${k.mins} min away \u2014 ${k.nights} night${k.nights === 1 ? "" : "s"} between a dinner and the next breakfast. Where does the chef sleep?`),
+            seg(k.tMode, [["client", "\u{1F3E0} Lodging from the client"], ["book", "\u{1F6CF}\uFE0F We book nearby (at cost)"], ["drive", "\u{1F697} Drive back and forth"]], (v) => upT({ mode: v })))
+            : h("div", { style: { fontSize: 12, color: "#374151" } }, `${k.mins} min away \u2014 no dinner followed by a breakfast, so the chef drives to each visit.`),
+          k.nights > 0 && k.tMode === "book" && h("div", { style: { display: "flex", gap: 6, alignItems: "center", fontSize: 12, color: "#374151", flexWrap: "wrap" } }, h("input", { type: "number", min: 0, step: 1000, value: (CH.travel || {}).nightCost || "", placeholder: "kr per night", onChange: (e) => upT({ nightCost: Number(e.target.value) || 0 }), style: { ...I, width: 120 } }), `kr per night \xD7 ${k.nights} = ${fmt(k.lodgeCost)}, charged at cost`),
+          h("div", { style: { fontSize: 11.5, color: "#374151", display: "flex", justifyContent: "space-between", gap: 8, flexWrap: "wrap", alignItems: "center" } },
+            h("span", null, `${k.visits} return drive${k.visits === 1 ? "" : "s"}${k.tMode === "drive" || !k.nights ? " (one per meal)" : ""}: the first is included${k.extraTrips ? `, ${k.extraTrips} extra \xD7 ${fmt(Math.round(k.perTrip))} (${k.km * 2} km + ${k.driveH} h driving) at cost` : ""}.`),
+            k.extraTrips > 0 && h("label", { style: { display: "flex", gap: 6, alignItems: "center", fontSize: 12 } }, h(Tog, { val: (CH.travel || {}).charge !== false, set: (v) => upT({ charge: v }) }), "Charge to client")))),
       h(Card, { title: "\u{1F4D6} Policies on the quote" },
         h("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 11, color: "#6b7280", marginBottom: 6 } }, h("span", null, "Ticked automatically from the quote; click to change."), Object.keys(CH.polOv || {}).length > 0 && h("button", { onClick: () => up("polOv", {}), style: BS("#fff", "#e5e7eb", "#374151") }, "↺ Auto")),
         pols.map((p) => h("div", { key: p.id, onClick: () => up("polOv", { ...(CH.polOv || {}), [p.id]: !p.on }), style: { display: "flex", gap: 8, padding: "6px 8px", borderRadius: 8, cursor: "pointer", background: p.on ? "#f0fdf4" : "white", border: `1px solid ${p.on ? "#bbf7d0" : "#f3f4f6"}`, marginBottom: 4, opacity: p.on ? 1 : 0.6 } }, h("input", { type: "checkbox", checked: p.on, readOnly: true, style: { marginTop: 2 } }), h("div", { style: { flex: 1, fontSize: 12, color: "#374151" } }, p.icon, " ", p.text, h("div", { style: { fontSize: 10, color: p.manual ? "#be123c" : "#9ca3af", marginTop: 2 } }, p.manual ? (p.on ? "added by hand" : "removed by hand") : p.why))))),
@@ -3009,7 +3057,7 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
         k.extrasCost > 0 && h(LR, { label: "Purchases & extras", val: "−" + fmt(k.extrasCost) }),
         k.travelCost > 0 && h(LR, { label: "Travel", val: "−" + fmt(k.travelCost) }),
         h(LR, { label: `Overhead ${CH.overheadPct}%`, val: "−" + fmt(k.overhead) }),
-        h("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, marginTop: 8 } }, [["contractor", "Contractor chef", k.oneOff && !k.serviceDays ? `${fmt(CH.contractorDinner)}/dinner` : k.oneOff ? `${fmt(CH.contractorDay)}/day, ${fmt(CH.contractorDinner)}/dinner` : `${fmt(CH.contractorDay)}/day`], ["employed", "Employed chef", `${k.empHours} h \xD7 ${fmt(CH.chefHourly)}`]].map(([id, t, sub]) => {
+        h("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, marginTop: 8 } }, [["contractor", "Contractor chef", k.oneOff ? `${fmt(CH.contractorDinner)}/dinner` : k.partial ? `${fmt(CH.contractorDay)}/day, ${CH.partialPct || 60}% single meal` : `${fmt(CH.contractorDay)}/day`], ["employed", "Employed chef", `${k.empHours} h \xD7 ${fmt(CH.chefHourly)}`]].map(([id, t, sub]) => {
           const m = k.modes[id], on = mode === id, good = m.margin * 100 >= CH.targetPct - 0.05;
           return h("div", { key: id, onClick: () => setMode(id), style: { cursor: "pointer", borderRadius: 9, padding: "8px 9px", border: `1.5px solid ${on ? "#e11d48" : "#e5e7eb"}`, background: on ? "#fff1f2" : "white" } }, h("div", { style: { fontSize: 11.5, fontWeight: 700 } }, t), h("div", { style: { fontSize: 10, color: "#9ca3af" } }, sub, " \xB7 −", fmt(m.chef)), h("div", { style: { fontSize: 15, fontWeight: 800, color: good ? "#059669" : m.profit < 0 ? "#dc2626" : "#d97706", marginTop: 3 } }, pct(m.margin)), h("div", { style: { fontSize: 11, color: "#374151" } }, fmt(m.profit)));
         })),
@@ -3033,7 +3081,7 @@ var require=function(m){if(m==='react')return window.React;throw new Error('Cann
           h("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 } }, rate("Breakfast", "foodB"), rate("3-course dinner", "foodD"), rate("Lunch on site", "foodL"), rate("Lunch box", "lunchBoxCost")),
           h("div", { style: { fontSize: 10.5, color: "#92400e", marginTop: 4 } }, `Estimates per guest until the dishes are costed in the price book: ${fmt(CH.foodB)} breakfast, ${fmt(CH.foodD)} dinner.`),
           sec("Chef cost"),
-          h("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 } }, rate("Contractor per day", "contractorDay"), rate("Contractor one-off dinner (60% of a day)", "contractorDinner"), rate("Employed kr/hr", "chefHourly"), rate("Salary costs \xD7", "salaryCosts", 0.01), rate("Weekend & holiday \xD7", "weekendMult", 0.05), rate("Hours breakfast", "hrsB"), rate("Hours dinner (service day)", "hrsD"), rate("Hours one-off dinner", "hrsOneOff"), rate("Kids' meal food cost", "kidsCost"), rate("Hours lunch on site", "hrsL")))));
+          h("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 } }, rate("Contractor per day", "contractorDay"), rate("Contractor one-off dinner (60% of a day)", "contractorDinner"), rate("Employed kr/hr", "chefHourly"), rate("Salary costs \xD7", "salaryCosts", 0.01), rate("Weekend & holiday \xD7", "weekendMult", 0.05), rate("Hours breakfast", "hrsB"), rate("Hours dinner (service day)", "hrsD"), rate("Hours one-off dinner", "hrsOneOff"), rate("Single-meal day, % of day fee", "partialPct"), rate("Travel included up to (minutes)", "travelFreeMin"), rate("Kids' meal food cost", "kidsCost"), rate("Hours lunch on site", "hrsL")))));
     const bar = { label: `${CH.eventName || "Private chef"} \xB7 ${chefHeads(k)}`, total: fmt(k.total), pp: fmt(k.pp), margin: "margin " + pct(k.cur.margin), ok };
     return h(React.Fragment, null,
       menuPick && h(ChefMenuPick, { target: menuPick, cur: (CH.days[menuPick.day] || {})[menuPick.fld] || {}, costOf, onRemove: (mm) => chefMenuHide(mm).then((ok) => { setIdeaTick((t) => t + 1); return ok; }), onPick: (mm) => { useMenu(menuPick.day, menuPick.fld, mm); setMenuPick(null); }, onClose: () => setMenuPick(null) }),
@@ -3645,7 +3693,7 @@ ${meals.map(([lb, html]) => `<div class="meal"><div class="ml">${lb}</div><div c
     const contact = [cl.name, cl.phone, cl.email].filter(Boolean).map(pdfEsc).join(" \xB7 ");
     const brief = `${CH.internal ? `<div class="inote"><div class="lbl">\u{1F512} Internal \u2014 staff only</div>${pdfEsc(CH.internal).replace(/\n/g, "<br>")}</div>` : ""}${CH.notes ? `<div class="gnote"><div class="lbl">\u{1F4DD} About the group</div>${pdfEsc(CH.notes).replace(/\n/g, "<br>")}</div>` : ""}${pdfH2("Brief")}<div class="box">
 ${contact ? `<div class="meal" style="margin-top:0"><div class="ml">Client</div><div class="mc txt">${contact}${cl.company ? ` \xB7 ${pdfEsc(cl.company)}` : ""}</div></div>` : ""}
-${k.km ? `<div class="meal"><div class="ml">Travel</div><div class="mc txt">${k.km} km each way \xB7 ${k.trips} return drive${k.trips === 1 ? "" : "s"}</div></div>` : ""}
+${k.mins ? `<div class="meal"><div class="ml">Travel</div><div class="mc txt">${k.km ? `${k.km} km, ` : ""}about ${k.mins} min each way${k.far ? (k.nights ? ` \xB7 overnight: ${k.tMode === "client" ? "lodging from the client" : k.tMode === "book" ? `we book nearby (${k.lodgeNights} night${k.lodgeNights === 1 ? "" : "s"})` : "none \u2014 drive back and forth for every meal"}` : "") + ` \xB7 ${k.visits} return drive${k.visits === 1 ? "" : "s"}` : " \xB7 included"}</div></div>` : ""}
 ${alts.length ? `<div class="meal"><div class="ml">Dietary</div><div class="mc txt">${alts.join("<br>")}</div></div>` : ""}
 ${k.kidsN || kids.length ? `<div class="meal"><div class="ml">Children</div><div class="mc txt">${k.kidsN ? `${k.kidsN} child${k.kidsN === 1 ? "" : "ren"} \xB7 ${k.kidsMode === "adult" ? "eat the same as the adults" : k.kidsMode === "free" ? "very young" : "kids\u2019 meal (see the day)"}${kids.length ? "<br>" : ""}` : ""}${kids.join("<br>")}</div></div>` : ""}
 ${warns.length ? `<div class="meal"><div class="ml">Equipment</div><div class="mc warn">${warns.map(pdfEsc).join("<br>")}</div></div>` : ""}
